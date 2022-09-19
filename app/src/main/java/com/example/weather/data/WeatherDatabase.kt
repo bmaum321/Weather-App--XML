@@ -10,7 +10,7 @@ import com.example.weather.model.Weather
  * Room database to persist data for the Weather app.
  * This database stores a [Weather] entity
  */
-// TODO: create the database with all necessary annotations, methods, variables, etc.
+// create the database with all necessary annotations, methods, variables, etc.
 @Database(entities = [Weather::class], version = 1, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
 

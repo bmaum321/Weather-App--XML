@@ -2,9 +2,10 @@ package com.example.weather.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.weather.domain.WeatherDomainObject
 
 /**
- * Weather entity to be stored in the forageable_database.
+ * Weather entity to be stored in the weather_database.
  */
 // TODO: annotate this data class as an entity with a parameter for the table name
 @Entity(tableName = "weather_database")
@@ -16,3 +17,15 @@ data class Weather(
     val address: String,
     val notes: String?
 )
+
+/**
+ * Map weather objects to domain entities
+ */
+fun List<Weather>.asDomainModel(): List<WeatherDomainObject> {
+    return map {
+        WeatherDomainObject(
+            location = it.name,
+            current = it.address
+        )
+    }
+}

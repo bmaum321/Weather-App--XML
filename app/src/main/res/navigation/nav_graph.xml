@@ -34,7 +34,7 @@
     <fragment
         android:id="@+id/addWeatherLocationFragment"
         android:name="com.example.weather.ui.AddWeatherLocationFragment"
-        android:label="Forage"
+        android:label="Edit Location"
         tools:layout="@layout/fragment_add_weather_location">
         <action
             android:id="@+id/action_addWeatherFragment_to_WeatherListFragment"

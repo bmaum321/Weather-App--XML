@@ -40,7 +40,7 @@ class WeatherLocationDetailFragment : Fragment() {
 
     private val navigationArgs: WeatherLocationDetailFragmentArgs by navArgs()
 
-    // TODO: Refactor the creation of the view model to take an instance of
+    // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
     private val viewModel: WeatherViewModel by activityViewModels{
@@ -66,8 +66,8 @@ class WeatherLocationDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val id = navigationArgs.id
-        // TODO: Observe a forageable that is retrieved by id, set the forageable variable,
-        //  and call the bind forageable method
+        // Observe a weather object that is retrieved by id, set the weather variable,
+        //  and call the bind weather method
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
             weather = selectedWeather
             bindWeather()

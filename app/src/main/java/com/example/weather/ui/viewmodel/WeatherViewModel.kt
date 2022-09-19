@@ -20,7 +20,7 @@ private val weatherDao: WeatherDao
     // TODO: create a property to set to a list of all weather objects from the DAO
     val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
 
-    // TODO : create method that takes id: Long as a parameter and retrieve a Weather from the
+    // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<Weather> {
         return weatherDao.getWeatherById(id).asLiveData()
@@ -37,7 +37,7 @@ private val weatherDao: WeatherDao
             notes = notes
         )
 
-    // TODO: launch a coroutine and call the DAO method to add a Weather to the database within it
+    // Launch a coroutine and call the DAO method to add a Weather to the database within it
         viewModelScope.launch {
             weatherDao.insert(weather)
         }
@@ -57,14 +57,14 @@ private val weatherDao: WeatherDao
             notes = notes
         )
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to update a weather object to the database here
+            // call the DAO method to update a weather object to the database here
             weatherDao.insert(weather)
         }
     }
 
     fun deleteWeather(weather: Weather) {
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to delete a weather object to the database here
+            // call the DAO method to delete a weather object to the database here
             weatherDao.delete(weather)
         }
     }
@@ -74,7 +74,7 @@ private val weatherDao: WeatherDao
     }
 }
 
-// TODO: create a view model factory that takes a WeatherDao as a property and
+// create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 class WeatherViewModelFactory(private val weatherDao: WeatherDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

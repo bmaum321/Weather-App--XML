@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.ListItemForageableBinding
+import com.example.weather.databinding.ListItemWeatherBinding
 import com.example.weather.model.Weather
 
 /**
@@ -16,7 +16,7 @@ class WeatherListAdapter(
 ) : ListAdapter<Weather, WeatherListAdapter.WeatherViewHolder>(DiffCallback) {
 
     class WeatherViewHolder(
-        private var binding: ListItemForageableBinding
+        private var binding: ListItemWeatherBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(weather: Weather) {
@@ -39,7 +39,7 @@ class WeatherListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return WeatherViewHolder(
-            ListItemForageableBinding.inflate(layoutInflater, parent, false)
+            ListItemWeatherBinding.inflate(layoutInflater, parent, false)
         )
     }
 
