@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.weather.ui
 
 import android.os.Bundle
@@ -39,7 +24,7 @@ class WeatherListFragment : Fragment() {
     // TODO: Refactor the creation of the view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: WeatherViewModel by activityViewModels{
+    private val viewModel: WeatherViewModel by activityViewModels {
         WeatherViewModelFactory(
             (activity?.application as BaseApplication).database.weatherDao()
         )
@@ -69,7 +54,7 @@ class WeatherListFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        // TODO: observe the list of forageables from the view model and submit it the adapter
+        // TODO: observe the list of weather objects from the view model and submit it the adapter
         viewModel.allWeather.observe(this.viewLifecycleOwner) { weathers ->
             weathers.let {
                 adapter.submitList(it)

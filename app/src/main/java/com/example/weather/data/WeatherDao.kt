@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WeatherDao {
 
-    // TODO: implement a method to retrieve all Forageables from the database
+    // TODO: implement a method to retrieve all Weather objects from the database
     @Query("SELECT * FROM weather_database ORDER BY name ASC")
     fun getWeatherLocations(): Flow<List<Weather>>
 
     // TODO: implement a method to retrieve a Weather from the database by id
     @Query("SELECT * FROM weather_database WHERE id = :id")
-    fun getWeatherById(id: Long) : Flow<Weather>
+    fun getWeatherById(id: Long): Flow<Weather>
 
     // TODO: implement a method to insert a Weather into the database
     //  (use OnConflictStrategy.REPLACE)

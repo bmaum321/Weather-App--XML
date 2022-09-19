@@ -106,7 +106,6 @@ class AddWeatherLocationFragment : Fragment() {
             viewModel.addWeather(
                 binding.nameInput.text.toString(),
                 binding.locationAddressInput.text.toString(),
-                binding.inSeasonCheckbox.isChecked,
                 binding.notesInput.text.toString()
             )
             findNavController().navigate(
@@ -121,7 +120,6 @@ class AddWeatherLocationFragment : Fragment() {
                 id = navigationArgs.id,
                 name = binding.nameInput.text.toString(),
                 address = binding.locationAddressInput.text.toString(),
-                inSeason = binding.inSeasonCheckbox.isChecked,
                 notes = binding.notesInput.text.toString()
             )
             findNavController().navigate(
@@ -134,7 +132,6 @@ class AddWeatherLocationFragment : Fragment() {
         binding.apply{
             nameInput.setText(forageable.name, TextView.BufferType.SPANNABLE)
             locationAddressInput.setText(forageable.address, TextView.BufferType.SPANNABLE)
-            inSeasonCheckbox.isChecked = forageable.inSeason
             notesInput.setText(forageable.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()

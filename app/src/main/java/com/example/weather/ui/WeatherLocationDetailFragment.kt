@@ -79,11 +79,6 @@ class WeatherLocationDetailFragment : Fragment() {
             name.text = weather.name
             location.text = weather.address
             notes.text = weather.notes
-            if (weather.inSeason) {
-                season.text = getString(R.string.in_season)
-            } else {
-                season.text = getString(R.string.out_of_season)
-            }
             editForageableFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weather.id)

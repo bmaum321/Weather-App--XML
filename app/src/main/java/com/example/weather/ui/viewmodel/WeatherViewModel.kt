@@ -29,13 +29,11 @@ private val weatherDao: WeatherDao
     fun addWeather(
         name: String,
         address: String,
-        inSeason: Boolean,
         notes: String
     ) {
         val weather = Weather(
             name = name,
             address = address,
-            inSeason = inSeason,
             notes = notes
         )
 
@@ -50,25 +48,23 @@ private val weatherDao: WeatherDao
         id: Long,
         name: String,
         address: String,
-        inSeason: Boolean,
         notes: String
     ) {
         val weather = Weather(
             id = id,
             name = name,
             address = address,
-            inSeason = inSeason,
             notes = notes
         )
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to update a forageable to the database here
+            // TODO: call the DAO method to update a weather object to the database here
             weatherDao.insert(weather)
         }
     }
 
     fun deleteWeather(weather: Weather) {
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to delete a forageable to the database here
+            // TODO: call the DAO method to delete a weather object to the database here
             weatherDao.delete(weather)
         }
     }

@@ -17,7 +17,7 @@ class WeatherListAdapter(
 
     class WeatherViewHolder(
         private var binding: ListItemForageableBinding
-    ): RecyclerView.ViewHolder(binding.root) {
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(weather: Weather) {
             binding.weather = weather
@@ -25,7 +25,7 @@ class WeatherListAdapter(
         }
     }
 
-    companion object DiffCallback: DiffUtil.ItemCallback<Weather>() {
+    companion object DiffCallback : DiffUtil.ItemCallback<Weather>() {
         override fun areItemsTheSame(oldItem: Weather, newItem: Weather): Boolean {
             return oldItem.id == newItem.id
         }
@@ -44,10 +44,10 @@ class WeatherListAdapter(
     }
 
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
-        val forageable = getItem(position)
-        holder.itemView.setOnClickListener{
-            clickListener(forageable)
+        val weather = getItem(position)
+        holder.itemView.setOnClickListener {
+            clickListener(weather)
         }
-        holder.bind(forageable)
+        holder.bind(weather)
     }
 }
