@@ -13,7 +13,7 @@
         android:id="@+id/name_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/forageable_name"
+        android:hint="@string/city_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="@string/forageable_location"
+        android:hint="@string/zip_code"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/name_label">
 

@@ -3,6 +3,7 @@ package com.example.weather.ui.viewmodel
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.model.Weather
+import com.example.weather.network.WeatherNetwork
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -32,8 +33,8 @@ private val weatherDao: WeatherDao
         notes: String
     ) {
         val weather = Weather(
-            name = name,
-            address = address,
+            cityName = name,
+            zipCode = address,
             notes = notes
         )
 
@@ -52,8 +53,8 @@ private val weatherDao: WeatherDao
     ) {
         val weather = Weather(
             id = id,
-            name = name,
-            address = address,
+            cityName = name,
+            zipCode = address,
             notes = notes
         )
         viewModelScope.launch(Dispatchers.IO) {
@@ -72,6 +73,7 @@ private val weatherDao: WeatherDao
     fun isValidEntry(name: String, address: String): Boolean {
         return name.isNotBlank() && address.isNotBlank()
     }
+
 }
 
 // create a view model factory that takes a WeatherDao as a property and

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface WeatherDao {
 
     // method to retrieve all Weather objects from the database
-    @Query("SELECT * FROM weather_database ORDER BY name ASC")
+    @Query("SELECT * FROM weather_database ORDER BY cityName ASC")
     fun getWeatherLocations(): Flow<List<Weather>>
 
     // method to retrieve a Weather from the database by id

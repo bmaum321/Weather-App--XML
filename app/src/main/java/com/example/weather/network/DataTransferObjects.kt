@@ -52,8 +52,8 @@ fun WeatherContainer.asDomainModel(): List<WeatherDomainObject> {
 fun WeatherContainer.asDatabaseModel(): List<Weather> {
     return weatherList.map {
         Weather(
-            name = it.location,
-            address = it.current,
+            cityName = it.location,
+            zipCode = it.current,
             notes = it.current)
     }
 }

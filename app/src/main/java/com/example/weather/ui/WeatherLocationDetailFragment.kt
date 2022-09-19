@@ -26,7 +26,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
-import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.model.Weather
 import com.example.weather.ui.viewmodel.WeatherViewModel
@@ -76,8 +75,8 @@ class WeatherLocationDetailFragment : Fragment() {
 
     private fun bindWeather() {
         binding.apply {
-            name.text = weather.name
-            location.text = weather.address
+            name.text = weather.cityName
+            location.text = weather.zipCode
             notes.text = weather.notes
             editForageableFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
@@ -92,7 +91,7 @@ class WeatherLocationDetailFragment : Fragment() {
     }
 
     private fun launchMap() {
-        val address = weather.address.let {
+        val address = weather.zipCode.let {
             it.replace(", ", ",")
             it.replace(". ", " ")
             it.replace(" ", "+")

@@ -20,10 +20,8 @@
     <string name="list_fragment_label">List Fragment</string>
     <string name="add_fragment_label">Add Fragment</string>
 
-    <string name="forageable_name">Name</string>
-    <string name="forageable_location">Location</string>
-    <string name="in_season">Currently in season</string>
-    <string name="out_of_season">Currently out of season</string>
+    <string name="city_name">City Name</string>
+    <string name="zip_code">Zip Code</string>
     <string name="notes">Notes</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>

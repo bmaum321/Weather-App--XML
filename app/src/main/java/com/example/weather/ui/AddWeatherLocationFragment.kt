@@ -130,8 +130,8 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun bindWeather(forageable: Weather) {
         binding.apply{
-            nameInput.setText(forageable.name, TextView.BufferType.SPANNABLE)
-            locationAddressInput.setText(forageable.address, TextView.BufferType.SPANNABLE)
+            nameInput.setText(forageable.cityName, TextView.BufferType.SPANNABLE)
+            locationAddressInput.setText(forageable.zipCode, TextView.BufferType.SPANNABLE)
             notesInput.setText(forageable.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
