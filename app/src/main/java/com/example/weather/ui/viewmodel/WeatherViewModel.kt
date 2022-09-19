@@ -11,13 +11,13 @@ import kotlinx.coroutines.launch
  * and [AddWeatherLocationFragment] and allow for interaction the the [WeatherDao]
  */
 
-// TODO: pass a WeatherDao value as a parameter to the view model constructor
+// Pass a WeatherDao value as a parameter to the view model constructor
 class WeatherViewModel(
     // Pass dao here
 private val weatherDao: WeatherDao
 ): ViewModel() {
 
-    // TODO: create a property to set to a list of all forageables from the DAO
+    // TODO: create a property to set to a list of all weather objects from the DAO
     val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
 
     // TODO : create method that takes id: Long as a parameter and retrieve a Weather from the
