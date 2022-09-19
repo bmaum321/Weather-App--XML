@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/weatherListFragment">
+
+    <fragment
+        android:id="@+id/weatherListFragment"
+        android:name="com.example.weather.ui.WeatherListFragment"
+        android:label="Weather">
+        <action
+            android:id="@+id/action_weatherLocationListFragment_to_addWeatherLocationFragment"
+            app:destination="@id/addWeatherLocationFragment" />
+        <action
+            android:id="@+id/action_forageableListFragment_to_forageableDetailFragment"
+            app:destination="@id/weatherLocationDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addWeatherLocationFragment"
+        android:name="com.example.weather.ui.AddWeatherLocationFragment"
+        android:label="Forage"
+        tools:layout="@layout/fragment_add_weather_location">
+        <action
+            android:id="@+id/action_addWeatherFragment_to_WeatherListFragment"
+            app:destination="@id/weatherListFragment" />
+        <argument
+            android:name="id"
+            android:defaultValue="0L"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherLocationDetailFragment"
+        android:name="com.example.weather.ui.WeatherLocationDetailFragment"
+        android:label="Location"
+        tools:layout="@layout/fragment_weather_detail">
+        <argument
+            android:name="id"
+            android:defaultValue="0L"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_weatherLocationDetailFragment_to_addWeatherLocationFragment"
+            app:destination="@id/addWeatherLocationFragment" />
+    </fragment>
+
+</navigation>
