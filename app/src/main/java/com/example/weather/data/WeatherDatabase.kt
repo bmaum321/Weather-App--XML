@@ -11,7 +11,7 @@ import com.example.weather.model.Weather
  * This database stores a [Weather] entity
  */
 // create the database with all necessary annotations, methods, variables, etc.
-@Database(entities = [Weather::class], version = 2, exportSchema = false)
+@Database(entities = [Weather::class], version = 3, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
 
     abstract fun weatherDao(): WeatherDao

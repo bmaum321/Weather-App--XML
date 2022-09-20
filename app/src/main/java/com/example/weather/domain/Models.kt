@@ -1,5 +1,8 @@
 package com.example.weather.domain
 
+import com.example.weather.model.CurrentWeatherData
+import com.example.weather.model.LocationData
+
 
 /**
  * Domain objects are plain Kotlin data classes that represent the things in our app. These are the
@@ -10,7 +13,7 @@ package com.example.weather.domain
  */
 
 
-data class WeatherDomainObject(val location: String,
-                               val current: String,
+data class WeatherDomainObject(val location: LocationData,
+                               val current: CurrentWeatherData,
                        )
 

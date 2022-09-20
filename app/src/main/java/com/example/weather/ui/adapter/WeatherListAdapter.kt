@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ListItemWeatherBinding
 import com.example.weather.model.Weather
+import com.example.weather.ui.viewmodel.WeatherViewModel
 
 /**
  * ListAdapter for the list of [Weather]s retrieved from the database

@@ -30,10 +30,10 @@ private val weatherDao: WeatherDao
 
     // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
     // with new values
-    private val _weatherData = MutableLiveData<WeatherContainer?>()
+    private val _weatherData = MutableLiveData<WeatherContainer>()
 
     // The external LiveData interface to the property is immutable, so only this class can modify
-    val weatherData: LiveData<WeatherContainer?> = _weatherData
+    val weatherData: LiveData<WeatherContainer> = _weatherData
 
     // create a property to set to a list of all weather objects from the DAO
     val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
@@ -69,18 +69,20 @@ private val weatherDao: WeatherDao
     fun addWeather(
         name: String,
         zipcode: String,
-        notes: String
+        notes: String,
+        tempf: Double?
     ) {
         val weather = Weather(
             cityName = name,
             zipCode = zipcode,
-            notes = notes
+            notes = notes,
+            tempf = tempf
         )
 
     // Launch a coroutine and call the DAO method to add a Weather to the database within it
         viewModelScope.launch {
-            weatherDao.insert(weather)
             getWeatherData(zipcode) //TODO trying different calls
+            weatherDao.insert(weather)
         }
 
     }
@@ -89,15 +91,18 @@ private val weatherDao: WeatherDao
         id: Long,
         name: String,
         zipcode: String,
-        notes: String
+        notes: String,
+        tempf: Double?
     ) {
         val weather = Weather(
             id = id,
             cityName = name,
             zipCode = zipcode,
-            notes = notes
+            notes = notes,
+            tempf = tempf
         )
         viewModelScope.launch(Dispatchers.IO) {
+            getWeatherData(zipcode) //TODO trying different calls
             // call the DAO method to update a weather object to the database here
             weatherDao.insert(weather)
         }

@@ -20,13 +20,13 @@ interface WeatherDao {
 
     // method to insert a Weather into the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(forageable: Weather)
+    suspend fun insert(weather: Weather)
 
     // method to update a Weather that is already in the database
     @Update
-    suspend fun update(forageable: Weather)
+    suspend fun update(weather: Weather)
 
     // method to delete a Weather from the database.
     @Delete
-    suspend fun delete(forageable: Weather)
+    suspend fun delete(weather: Weather)
 }

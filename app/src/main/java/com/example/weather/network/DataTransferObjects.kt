@@ -28,7 +28,7 @@ data class WeatherContainer(
     val location: LocationData,
     val current: CurrentWeatherData
 )
-/*
+
 /**
  * Videos represent a devbyte that can be played.
  */
@@ -38,12 +38,12 @@ data class WeatherObject(
     val current: String,
 )
 
-
+/*
 /**
  * Convert Network results to database objects
  */
 fun WeatherContainer.asDomainModel(): List<WeatherDomainObject> {
-    return weatherList.map {
+    return WeatherContainer.map {
         WeatherDomainObject(
             location = it.location,
             current = it.current,
@@ -52,17 +52,22 @@ fun WeatherContainer.asDomainModel(): List<WeatherDomainObject> {
 }
 
 
+
+
 /**
  * Convert Network results to database objects
  */
 fun WeatherContainer.asDatabaseModel(): List<Weather> {
-    return weatherList.map {
+
+    return location.map {
         Weather(
-            cityName = it.location,
-            zipCode = it.current,
-            notes = it.current)
+            cityName = it.name,
+            zipCode = it.tz_id,
+            notes = it.region)
     }
 }
-
  */
+
+
+
 

@@ -104,10 +104,12 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun addWeather() {
         if (isValidEntry()) {
+            viewModel.getWeatherData(binding.zipcodeInput.text.toString()) //call API here to put tempf value in database
             viewModel.addWeather(
                 binding.nameInput.text.toString(),
                 binding.zipcodeInput.text.toString(),
-                binding.notesInput.text.toString()
+                binding.notesInput.text.toString(),
+                viewModel.weatherData.value?.current?.temp_f
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment
@@ -121,7 +123,8 @@ class AddWeatherLocationFragment : Fragment() {
                 id = navigationArgs.id,
                 name = binding.nameInput.text.toString(),
                 zipcode = binding.zipcodeInput.text.toString(),
-                notes = binding.notesInput.text.toString()
+                notes = binding.notesInput.text.toString(),
+                tempf = viewModel.weatherData.value?.current?.temp_f
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment

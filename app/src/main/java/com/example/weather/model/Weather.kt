@@ -15,9 +15,11 @@ data class Weather(
     val id: Long = 0,
     val cityName: String,
     val zipCode: String,
-    val notes: String?
+    val notes: String?,
+    val tempf: Double?
 )
 
+/*
 /**
  * Map weather objects to domain entities
  */
@@ -28,4 +30,8 @@ fun List<Weather>.asDomainModel(): List<WeatherDomainObject> {
             current = it.zipCode
         )
     }
+
+
 }
+
+ */
