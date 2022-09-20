@@ -8,6 +8,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.WeatherLocationDetailFragment">
 
+
+
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
@@ -57,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/season"
+        android:id="@+id/tempF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -65,7 +67,7 @@
         app:layout_constraintTop_toTopOf="@+id/ic_calendar"
         app:layout_constraintBottom_toBottomOf="@id/ic_calendar"
         app:layout_constraintStart_toEndOf="@id/ic_calendar"
-        tools:text="In Season" />
+        tools:text="Temperature" />
 
     <View
         android:id="@+id/divider_season"

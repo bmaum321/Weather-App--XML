@@ -3,9 +3,13 @@ package com.example.weather.ui.viewmodel
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.model.Weather
-import com.example.weather.network.WeatherNetwork
+import com.example.weather.network.WeatherApi
+import com.example.weather.network.WeatherApiService
+import com.example.weather.network.WeatherContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+enum class WeatherApiStatus { LOADING, ERROR, DONE }
 
 /**
  * Shared [ViewModel] to provide data to the [WeatherListFragment], [WeatherLocationDetailFragment],
@@ -18,13 +22,50 @@ class WeatherViewModel(
 private val weatherDao: WeatherDao
 ): ViewModel() {
 
-    // TODO: create a property to set to a list of all weather objects from the DAO
+
+    // The internal MutableLiveData that stores the status of the most recent request
+    private val _status = MutableLiveData<WeatherApiStatus>()
+
+    // The external immutable LiveData for the request status
+    val status: LiveData<WeatherApiStatus> = _status
+
+    // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
+    // with new values
+    private val _weatherData = MutableLiveData<WeatherContainer?>()
+
+    // The external LiveData interface to the property is immutable, so only this class can modify
+    val weatherData: LiveData<WeatherContainer?> = _weatherData
+
+    // create a property to set to a list of all weather objects from the DAO
     val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
+
+    val tempf: String = weatherData.value?.current?.temp_f.toString()
+    val test: String = "DOOT"
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<Weather> {
         return weatherDao.getWeatherById(id).asLiveData()
+    }
+
+    /**
+     * Call getWeatherData to get the data immediately
+     */
+    init {
+        getWeatherData()
+    }
+
+    private fun getWeatherData() {
+        viewModelScope.launch {
+            _status.value = WeatherApiStatus.LOADING
+            try {
+                _weatherData.value = WeatherApi.retrofitService.getWeather()
+                _status.value = WeatherApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = WeatherApiStatus.ERROR
+               // _weatherData.value = WeatherContainer(current = null, location = null)
+            }
+        }
     }
 
     fun addWeather(

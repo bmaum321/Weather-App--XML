@@ -77,7 +77,8 @@ class WeatherLocationDetailFragment : Fragment() {
         binding.apply {
             name.text = weather.cityName
             location.text = weather.zipCode
-            notes.text = weather.notes
+            tempF.text = viewModel.weatherData.value?.current?.temp_f.toString()
+            notes.text = viewModel.weatherData.value?.current?.condition?.text.toString()
             editForageableFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weather.id)
