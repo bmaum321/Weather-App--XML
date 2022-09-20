@@ -90,6 +90,7 @@ class AddWeatherLocationFragment : Fragment() {
         } else {
             binding.saveBtn.setOnClickListener {
                 addWeather()
+               // viewModel.getWeatherData(binding.zipcodeInput.text.toString())
             }
         }
     }
@@ -105,7 +106,7 @@ class AddWeatherLocationFragment : Fragment() {
         if (isValidEntry()) {
             viewModel.addWeather(
                 binding.nameInput.text.toString(),
-                binding.locationAddressInput.text.toString(),
+                binding.zipcodeInput.text.toString(),
                 binding.notesInput.text.toString()
             )
             findNavController().navigate(
@@ -119,7 +120,7 @@ class AddWeatherLocationFragment : Fragment() {
             viewModel.updateWeather(
                 id = navigationArgs.id,
                 name = binding.nameInput.text.toString(),
-                address = binding.locationAddressInput.text.toString(),
+                zipcode = binding.zipcodeInput.text.toString(),
                 notes = binding.notesInput.text.toString()
             )
             findNavController().navigate(
@@ -128,11 +129,11 @@ class AddWeatherLocationFragment : Fragment() {
         }
     }
 
-    private fun bindWeather(forageable: Weather) {
+    private fun bindWeather(weather: Weather) {
         binding.apply{
-            nameInput.setText(forageable.cityName, TextView.BufferType.SPANNABLE)
-            locationAddressInput.setText(forageable.zipCode, TextView.BufferType.SPANNABLE)
-            notesInput.setText(forageable.notes, TextView.BufferType.SPANNABLE)
+            nameInput.setText(weather.cityName, TextView.BufferType.SPANNABLE)
+            zipcodeInput.setText(weather.zipCode, TextView.BufferType.SPANNABLE)
+            notesInput.setText(weather.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
             }
@@ -142,7 +143,7 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun isValidEntry() = viewModel.isValidEntry(
         binding.nameInput.text.toString(),
-        binding.locationAddressInput.text.toString()
+        binding.zipcodeInput.text.toString()
     )
 
     override fun onDestroyView() {

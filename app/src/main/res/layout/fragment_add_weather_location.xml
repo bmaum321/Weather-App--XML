@@ -36,7 +36,7 @@
         app:layout_constraintTop_toBottomOf="@id/name_label">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/location_address_input"
+            android:id="@+id/zipcode_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="textAutoComplete" />

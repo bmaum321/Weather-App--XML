@@ -4,7 +4,6 @@ import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.model.Weather
 import com.example.weather.network.WeatherApi
-import com.example.weather.network.WeatherApiService
 import com.example.weather.network.WeatherContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,9 +38,6 @@ private val weatherDao: WeatherDao
     // create a property to set to a list of all weather objects from the DAO
     val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
 
-    val tempf: String = weatherData.value?.current?.temp_f.toString()
-    val test: String = "DOOT"
-
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<Weather> {
@@ -52,14 +48,16 @@ private val weatherDao: WeatherDao
      * Call getWeatherData to get the data immediately
      */
     init {
-        getWeatherData()
+        //TODO right now the app is only calling the api once, when the viewmodel is created,
+        // or when the app is first started
+       // getWeatherData()
     }
 
-    private fun getWeatherData() {
+    fun getWeatherData(zipcode: String) {
         viewModelScope.launch {
             _status.value = WeatherApiStatus.LOADING
             try {
-                _weatherData.value = WeatherApi.retrofitService.getWeather()
+                _weatherData.value = WeatherApi.retrofitService.getWeather(zipcode)
                 _status.value = WeatherApiStatus.DONE
             } catch (e: Exception) {
                 _status.value = WeatherApiStatus.ERROR
@@ -70,18 +68,19 @@ private val weatherDao: WeatherDao
 
     fun addWeather(
         name: String,
-        address: String,
+        zipcode: String,
         notes: String
     ) {
         val weather = Weather(
             cityName = name,
-            zipCode = address,
+            zipCode = zipcode,
             notes = notes
         )
 
     // Launch a coroutine and call the DAO method to add a Weather to the database within it
         viewModelScope.launch {
             weatherDao.insert(weather)
+            getWeatherData(zipcode) //TODO trying different calls
         }
 
     }
@@ -89,13 +88,13 @@ private val weatherDao: WeatherDao
     fun updateWeather(
         id: Long,
         name: String,
-        address: String,
+        zipcode: String,
         notes: String
     ) {
         val weather = Weather(
             id = id,
             cityName = name,
-            zipCode = address,
+            zipCode = zipcode,
             notes = notes
         )
         viewModelScope.launch(Dispatchers.IO) {

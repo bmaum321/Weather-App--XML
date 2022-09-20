@@ -69,6 +69,7 @@ class WeatherLocationDetailFragment : Fragment() {
         //  and call the bind weather method
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
             weather = selectedWeather
+            viewModel.getWeatherData(weather.zipCode) // update the weather when view is created
             bindWeather()
         }
     }
@@ -76,10 +77,10 @@ class WeatherLocationDetailFragment : Fragment() {
     private fun bindWeather() {
         binding.apply {
             name.text = weather.cityName
-            location.text = weather.zipCode
+            location.text = viewModel.weatherData.value?.location?.name
             tempF.text = viewModel.weatherData.value?.current?.temp_f.toString()
             notes.text = viewModel.weatherData.value?.current?.condition?.text.toString()
-            editForageableFab.setOnClickListener {
+            editWeatherFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weather.id)
                 findNavController().navigate(action)

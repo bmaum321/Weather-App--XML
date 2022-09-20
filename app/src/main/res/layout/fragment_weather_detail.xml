@@ -103,7 +103,7 @@
         tools:text="Notes" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/edit_forageable_fab"
+        android:id="@+id/edit_weather_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

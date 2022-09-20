@@ -41,7 +41,7 @@ class PersistenceInstrumentationTests {
         onView(withId(R.id.add_forageable_fab)).perform(click())
 
         onView(withId(R.id.name_input)).perform(replaceText("Name"))
-        onView(withId(R.id.location_address_input)).perform(replaceText("Address"))
+        onView(withId(R.id.zipcode_input)).perform(replaceText("Address"))
         onView(withId(R.id.notes_input)).perform(replaceText("Notes"))
         onView(withId(R.id.save_btn)).perform(click())
     }
@@ -64,9 +64,9 @@ class PersistenceInstrumentationTests {
     @Test
     fun edit_new_forageable() {
         onView(withText("Name")).perform(click())
-        onView(withId(R.id.edit_forageable_fab)).perform(click())
+        onView(withId(R.id.edit_weather_fab)).perform(click())
         onView(withId(R.id.name_input)).perform(replaceText("New Name"))
-        onView(withId(R.id.location_address_input)).perform(replaceText("New Address"))
+        onView(withId(R.id.zipcode_input)).perform(replaceText("New Address"))
         onView(withId(R.id.notes_input)).perform(replaceText("New Notes"))
         onView(withId(R.id.in_season_checkbox)).perform(click())
         onView(withId(R.id.save_btn)).perform(click())
@@ -82,7 +82,7 @@ class PersistenceInstrumentationTests {
     @Test
     fun delete_new_forageable() {
         onView(withText("Name")).perform(click())
-        onView(withId(R.id.edit_forageable_fab)).perform(click())
+        onView(withId(R.id.edit_weather_fab)).perform(click())
         onView(withId(R.id.delete_btn)).perform(click())
         Thread.sleep(1000)
         onView(withText("Name")).check(doesNotExist())
