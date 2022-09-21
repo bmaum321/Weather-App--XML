@@ -2,7 +2,7 @@ package com.example.weather.ui.viewmodel
 
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
-import com.example.weather.model.Weather
+import com.example.weather.model.WeatherEntity
 import com.example.weather.network.WeatherApi
 import com.example.weather.network.WeatherContainer
 import kotlinx.coroutines.Dispatchers
@@ -36,11 +36,11 @@ private val weatherDao: WeatherDao
     val weatherData: LiveData<WeatherContainer> = _weatherData
 
     // create a property to set to a list of all weather objects from the DAO
-    val allWeather: LiveData<List<Weather>> = weatherDao.getWeatherLocations().asLiveData()
+    val allWeatherEntity: LiveData<List<WeatherEntity>> = weatherDao.getWeatherLocations().asLiveData()
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
-    fun getWeatherById(id: Long): LiveData<Weather> {
+    fun getWeatherById(id: Long): LiveData<WeatherEntity> {
         return weatherDao.getWeatherById(id).asLiveData()
     }
 
@@ -72,7 +72,7 @@ private val weatherDao: WeatherDao
         notes: String,
         tempf: Double?
     ) {
-        val weather = Weather(
+        val weatherEntity = WeatherEntity(
             cityName = name,
             zipCode = zipcode,
             notes = notes,
@@ -82,7 +82,7 @@ private val weatherDao: WeatherDao
     // Launch a coroutine and call the DAO method to add a Weather to the database within it
         viewModelScope.launch {
             getWeatherData(zipcode) //TODO trying different calls
-            weatherDao.insert(weather)
+            weatherDao.insert(weatherEntity)
         }
 
     }
@@ -94,7 +94,7 @@ private val weatherDao: WeatherDao
         notes: String,
         tempf: Double?
     ) {
-        val weather = Weather(
+        val weatherEntity = WeatherEntity(
             id = id,
             cityName = name,
             zipCode = zipcode,
@@ -104,14 +104,14 @@ private val weatherDao: WeatherDao
         viewModelScope.launch(Dispatchers.IO) {
             getWeatherData(zipcode) //TODO trying different calls
             // call the DAO method to update a weather object to the database here
-            weatherDao.insert(weather)
+            weatherDao.insert(weatherEntity)
         }
     }
 
-    fun deleteWeather(weather: Weather) {
+    fun deleteWeather(weatherEntity: WeatherEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to delete a weather object to the database here
-            weatherDao.delete(weather)
+            weatherDao.delete(weatherEntity)
         }
     }
 

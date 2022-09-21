@@ -1,5 +1,8 @@
 package com.example.weather.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class CurrentWeatherData(
     val temp_c: Double,
     val temp_f: Double,

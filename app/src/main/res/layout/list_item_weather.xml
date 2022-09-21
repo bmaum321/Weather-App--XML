@@ -8,7 +8,7 @@
     <data>
         <variable
             name="weather"
-            type="com.example.weather.model.Weather" />
+            type="com.example.weather.model.WeatherEntity" />
         <variable
             name="viewModel"
             type="com.example.weather.ui.viewmodel.WeatherViewModel" />

@@ -3,7 +3,7 @@ package com.example.weather.network
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.CurrentWeatherData
 import com.example.weather.model.LocationData
-import com.example.weather.model.Weather
+import com.example.weather.model.WeatherEntity
 import com.squareup.moshi.JsonClass
 
 /**
@@ -30,7 +30,7 @@ data class WeatherContainer(
 )
 
 /**
- * Videos represent a devbyte that can be played.
+ *
  */
 @JsonClass(generateAdapter = true)
 data class WeatherObject(
@@ -38,35 +38,37 @@ data class WeatherObject(
     val current: String,
 )
 
-/*
+
+/**
+ * Convert Network results to domain objects
+ */
+
+fun WeatherContainer.asDomainModel(): WeatherDomainObject {
+    return WeatherDomainObject(
+        location = location,
+        current = current,
+    )
+
+}
+
+
 /**
  * Convert Network results to database objects
  */
-fun WeatherContainer.asDomainModel(): List<WeatherDomainObject> {
-    return WeatherContainer.map {
-        WeatherDomainObject(
-            location = it.location,
-            current = it.current,
-        )
-    }
+fun WeatherContainer.asDatabaseModel(zipcode: String): WeatherEntity {
+
+    return WeatherEntity(
+        cityName = location.name,
+        tempf = current.temp_f,
+        notes = null,
+        zipCode = zipcode
+    )
+
+
 }
 
 
 
-
-/**
- * Convert Network results to database objects
- */
-fun WeatherContainer.asDatabaseModel(): List<Weather> {
-
-    return location.map {
-        Weather(
-            cityName = it.name,
-            zipCode = it.tz_id,
-            notes = it.region)
-    }
-}
- */
 
 
 

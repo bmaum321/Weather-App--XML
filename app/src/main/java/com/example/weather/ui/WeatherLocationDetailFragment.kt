@@ -27,13 +27,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.databinding.FragmentWeatherDetailBinding
-import com.example.weather.model.Weather
+import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.WeatherViewModel
 import com.example.weather.ui.viewmodel.WeatherViewModelFactory
 
 /**
- * A fragment to display the details of a [Weather] currently stored in the database.
- * The [AddWeatherLocationFragment] can be launched from this fragment to edit the [Weather]
+ * A fragment to display the details of a [WeatherEntity] currently stored in the database.
+ * The [AddWeatherLocationFragment] can be launched from this fragment to edit the [WeatherEntity]
  */
 class WeatherLocationDetailFragment : Fragment() {
 
@@ -48,7 +48,7 @@ class WeatherLocationDetailFragment : Fragment() {
         )
     }
 
-    private lateinit var weather: Weather
+    private lateinit var weatherEntity: WeatherEntity
 
     private var _binding: FragmentWeatherDetailBinding? = null
     private val binding get() = _binding!!
@@ -68,21 +68,21 @@ class WeatherLocationDetailFragment : Fragment() {
         // Observe a weather object that is retrieved by id, set the weather variable,
         //  and call the bind weather method
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weather = selectedWeather
-            viewModel.getWeatherData(weather.zipCode) // update the weather when view is created
+            weatherEntity = selectedWeather
+            viewModel.getWeatherData(weatherEntity.zipCode) // update the weather when view is created
             bindWeather()
         }
     }
 
     private fun bindWeather() {
         binding.apply {
-            name.text = weather.cityName
+            name.text = weatherEntity.cityName
             location.text = viewModel.weatherData.value?.location?.name
             tempF.text = viewModel.weatherData.value?.current?.temp_f.toString()
             notes.text = viewModel.weatherData.value?.current?.condition?.text.toString()
             editWeatherFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
-                    .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weather.id)
+                    .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weatherEntity.id)
                 findNavController().navigate(action)
             }
 
@@ -93,7 +93,7 @@ class WeatherLocationDetailFragment : Fragment() {
     }
 
     private fun launchMap() {
-        val address = weather.zipCode.let {
+        val address = weatherEntity.zipCode.let {
             it.replace(", ", ",")
             it.replace(". ", " ")
             it.replace(" ", "+")

@@ -27,14 +27,14 @@ import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
-import com.example.weather.model.Weather
+import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.WeatherViewModel
 import com.example.weather.ui.viewmodel.WeatherViewModelFactory
 
 
 /**
- * A fragment to enter data for a new [Weather] or edit data for an existing [Weather].
- * [Weather]s can be saved or deleted from this fragment.
+ * A fragment to enter data for a new [WeatherEntity] or edit data for an existing [WeatherEntity].
+ * [WeatherEntity]s can be saved or deleted from this fragment.
  */
 class AddWeatherLocationFragment : Fragment() {
 
@@ -42,7 +42,7 @@ class AddWeatherLocationFragment : Fragment() {
 
     private var _binding: FragmentAddWeatherLocationBinding? = null
 
-    private lateinit var weather: Weather
+    private lateinit var weatherEntity: WeatherEntity
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -78,14 +78,14 @@ class AddWeatherLocationFragment : Fragment() {
                //forageable = selectedForageable
               //  bindForageable(forageable)
                 if (selectedWeather != null) {
-                    weather = selectedWeather
-                    bindWeather(weather)
+                    weatherEntity = selectedWeather
+                    bindWeather(weatherEntity)
                 }
             }
 
             binding.deleteBtn.visibility = View.VISIBLE
             binding.deleteBtn.setOnClickListener {
-                deleteWeather(weather)
+                deleteWeather(weatherEntity)
             }
         } else {
             binding.saveBtn.setOnClickListener {
@@ -95,7 +95,7 @@ class AddWeatherLocationFragment : Fragment() {
         }
     }
 
-    private fun deleteWeather(forageable: Weather) {
+    private fun deleteWeather(forageable: WeatherEntity) {
         viewModel.deleteWeather(forageable)
         findNavController().navigate(
             R.id.action_addWeatherFragment_to_WeatherListFragment
@@ -132,11 +132,11 @@ class AddWeatherLocationFragment : Fragment() {
         }
     }
 
-    private fun bindWeather(weather: Weather) {
+    private fun bindWeather(weatherEntity: WeatherEntity) {
         binding.apply{
-            nameInput.setText(weather.cityName, TextView.BufferType.SPANNABLE)
-            zipcodeInput.setText(weather.zipCode, TextView.BufferType.SPANNABLE)
-            notesInput.setText(weather.notes, TextView.BufferType.SPANNABLE)
+            nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE)
+            zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
+            notesInput.setText(weatherEntity.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
             }

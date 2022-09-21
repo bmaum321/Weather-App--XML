@@ -6,32 +6,31 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ListItemWeatherBinding
-import com.example.weather.model.Weather
-import com.example.weather.ui.viewmodel.WeatherViewModel
+import com.example.weather.model.WeatherEntity
 
 /**
- * ListAdapter for the list of [Weather]s retrieved from the database
+ * ListAdapter for the list of [WeatherEntity]s retrieved from the database
  */
 class WeatherListAdapter(
-    private val clickListener: (Weather) -> Unit
-) : ListAdapter<Weather, WeatherListAdapter.WeatherViewHolder>(DiffCallback) {
+    private val clickListener: (WeatherEntity) -> Unit
+) : ListAdapter<WeatherEntity, WeatherListAdapter.WeatherViewHolder>(DiffCallback) {
 
     class WeatherViewHolder(
         private var binding: ListItemWeatherBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(weather: Weather) {
-            binding.weather = weather
+        fun bind(weatherEntity: WeatherEntity) {
+            binding.weather = weatherEntity
             binding.executePendingBindings()
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<Weather>() {
-        override fun areItemsTheSame(oldItem: Weather, newItem: Weather): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<WeatherEntity>() {
+        override fun areItemsTheSame(oldItem: WeatherEntity, newItem: WeatherEntity): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Weather, newItem: Weather): Boolean {
+        override fun areContentsTheSame(oldItem: WeatherEntity, newItem: WeatherEntity): Boolean {
             return oldItem == newItem
         }
 

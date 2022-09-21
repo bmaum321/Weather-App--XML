@@ -4,14 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.weather.model.Weather
+import com.example.weather.model.WeatherEntity
 
 /**
  * Room database to persist data for the Weather app.
- * This database stores a [Weather] entity
+ * This database stores a [WeatherEntity] entity
  */
 // create the database with all necessary annotations, methods, variables, etc.
-@Database(entities = [Weather::class], version = 3, exportSchema = false)
+@Database(entities = [WeatherEntity::class], version = 3, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
 
     abstract fun weatherDao(): WeatherDao

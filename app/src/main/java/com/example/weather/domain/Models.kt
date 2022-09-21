@@ -13,7 +13,8 @@ import com.example.weather.model.LocationData
  */
 
 
-data class WeatherDomainObject(val location: LocationData,
-                               val current: CurrentWeatherData,
-                       )
+data class WeatherDomainObject(
+    val location: LocationData,
+    val current: CurrentWeatherData,
+)
 

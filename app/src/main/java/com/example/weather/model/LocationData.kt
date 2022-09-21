@@ -1,5 +1,8 @@
 package com.example.weather.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class LocationData(
     var name: String,
     var region: String,

@@ -55,7 +55,7 @@ class WeatherListFragment : Fragment() {
         }
 
         // TODO: observe the list of weather objects from the view model and submit it the adapter
-        viewModel.allWeather.observe(this.viewLifecycleOwner) { weathers ->
+        viewModel.allWeatherEntity.observe(this.viewLifecycleOwner) { weathers ->
             weathers.let {
                 adapter.submitList(it)
             }
