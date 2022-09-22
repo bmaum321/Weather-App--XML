@@ -19,19 +19,20 @@ data class WeatherEntity(
     val tempf: Double?
 )
 
-/*
+
 /**
  * Map weather objects to domain entities
  */
-fun List<Weather>.asDomainModel(): List<WeatherDomainObject> {
+fun List<WeatherEntity>.asDomainModel(): List<WeatherDomainObject> {
     return map {
         WeatherDomainObject(
             location = it.cityName,
-            current = it.zipCode
+            zipcode = it.zipCode,
+            tempf = it.tempf
         )
     }
 
 
 }
 
- */
+

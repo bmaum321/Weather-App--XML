@@ -22,6 +22,10 @@ interface WeatherDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(weatherEntity: WeatherEntity)
 
+    // Method to insert all weather objects into database
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(weatherList: List<WeatherEntity>)
+
     // method to update a Weather that is already in the database
     @Update
     suspend fun update(weatherEntity: WeatherEntity)

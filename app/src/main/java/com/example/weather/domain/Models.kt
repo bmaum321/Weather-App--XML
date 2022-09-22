@@ -14,7 +14,8 @@ import com.example.weather.model.LocationData
 
 
 data class WeatherDomainObject(
-    val location: LocationData,
-    val current: CurrentWeatherData,
+    val location: String,
+    val tempf: Double?,
+    val zipcode: String
 )
 

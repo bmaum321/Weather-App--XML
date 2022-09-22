@@ -15,6 +15,7 @@
  */
 package com.example.weather.ui
 
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +30,6 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.WeatherViewModel
-import com.example.weather.ui.viewmodel.WeatherViewModelFactory
 
 
 /**
@@ -52,8 +52,8 @@ class AddWeatherLocationFragment : Fragment() {
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
     private val viewModel: WeatherViewModel by activityViewModels{
-        WeatherViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao()
+        WeatherViewModel.WeatherViewModelFactory(
+            (activity?.application as BaseApplication).database.weatherDao(), Application()  //TODO passing application now
         )
     }
 
@@ -95,8 +95,8 @@ class AddWeatherLocationFragment : Fragment() {
         }
     }
 
-    private fun deleteWeather(forageable: WeatherEntity) {
-        viewModel.deleteWeather(forageable)
+    private fun deleteWeather(weather: WeatherEntity) {
+        viewModel.deleteWeather(weather)
         findNavController().navigate(
             R.id.action_addWeatherFragment_to_WeatherListFragment
         )
@@ -104,13 +104,14 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun addWeather() {
         if (isValidEntry()) {
-            viewModel.getWeatherData(binding.zipcodeInput.text.toString()) //call API here to put tempf value in database
-            viewModel.addWeather(
-                binding.nameInput.text.toString(),
-                binding.zipcodeInput.text.toString(),
-                binding.notesInput.text.toString(),
-                viewModel.weatherData.value?.current?.temp_f
-            )
+           // viewModel.getWeatherData(binding.zipcodeInput.text.toString()) //call API here to put tempf value in database
+            viewModel.refreshDataFromRepository(binding.zipcodeInput.text.toString()) // trying the new repository
+           // viewModel.addWeather(
+             //   binding.nameInput.text.toString(), //TODO no longer need these because the repository is updating the database with the API call
+             //   binding.zipcodeInput.text.toString(),
+            //    binding.notesInput.text.toString(),
+             //   viewModel.weatherData.value?.current?.temp_f
+         //   )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment
             )

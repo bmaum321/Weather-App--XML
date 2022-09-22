@@ -38,7 +38,7 @@ class PersistenceInstrumentationTests {
     @Before
     fun setup() {
         launchActivity<MainActivity>()
-        onView(withId(R.id.add_forageable_fab)).perform(click())
+        onView(withId(R.id.add_weather_fab)).perform(click())
 
         onView(withId(R.id.name_input)).perform(replaceText("Name"))
         onView(withId(R.id.zipcode_input)).perform(replaceText("Address"))

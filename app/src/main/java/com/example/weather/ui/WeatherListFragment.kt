@@ -1,5 +1,6 @@
 package com.example.weather.ui
 
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
 import com.example.weather.ui.adapter.WeatherListAdapter
 import com.example.weather.ui.viewmodel.WeatherViewModel
-import com.example.weather.ui.viewmodel.WeatherViewModelFactory
+
 
 /**
  * A fragment to view the list of [Forageable]s stored in the database.
@@ -25,8 +26,8 @@ class WeatherListFragment : Fragment() {
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
     private val viewModel: WeatherViewModel by activityViewModels {
-        WeatherViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao()
+        WeatherViewModel.WeatherViewModelFactory(
+            (activity?.application as BaseApplication).database.weatherDao(), Application() //TODO change here passing application as paramater now
         )
     }
 
@@ -63,7 +64,7 @@ class WeatherListFragment : Fragment() {
 
         binding.apply {
             recyclerView.adapter = adapter
-            addForageableFab.setOnClickListener {
+            addWeatherFab.setOnClickListener {
                 findNavController().navigate(
                     R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
                 )

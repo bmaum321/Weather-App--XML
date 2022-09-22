@@ -1,5 +1,6 @@
 package com.example.weather.network
 
+import androidx.lifecycle.Transformations.map
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.CurrentWeatherData
 import com.example.weather.model.LocationData
@@ -38,18 +39,9 @@ data class WeatherObject(
     val current: String,
 )
 
-
 /**
  * Convert Network results to domain objects
  */
-
-fun WeatherContainer.asDomainModel(): WeatherDomainObject {
-    return WeatherDomainObject(
-        location = location,
-        current = current,
-    )
-
-}
 
 
 /**

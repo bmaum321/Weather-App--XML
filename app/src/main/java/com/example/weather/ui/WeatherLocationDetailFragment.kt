@@ -15,6 +15,7 @@
  */
 package com.example.weather.ui
 
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -27,9 +28,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.databinding.FragmentWeatherDetailBinding
+import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.viewmodel.WeatherViewModel.*
 import com.example.weather.ui.viewmodel.WeatherViewModel
-import com.example.weather.ui.viewmodel.WeatherViewModelFactory
 
 /**
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
@@ -43,8 +45,8 @@ class WeatherLocationDetailFragment : Fragment() {
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
     private val viewModel: WeatherViewModel by activityViewModels{
-        WeatherViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao()
+        WeatherViewModel.WeatherViewModelFactory(
+            (activity?.application as BaseApplication).database.weatherDao(), Application() //tODO change here
         )
     }
 
@@ -59,6 +61,7 @@ class WeatherLocationDetailFragment : Fragment() {
     ): View? {
         _binding = FragmentWeatherDetailBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
+        binding.viewModel = viewModel //TODO TESTING HERE
         return binding.root
     }
 
@@ -69,7 +72,7 @@ class WeatherLocationDetailFragment : Fragment() {
         //  and call the bind weather method
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
-            viewModel.getWeatherData(weatherEntity.zipCode) // update the weather when view is created
+           // viewModel.getWeatherData(weatherEntity.zipCode) // update the weather when view is created //TODO
             bindWeather()
         }
     }
@@ -77,9 +80,9 @@ class WeatherLocationDetailFragment : Fragment() {
     private fun bindWeather() {
         binding.apply {
             name.text = weatherEntity.cityName
-            location.text = viewModel.weatherData.value?.location?.name
-            tempF.text = viewModel.weatherData.value?.current?.temp_f.toString()
-            notes.text = viewModel.weatherData.value?.current?.condition?.text.toString()
+            location.text = weatherEntity.cityName //TODO these are still pulling directly from the database instead of the repository
+            tempF.text = weatherEntity.tempf.toString()
+            notes.text = weatherEntity.notes.toString()
             editWeatherFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weatherEntity.id)

@@ -20,10 +20,12 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
+        <!--TODO This is still pulling from the database, should pull from the repo-->
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:text="@{weather.cityName}"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:layout_marginTop="16dp"
