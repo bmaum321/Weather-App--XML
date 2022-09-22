@@ -29,6 +29,7 @@ import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
 import com.example.weather.ui.viewmodel.WeatherViewModel
 
 
@@ -51,8 +52,8 @@ class AddWeatherLocationFragment : Fragment() {
     //  view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: WeatherViewModel by activityViewModels{
-        WeatherViewModel.WeatherViewModelFactory(
+    private val viewModel: AddWeatherLocationViewModel by activityViewModels{
+        AddWeatherLocationViewModel.AddWeatherLocationViewModelFactory(
             (activity?.application as BaseApplication).database.weatherDao(), Application()  //TODO passing application now
         )
     }
@@ -73,10 +74,8 @@ class AddWeatherLocationFragment : Fragment() {
         if (id > 0) {
 
             // Observe a Weather that is retrieved by id, set the weather variable,
-            //  and call the bindForageable method
+            //  and call the bindWeather method
             viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-               //forageable = selectedForageable
-              //  bindForageable(forageable)
                 if (selectedWeather != null) {
                     weatherEntity = selectedWeather
                     bindWeather(weatherEntity)
@@ -135,7 +134,7 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun bindWeather(weatherEntity: WeatherEntity) {
         binding.apply{
-            nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE)
+            nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE) //TODO this is setting text views directly from the database still
             zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
             notesInput.setText(weatherEntity.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {

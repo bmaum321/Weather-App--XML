@@ -30,6 +30,8 @@ import com.example.weather.BaseApplication
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
+import com.example.weather.ui.viewmodel.WeatherDetailViewModel
 import com.example.weather.ui.viewmodel.WeatherViewModel.*
 import com.example.weather.ui.viewmodel.WeatherViewModel
 
@@ -44,9 +46,9 @@ class WeatherLocationDetailFragment : Fragment() {
     // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: WeatherViewModel by activityViewModels{
-        WeatherViewModel.WeatherViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao(), Application() //tODO change here
+    private val viewModel: WeatherDetailViewModel by activityViewModels{
+        WeatherDetailViewModel.WeatherDetailViewModelFactory(
+            (activity?.application as BaseApplication).database.weatherDao(), Application()  //TODO passing application now
         )
     }
 
@@ -61,7 +63,7 @@ class WeatherLocationDetailFragment : Fragment() {
     ): View? {
         _binding = FragmentWeatherDetailBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
-        binding.viewModel = viewModel //TODO TESTING HERE
+        binding.viewModel = viewModel // TODO TESTING HERE
         return binding.root
     }
 
@@ -71,8 +73,8 @@ class WeatherLocationDetailFragment : Fragment() {
         // Observe a weather object that is retrieved by id, set the weather variable,
         //  and call the bind weather method
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weatherEntity = selectedWeather
-           // viewModel.getWeatherData(weatherEntity.zipCode) // update the weather when view is created //TODO
+           weatherEntity = selectedWeather
+           // viewModel.getWeatherData(weatherEntity.zipCode) // TODO update the weather when view is created
             bindWeather()
         }
     }

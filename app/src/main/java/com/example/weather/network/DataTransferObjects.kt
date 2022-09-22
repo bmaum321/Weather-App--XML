@@ -52,7 +52,7 @@ fun WeatherContainer.asDatabaseModel(zipcode: String): WeatherEntity {
     return WeatherEntity(
         cityName = location.name,
         tempf = current.temp_f,
-        notes = null,
+        notes = null, //TODO need to get rid of this from database and views
         zipCode = zipcode
     )
 

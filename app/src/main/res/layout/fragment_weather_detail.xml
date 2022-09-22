@@ -6,7 +6,7 @@
             type="com.example.weather.domain.WeatherDomainObject" />
         <variable
             name="viewModel"
-            type="com.example.weather.ui.viewmodel.WeatherViewModel" />
+            type="com.example.weather.ui.viewmodel.WeatherDetailViewModel" />
     </data>
 
 

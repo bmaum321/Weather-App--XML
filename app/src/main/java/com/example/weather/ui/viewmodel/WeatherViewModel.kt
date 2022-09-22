@@ -20,16 +20,9 @@ enum class WeatherApiStatus { LOADING, ERROR, DONE }
  * and [AddWeatherLocationFragment] and allow for interaction the the [WeatherDao]
  */
 
-/*
-// Pass a WeatherDao value as a parameter to the view model constructor
-class WeatherViewModel(
-    // Pass dao here
-private val weatherDao: WeatherDao
-): ViewModel() {
-
- */
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
-class WeatherViewModel(private val weatherDao: WeatherDao, application: Application) : AndroidViewModel(application) {
+class WeatherViewModel(private val weatherDao: WeatherDao, application: Application) :
+    AndroidViewModel(application) {
 
 
     //The data source this viewmodel will fetch results from
@@ -37,8 +30,6 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
 
     // A list of weather results for the list screen
     val weatherList = weatherRepository.weatherDomainObjects //TODO when does this get populated?
-
-    private val _weatherList = MutableLiveData<List<WeatherDomainObject>>()
 
     /**
      * Event triggered for network error. This is private to avoid exposing a
@@ -81,13 +72,14 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
     val weatherData: LiveData<WeatherContainer> = _weatherData
 
     // create a property to set to a list of all weather objects from the DAO
-     val allWeatherEntity: LiveData<List<WeatherEntity>> = weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
+    val allWeatherEntity: LiveData<List<WeatherEntity>> =
+        weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
-     fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-      return weatherDao.getWeatherById(id).asLiveData()
-     }
+    fun getWeatherById(id: Long): LiveData<WeatherEntity> {
+        return weatherDao.getWeatherById(id).asLiveData()
+    }
 
     /**
      * Call getWeatherData to get the data immediately
@@ -112,99 +104,18 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
         }
     }
 
-    fun getWeatherData(zipcode: String) {
-        viewModelScope.launch {
-            _status.value = WeatherApiStatus.LOADING
-            try {
-                _weatherData.value = WeatherApi.retrofitService.getWeather(zipcode)
-                _status.value = WeatherApiStatus.DONE
-            } catch (e: Exception) {
-                _status.value = WeatherApiStatus.ERROR
-                // _weatherData.value = WeatherContainer(current = null, location = null)
-            }
-        }
-    }
-
-    fun addWeather(
-        name: String,
-        zipcode: String,
-        notes: String,
-        tempf: Double?
-    ) {
-        val weatherEntity = WeatherEntity(
-            cityName = name,
-            zipCode = zipcode,
-            notes = notes,
-            tempf = tempf
-        )
-
-        // Launch a coroutine and call the DAO method to add a Weather to the database within it
-        viewModelScope.launch {
-            //getWeatherData(zipcode) //TODO trying different calls
-             weatherDao.insert(weatherEntity)
-        }
-
-    }
-
-    fun updateWeather(
-        id: Long,
-        name: String,
-        zipcode: String,
-        notes: String,
-        tempf: Double?
-    ) {
-        val weatherEntity = WeatherEntity(
-            id = id,
-            cityName = name,
-            zipCode = zipcode,
-            notes = notes,
-            tempf = tempf
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            //getWeatherData(zipcode) //TODO trying different calls
-            // call the DAO method to update a weather object to the database here
-             weatherDao.insert(weatherEntity)
-        }
-    }
-
-    fun deleteWeather(weatherEntity: WeatherEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // call the DAO method to delete a weather object to the database here
-              weatherDao.delete(weatherEntity)
-        }
-    }
-
-    fun isValidEntry(name: String, address: String): Boolean {
-        return name.isNotBlank() && address.isNotBlank()
-    }
-
-
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
-class WeatherViewModelFactory(private val weatherDao: WeatherDao, val app: Application) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return WeatherViewModel(weatherDao, app) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
-
-
-/*
-    class WeatherViewModelFactory(val app: Application, private val weatherDao: WeatherDao) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    class WeatherViewModelFactory(private val weatherDao: WeatherDao, val app: Application) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return WeatherViewModel(app, weatherDao) as T
+                return WeatherViewModel(weatherDao, app) as T
             }
-            throw IllegalArgumentException("Unable to construct viewmodel")
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
- */
-
 }
 
