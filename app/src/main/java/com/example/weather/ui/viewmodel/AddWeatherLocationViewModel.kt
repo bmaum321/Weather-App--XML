@@ -97,30 +97,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
             }
         }
     }
-/*
-    fun addWeather(
-        name: String,
-        zipcode: String,
-        tempf: Double?,
-        imgSrcUrl: String
-    ) {
-        val weatherEntity = WeatherEntity(
-            cityName = name,
-            zipCode = zipcode,
-            temp = tempf,
-            imgSrcUrl = imgSrcUrl,
-            conditionText = conditionText,
-        )
 
-        // Launch a coroutine and call the DAO method to add a Weather to the database within it
-        viewModelScope.launch {
-            //getWeatherData(zipcode) //TODO trying different calls
-            weatherDao.insert(weatherEntity)
-        }
-
-    }
-
- */
 
     fun updateWeather(
         id: Long,

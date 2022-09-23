@@ -4,9 +4,14 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
+import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.WeatherContainer
 import com.example.weather.repository.WeatherRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import okio.IOException
 
@@ -18,7 +23,7 @@ enum class WeatherApiStatus { LOADING, ERROR, DONE }
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
-class WeatherViewModel(private val weatherDao: WeatherDao, application: Application) :
+class WeatherListViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
 
@@ -78,6 +83,15 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
         return weatherDao.getWeatherById(id).asLiveData()
     }
 
+    //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
+    fun getZipCodesFromDatabase(): List<String> {
+        return weatherDao.getZipcodes()
+        //TODO might just be able to pass this directly into the below function, but how do
+        // correlate the weather response with each list item
+    }
+
+
+
     /**
      * Call getWeatherData to get the data immediately
      */
@@ -87,17 +101,14 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
         // getWeatherData()
     }
 
-    fun refreshDataFromRepository(zipcode: String) {
-        viewModelScope.launch {
-            try {
-                weatherRepository.storeNetworkWeatherInDatabase(zipcode)
-                _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
-            } catch (networkError: IOException) {
-                //If the weatherList pulled from the repository is empty, Show a Toast error message and hide the progress bar
-                if (weatherList.value.isNullOrEmpty())
-                    _eventNetworkError.value = true
-            }
+    /**
+     *     Method that takes a list of zipcodes as a parameter and retrieve a list of weather
+     *     objects from the repository
+     */
+
+    fun getAllWeather(zipcodes: List<String>): Flow<List<WeatherDomainObject>> {
+        return flow {
+            emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
         }
     }
 
@@ -107,9 +118,9 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
     class WeatherViewModelFactory(private val weatherDao: WeatherDao, val app: Application) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(WeatherListViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return WeatherViewModel(weatherDao, app) as T
+                return WeatherListViewModel(weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

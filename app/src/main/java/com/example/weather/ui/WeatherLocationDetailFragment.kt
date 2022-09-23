@@ -79,7 +79,7 @@ class WeatherLocationDetailFragment : Fragment() {
         }
 
 
-        val zipcode = navigationArgs.zipcode // TODO this was changed
+        val zipcode = navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
         // Observe a weather object that is retrieved by id, set the weather variable,
         //  and call the bind weather method
         lifecycleScope.launch(Dispatchers.IO) {

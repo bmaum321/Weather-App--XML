@@ -28,13 +28,13 @@
             android:id="@+id/action_weatherLocationListFragment_to_addWeatherLocationFragment"
             app:destination="@id/addWeatherLocationFragment" />
         <action
-            android:id="@+id/action_forageableListFragment_to_forageableDetailFragment"
+            android:id="@+id/action_weatherListFragment_to_weatherDetailFragment"
             app:destination="@id/weatherLocationDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/addWeatherLocationFragment"
         android:name="com.example.weather.ui.AddWeatherLocationFragment"
-        android:label="Edit Location"
+        android:label="Add/Edit Location"
         tools:layout="@layout/fragment_add_weather_location">
         <action
             android:id="@+id/action_addWeatherFragment_to_WeatherListFragment"

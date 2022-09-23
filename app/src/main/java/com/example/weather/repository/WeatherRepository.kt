@@ -25,19 +25,21 @@ class WeatherRepository(private val database: WeatherDatabase) {
     }
 
     suspend fun getWeather(zipcode: String): WeatherDomainObject {
-            val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
+        val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
         return weatherData.asDomainModel(zipcode)
     }
 
     //TODO need to create a function that calls the API for each zip code and returns a list of
     // Weather domain objects for the main screen
 
-    /*
-    suspend fun getWeatherForZipCodes(zipcodes: List<String>): List<WeatherDomainObject>  {
-        val weatherData
-    }
 
-     */
+    suspend fun getWeatherListForZipCodes(zipcodes: List<String>): List<WeatherDomainObject> {
+        val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
+        zipcodes.forEach { zipcode ->
+            weatherDomainObjects.add(getWeather(zipcode))
+        }
+        return weatherDomainObjects
+    }
 
 
     /**

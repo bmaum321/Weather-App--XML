@@ -14,7 +14,7 @@
             type="com.example.weather.domain.WeatherDomainObject" />
         <variable
             name="viewModel"
-            type="com.example.weather.ui.viewmodel.WeatherViewModel" />
+            type="com.example.weather.ui.viewmodel.WeatherListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@{weather.temp.toString()}"
+            android:text="@{@string/Temp(weather.temp.toString())}"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
