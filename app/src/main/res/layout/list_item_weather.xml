@@ -60,14 +60,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/sun_026" />
+            app:imageUrl="@{weather.imgSrcUrl}"/>
 
         <TextView
             android:id="@+id/tempF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@{weather.tempf.toString()}"
+            android:text="@{weather.temp.toString()}"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"

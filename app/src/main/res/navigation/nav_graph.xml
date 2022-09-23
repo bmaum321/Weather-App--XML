@@ -47,15 +47,17 @@
     <fragment
         android:id="@+id/weatherLocationDetailFragment"
         android:name="com.example.weather.ui.WeatherLocationDetailFragment"
-        android:label="Location"
+        android:label="Weather Details"
         tools:layout="@layout/fragment_weather_detail">
-        <argument
-            android:name="id"
-            android:defaultValue="0L"
-            app:argType="long" />
         <action
             android:id="@+id/action_weatherLocationDetailFragment_to_addWeatherLocationFragment"
             app:destination="@id/addWeatherLocationFragment" />
+        <argument
+            android:name="zipcode"
+            app:argType="string" />
+        <argument
+            android:name="id"
+            app:argType="long" />
     </fragment>
 
 </navigation>

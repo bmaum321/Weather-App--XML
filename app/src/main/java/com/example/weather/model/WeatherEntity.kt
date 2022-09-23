@@ -15,8 +15,11 @@ data class WeatherEntity(
     val id: Long = 0,
     val cityName: String,
     val zipCode: String,
-    val notes: String?,
-    val tempf: Double?
+    val temp: Double?,
+    val imgSrcUrl: String,
+    val conditionText: String,
+    val windMph: Double,
+    val windDirection: String
 )
 
 
@@ -28,11 +31,13 @@ fun List<WeatherEntity>.asDomainModel(): List<WeatherDomainObject> {
         WeatherDomainObject(
             location = it.cityName,
             zipcode = it.zipCode,
-            tempf = it.tempf
+            tempf = it.temp,
+            imgSrcUrl = it.imgSrcUrl,
+            conditionText = it.conditionText,
+            windMph = it.windMph,
+            windDirection = it.windDirection
         )
     }
-
-
 }
 
 

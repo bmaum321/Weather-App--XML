@@ -51,7 +51,7 @@ class WeatherListFragment : Fragment() {
 
         val adapter = WeatherListAdapter { weather ->
             val action = WeatherListFragmentDirections
-                .actionForageableListFragmentToForageableDetailFragment(weather.id)
+                .actionForageableListFragmentToForageableDetailFragment(weather.zipCode, weather.id)
             findNavController().navigate(action)
         }
 

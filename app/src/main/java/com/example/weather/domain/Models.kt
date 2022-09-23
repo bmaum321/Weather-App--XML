@@ -1,7 +1,10 @@
 package com.example.weather.domain
 
+import androidx.lifecycle.Transformations.map
 import com.example.weather.model.CurrentWeatherData
 import com.example.weather.model.LocationData
+import com.example.weather.model.WeatherEntity
+import com.example.weather.network.WeatherContainer
 
 
 /**
@@ -16,6 +19,22 @@ import com.example.weather.model.LocationData
 data class WeatherDomainObject(
     val location: String,
     val tempf: Double?,
-    val zipcode: String
+    val zipcode: String,
+    val imgSrcUrl: String,
+    val conditionText: String,
+    val windMph: Double,
+    val windDirection: String
 )
+
+fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
+    return WeatherDomainObject(
+            location = location.name,
+            zipcode = zipcode,
+            tempf = current.temp_f,
+            imgSrcUrl = current.condition.icon,
+            conditionText = current.condition.text,
+            windMph = current.wind_mph,
+            windDirection = current.wind_dir
+        )
+    }
 

@@ -24,16 +24,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
-import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
 import com.example.weather.ui.viewmodel.WeatherDetailViewModel
-import com.example.weather.ui.viewmodel.WeatherViewModel.*
-import com.example.weather.ui.viewmodel.WeatherViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
@@ -69,22 +71,34 @@ class WeatherLocationDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //TODO this is old code, need to try and pass something else as ID to the add fragment
         val id = navigationArgs.id
+        viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
+            weatherEntity = selectedWeather
+        }
+
+
+        val zipcode = navigationArgs.zipcode // TODO this was changed
         // Observe a weather object that is retrieved by id, set the weather variable,
         //  and call the bind weather method
-        viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-           weatherEntity = selectedWeather
-           // viewModel.getWeatherData(weatherEntity.zipCode) // TODO update the weather when view is created
-            bindWeather()
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.getWeatherFromNetworkByZipCode(zipcode).collect {
+                withContext(Dispatchers.Main) { //Data binding always done on main thread
+                    bindWeather(it)
+                }
+            }
         }
     }
 
-    private fun bindWeather() {
+    private fun bindWeather(weatherDomainObject: WeatherDomainObject) {
         binding.apply {
-            name.text = weatherEntity.cityName
-            location.text = weatherEntity.cityName //TODO these are still pulling directly from the database instead of the repository
-            tempF.text = weatherEntity.tempf.toString()
-            notes.text = weatherEntity.notes.toString()
+            name.text = weatherDomainObject.location
+            location.text = weatherDomainObject.zipcode // TODO DO we bind these text views in the code? or do we implemnt them in xml??????
+            tempF.text = weatherDomainObject.tempf.toString()
+            conditionText.text = weatherDomainObject.conditionText
+            windMph.text = weatherDomainObject.windMph.toString()
+            windDirection.text = weatherDomainObject.windDirection
             editWeatherFab.setOnClickListener {
                 val action = WeatherLocationDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weatherEntity.id)
@@ -92,13 +106,13 @@ class WeatherLocationDetailFragment : Fragment() {
             }
 
             location.setOnClickListener {
-                launchMap()
+                launchMap(weatherDomainObject)
             }
         }
     }
 
-    private fun launchMap() {
-        val address = weatherEntity.zipCode.let {
+    private fun launchMap(weatherDomainObject: WeatherDomainObject) {
+        val address = weatherDomainObject.zipcode.let {
             it.replace(", ", ",")
             it.replace(". ", " ")
             it.replace(" ", "+")

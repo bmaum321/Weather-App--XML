@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.WeatherContainer
 import com.example.weather.repository.WeatherRepository
@@ -25,7 +24,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
     // A list of weather results for the list screen
-    val weatherList = weatherRepository.weatherDomainObjects //TODO when does this get populated?
+    val weatherList = weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
 
     /**
      * Event triggered for network error. This is private to avoid exposing a
@@ -85,10 +84,10 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         // getWeatherData()
     }
 
-    fun refreshDataFromRepository(zipcode: String) {
+    fun storeNetworkDataInDatabase(zipcode: String) {
         viewModelScope.launch {
             try {
-                weatherRepository.refreshWeather(zipcode)
+                weatherRepository.storeNetworkWeatherInDatabase(zipcode)
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
             } catch (networkError: IOException) {
@@ -98,18 +97,19 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
             }
         }
     }
-
+/*
     fun addWeather(
         name: String,
         zipcode: String,
-        notes: String,
-        tempf: Double?
+        tempf: Double?,
+        imgSrcUrl: String
     ) {
         val weatherEntity = WeatherEntity(
             cityName = name,
             zipCode = zipcode,
-            notes = notes,
-            tempf = tempf
+            temp = tempf,
+            imgSrcUrl = imgSrcUrl,
+            conditionText = conditionText,
         )
 
         // Launch a coroutine and call the DAO method to add a Weather to the database within it
@@ -120,19 +120,27 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
     }
 
+ */
+
     fun updateWeather(
         id: Long,
         name: String,
         zipcode: String,
-        notes: String,
-        tempf: Double?
+        tempf: Double?,
+        imgSrcUrl: String,
+        conditonText: String,
+        windMph: Double,
+        windDirection: String
     ) {
         val weatherEntity = WeatherEntity(
             id = id,
             cityName = name,
             zipCode = zipcode,
-            notes = notes,
-            tempf = tempf
+            temp = tempf,
+            imgSrcUrl = imgSrcUrl,
+            conditionText = conditonText,
+            windMph = windMph,
+            windDirection = windDirection
         )
         viewModelScope.launch(Dispatchers.IO) {
             //getWeatherData(zipcode) //TODO trying different calls

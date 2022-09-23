@@ -1,7 +1,5 @@
 package com.example.weather.network
 
-import androidx.lifecycle.Transformations.map
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.CurrentWeatherData
 import com.example.weather.model.LocationData
 import com.example.weather.model.WeatherEntity
@@ -51,11 +49,13 @@ fun WeatherContainer.asDatabaseModel(zipcode: String): WeatherEntity {
 
     return WeatherEntity(
         cityName = location.name,
-        tempf = current.temp_f,
-        notes = null, //TODO need to get rid of this from database and views
-        zipCode = zipcode
+        temp = current.temp_f,
+        zipCode = zipcode,
+        imgSrcUrl = current.condition.icon,
+        windDirection = current.wind_dir,
+        windMph = current.wind_mph,
+        conditionText = current.condition.text
     )
-
 
 }
 

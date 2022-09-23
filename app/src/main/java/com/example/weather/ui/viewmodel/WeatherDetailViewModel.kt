@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
+import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 import com.example.weather.repository.WeatherRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 
 /**
@@ -21,21 +24,20 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
     // A list of weather results for the list screen
     val weatherList = weatherRepository.weatherDomainObjects //TODO when does this get populated?
 
+
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<WeatherEntity> {
         return weatherDao.getWeatherById(id).asLiveData()
     }
 
-    /**
-     * Call getWeatherData to get the data immediately
-     */
-    init {
-        //TODO right now the app is only calling the api once, when the viewmodel is created,
-        // or when the app is first started
-        // getWeatherData()
+    // Method that takes zipcode as a parameter and retrieve a Weather from the
+    //  repository
+    fun getWeatherFromNetworkByZipCode(zipcode: String): Flow<WeatherDomainObject> {
+        return flow {
+            emit(weatherRepository.getWeather(zipcode))
+        }
     }
-
 
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel

@@ -30,7 +30,6 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
-import com.example.weather.ui.viewmodel.WeatherViewModel
 
 
 /**
@@ -89,7 +88,6 @@ class AddWeatherLocationFragment : Fragment() {
         } else {
             binding.saveBtn.setOnClickListener {
                 addWeather()
-               // viewModel.getWeatherData(binding.zipcodeInput.text.toString())
             }
         }
     }
@@ -103,14 +101,7 @@ class AddWeatherLocationFragment : Fragment() {
 
     private fun addWeather() {
         if (isValidEntry()) {
-           // viewModel.getWeatherData(binding.zipcodeInput.text.toString()) //call API here to put tempf value in database
-            viewModel.refreshDataFromRepository(binding.zipcodeInput.text.toString()) // trying the new repository
-           // viewModel.addWeather(
-             //   binding.nameInput.text.toString(), //TODO no longer need these because the repository is updating the database with the API call
-             //   binding.zipcodeInput.text.toString(),
-            //    binding.notesInput.text.toString(),
-             //   viewModel.weatherData.value?.current?.temp_f
-         //   )
+            viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString()) // trying the new repository
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment
             )
@@ -123,8 +114,11 @@ class AddWeatherLocationFragment : Fragment() {
                 id = navigationArgs.id,
                 name = binding.nameInput.text.toString(),
                 zipcode = binding.zipcodeInput.text.toString(),
-                notes = binding.notesInput.text.toString(),
-                tempf = viewModel.weatherData.value?.current?.temp_f
+                tempf = weatherEntity.temp,
+                imgSrcUrl = weatherEntity.imgSrcUrl,
+                windDirection = weatherEntity.windDirection,
+                windMph = weatherEntity.windMph,
+                conditonText = weatherEntity.conditionText
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment
@@ -136,7 +130,6 @@ class AddWeatherLocationFragment : Fragment() {
         binding.apply{
             nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE) //TODO this is setting text views directly from the database still
             zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
-            notesInput.setText(weatherEntity.notes, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
             }

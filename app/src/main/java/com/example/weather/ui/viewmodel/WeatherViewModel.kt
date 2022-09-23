@@ -4,12 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
-import com.example.weather.network.WeatherApi
 import com.example.weather.network.WeatherContainer
 import com.example.weather.repository.WeatherRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okio.IOException
 
@@ -93,7 +90,7 @@ class WeatherViewModel(private val weatherDao: WeatherDao, application: Applicat
     fun refreshDataFromRepository(zipcode: String) {
         viewModelScope.launch {
             try {
-                weatherRepository.refreshWeather(zipcode)
+                weatherRepository.storeNetworkWeatherInDatabase(zipcode)
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
             } catch (networkError: IOException) {
