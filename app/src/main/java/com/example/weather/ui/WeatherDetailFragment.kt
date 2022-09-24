@@ -39,11 +39,11 @@ import kotlinx.coroutines.withContext
 
 /**
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
- * The [AddWeatherLocationFragment] can be launched from this fragment to edit the [WeatherEntity]
+ * The [AddWeatherFragment] can be launched from this fragment to edit the [WeatherEntity]
  */
-class WeatherLocationDetailFragment : Fragment() {
+class WeatherDetailFragment : Fragment() {
 
-    private val navigationArgs: WeatherLocationDetailFragmentArgs by navArgs()
+    private val navigationArgs: WeatherDetailFragmentArgs by navArgs()
 
     // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
@@ -72,14 +72,20 @@ class WeatherLocationDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        /*
         //TODO this is old code, need to try and pass something else as ID to the add fragment
         val id = navigationArgs.id
         viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
         }
 
+         */
+
 
         val zipcode = navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
+        viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
+            weatherEntity = selectedWeather
+        }
         // Observe a weather object that is retrieved by id, set the weather variable,
         //  and call the bind weather method
         lifecycleScope.launch(Dispatchers.IO) {
@@ -100,7 +106,7 @@ class WeatherLocationDetailFragment : Fragment() {
             windMph.text = weatherDomainObject.windMph.toString()
             windDirection.text = weatherDomainObject.windDirection
             editWeatherFab.setOnClickListener {
-                val action = WeatherLocationDetailFragmentDirections
+                val action = WeatherDetailFragmentDirections
                     .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weatherEntity.id)
                 findNavController().navigate(action)
             }

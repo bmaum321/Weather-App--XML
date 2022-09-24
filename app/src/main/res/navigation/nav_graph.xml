@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/addWeatherLocationFragment"
-        android:name="com.example.weather.ui.AddWeatherLocationFragment"
+        android:name="com.example.weather.ui.AddWeatherFragment"
         android:label="Add/Edit Location"
         tools:layout="@layout/fragment_add_weather_location">
         <action
@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/weatherLocationDetailFragment"
-        android:name="com.example.weather.ui.WeatherLocationDetailFragment"
+        android:name="com.example.weather.ui.WeatherDetailFragment"
         android:label="Weather Details"
         tools:layout="@layout/fragment_weather_detail">
         <action
@@ -55,9 +55,6 @@
         <argument
             android:name="zipcode"
             app:argType="string" />
-        <argument
-            android:name="id"
-            app:argType="long" />
     </fragment>
 
 </navigation>

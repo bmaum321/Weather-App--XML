@@ -36,9 +36,9 @@ import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
  * A fragment to enter data for a new [WeatherEntity] or edit data for an existing [WeatherEntity].
  * [WeatherEntity]s can be saved or deleted from this fragment.
  */
-class AddWeatherLocationFragment : Fragment() {
+class AddWeatherFragment : Fragment() {
 
-    private val navigationArgs: AddWeatherLocationFragmentArgs by navArgs()
+    private val navigationArgs: AddWeatherFragmentArgs by navArgs()
 
     private var _binding: FragmentAddWeatherLocationBinding? = null
 

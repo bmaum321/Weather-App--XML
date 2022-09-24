@@ -84,21 +84,17 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     }
 
     //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
-    fun getZipCodesFromDatabase(): List<String> {
+    private fun getZipCodesFromDatabase(): List<String> {
         return weatherDao.getZipcodes()
         //TODO might just be able to pass this directly into the below function, but how do
         // correlate the weather response with each list item
     }
 
-
-
     /**
      * Call getWeatherData to get the data immediately
      */
     init {
-        //TODO right now the app is only calling the api once, when the viewmodel is created,
-        // or when the app is first started
-        // getWeatherData()
+        getAllWeather()
     }
 
     /**
@@ -106,9 +102,12 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      *     objects from the repository
      */
 
-    fun getAllWeather(zipcodes: List<String>): Flow<List<WeatherDomainObject>> {
+    fun getAllWeather(): Flow<List<WeatherDomainObject>> {
         return flow {
-            emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
+            val zipcodes = getZipCodesFromDatabase()
+            if(zipcodes.isNotEmpty()) {
+                emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
+           }
         }
     }
 

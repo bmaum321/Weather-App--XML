@@ -120,7 +120,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
             windDirection = windDirection
         )
         viewModelScope.launch(Dispatchers.IO) {
-            //getWeatherData(zipcode) //TODO trying different calls
             // call the DAO method to update a weather object to the database here
             weatherDao.insert(weatherEntity)
         }

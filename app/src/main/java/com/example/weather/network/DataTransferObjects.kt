@@ -13,15 +13,7 @@ import com.squareup.moshi.JsonClass
  * @see domain package for
  */
 
-/**
- * VideoHolder holds a list of Videos.
- *
- * This is to parse first level of our network result which looks like
- *
- * {
- *   "videos": []
- * }
- */
+
 @JsonClass(generateAdapter = true)
 data class WeatherContainer(
     val location: LocationData,
@@ -29,28 +21,14 @@ data class WeatherContainer(
 )
 
 /**
- *
- */
-@JsonClass(generateAdapter = true)
-data class WeatherObject(
-    val location: String,
-    val current: String,
-)
-
-/**
- * Convert Network results to domain objects
- */
-
-
-/**
  * Convert Network results to database objects
  */
 fun WeatherContainer.asDatabaseModel(zipcode: String): WeatherEntity {
 
     return WeatherEntity(
+        zipCode = zipcode,
         cityName = location.name,
         temp = current.temp_f,
-        zipCode = zipcode,
         imgSrcUrl = current.condition.icon,
         windDirection = current.wind_dir,
         windMph = current.wind_mph,

@@ -31,6 +31,10 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
         return weatherDao.getWeatherById(id).asLiveData()
     }
 
+    fun getWeatherByZipcode(zipcode: String): LiveData<WeatherEntity> {
+        return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
+    }
+
     // Method that takes zipcode as a parameter and retrieve a Weather from the
     //  repository
     fun getWeatherFromNetworkByZipCode(zipcode: String): Flow<WeatherDomainObject> {

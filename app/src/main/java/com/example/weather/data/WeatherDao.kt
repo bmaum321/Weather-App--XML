@@ -22,6 +22,10 @@ interface WeatherDao {
     @Query("SELECT * FROM weather_database WHERE id = :id")
     fun getWeatherById(id: Long): Flow<WeatherEntity>
 
+    // method to retrieve a Weather from the database by id
+    @Query("SELECT * FROM weather_database WHERE zipCode = :zipcode")
+    fun getWeatherByZipcode(zipcode: String): Flow<WeatherEntity>
+
     // method to insert a Weather into the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(weatherEntity: WeatherEntity)
