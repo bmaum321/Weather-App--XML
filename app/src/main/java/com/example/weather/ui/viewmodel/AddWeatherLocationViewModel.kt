@@ -5,11 +5,12 @@ import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
 import com.example.weather.model.WeatherEntity
+import com.example.weather.network.ApiResponse
 import com.example.weather.network.WeatherContainer
+import com.example.weather.network.asDatabaseModel
 import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okio.IOException
 
 
 /**
@@ -17,27 +18,17 @@ import okio.IOException
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
-class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, application: Application) : AndroidViewModel(application) {
+class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, application: Application) :
+    AndroidViewModel(application) {
 
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
     // A list of weather results for the list screen
-    val weatherList = weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
+    val weatherList =
+        weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
 
-    /**
-     * Event triggered for network error. This is private to avoid exposing a
-     * way to set this value to observers.
-     */
-    private var _eventNetworkError = MutableLiveData<Boolean>(false)
-
-    /**
-     * Event triggered for network error. Views should use this to get access
-     * to the data.
-     */
-    val eventNetworkError: LiveData<Boolean>
-        get() = _eventNetworkError
 
     /**
      * Flag to display the error message. This is private to avoid exposing a
@@ -53,6 +44,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         get() = _isNetworkErrorShown
 
 
+
     // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
     // with new values
     private val _weatherData = MutableLiveData<WeatherContainer>()
@@ -61,7 +53,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     val weatherData: LiveData<WeatherContainer> = _weatherData
 
     // create a property to set to a list of all weather objects from the DAO
-    val allWeatherEntity: LiveData<List<WeatherEntity>> = weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
+    val allWeatherEntity: LiveData<List<WeatherEntity>> =
+        weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
@@ -80,16 +73,17 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
     fun storeNetworkDataInDatabase(zipcode: String) {
         viewModelScope.launch {
-            try {
-                weatherRepository.storeNetworkWeatherInDatabase(zipcode)
-                _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
-            } catch (networkError: IOException) {
-                //If the weatherList pulled from the repository is empty, Show a Toast error message and hide the progress bar
-                if (weatherList.value.isNullOrEmpty())
-                    _eventNetworkError.value = true
-            }
+           when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
+               is ApiResponse.Success -> {
+                   weatherDao.insert(response.data.asDatabaseModel(zipcode))
+                   _isNetworkErrorShown.value = false
+               }
+               is ApiResponse.Failure -> _isNetworkErrorShown.value = true
+               is ApiResponse.Exception -> _isNetworkErrorShown.value = true
+           }
+
         }
+
     }
 
 
@@ -126,15 +120,18 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         }
     }
 
-    fun isValidEntry(name: String, address: String): Boolean {
-        return name.isNotBlank() && address.isNotBlank()
+    fun isValidEntry(zipcode: String): Boolean {
+        return zipcode.isNotBlank()
     }
 
 
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
-    class AddWeatherLocationViewModelFactory(private val weatherDao: WeatherDao, val app: Application) : ViewModelProvider.Factory {
+    class AddWeatherLocationViewModelFactory(
+        private val weatherDao: WeatherDao,
+        val app: Application
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(AddWeatherLocationViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")

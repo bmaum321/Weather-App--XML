@@ -59,7 +59,7 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
 
     fun getWeatherForZipcode(zipcode: String): Flow<WeatherViewData> {
         return flow {
-           // emit(WeatherViewData.Loading()) //TODO bug here
+            emit(WeatherViewData.Loading()) //TODO bug here
             when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
                 is ApiResponse.Success -> emit(WeatherViewData.Done(response.data.asDomainModel(zipcode)))
                 is ApiResponse.Failure -> emit(WeatherViewData.Error())

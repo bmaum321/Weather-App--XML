@@ -112,6 +112,7 @@ class WeatherDetailFragment : Fragment() {
                     conditionText.text = weatherViewData.weatherDomainObject.conditionText
                     windMph.text = weatherViewData.weatherDomainObject.windMph.toString()
                     windDirection.text = weatherViewData.weatherDomainObject.windDirection
+                    statusImage.visibility = View.GONE
                     editWeatherFab.setOnClickListener {
                         val action = WeatherDetailFragmentDirections
                             .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
@@ -141,14 +142,6 @@ class WeatherDetailFragment : Fragment() {
             is WeatherViewData.Loading -> {
                 binding.apply {
                     statusImage.setImageResource(R.drawable.loading_animation)
-                    dividerConditionText.visibility = View.GONE
-                    dividerLocation.visibility = View.GONE
-                    dividerSeason.visibility = View.GONE
-                    dividerWindMph.visibility = View.GONE
-                    icCalendar.visibility = View.GONE
-                    icLocation.visibility = View.GONE
-                    icConditionText.visibility = View.GONE
-                    icWindMph.visibility = View.GONE
                 }
             }
         }

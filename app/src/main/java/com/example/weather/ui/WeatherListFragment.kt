@@ -18,7 +18,9 @@ import com.example.weather.databinding.FragmentWeatherListBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.WeatherListAdapter
 import com.example.weather.ui.viewmodel.WeatherListViewModel
+import com.example.weather.ui.viewmodel.WeatherViewDataList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -54,14 +56,18 @@ class WeatherListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentWeatherListBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner //TODO need layout tags in xml for this to work?
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.refresh()
+        lifecycleScope.launch {
+            delay(300)
+            viewModel.refresh()
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,12 +81,49 @@ class WeatherListFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getAllWeather().collect {
+            viewModel.getAllWeatherWithErrorHandling().collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
-                    adapter.submitList(it)
+                    when (it) {
+                        is WeatherViewDataList.Done -> {
+                            adapter.submitList(it.weatherDomainObjects)
+
+                            binding.apply {
+                                recyclerView.adapter = adapter
+                                addWeatherFab.setOnClickListener {
+                                    findNavController().navigate(
+                                        R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
+                                    )
+                                }
+                                swipeRefresh.setOnRefreshListener {
+                                    refreshScreen()
+                                    binding.swipeRefresh.isRefreshing = false
+                                }
+                                statusImage.visibility = View.GONE
+                            }
+                        }
+                        is WeatherViewDataList.Error -> {
+                            binding.apply {
+                                statusImage.setImageResource(R.drawable.ic_connection_error)
+                                adapter.submitList(emptyList())
+                                recyclerView.adapter = adapter
+                                swipeRefresh.setOnRefreshListener {
+                                    refreshScreen()
+                                    binding.swipeRefresh.isRefreshing = false
+                                }
+                            }
+                        }
+
+                        is WeatherViewDataList.Loading -> {
+                            binding.apply {
+                                statusImage.setImageResource(R.drawable.loading_animation)
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
 
 /*
         // TODO: observe the list of weather objects from the view model and submit it the adapter
@@ -92,58 +135,45 @@ class WeatherListFragment : Fragment() {
         }
  */
 
-        binding.apply {
-            recyclerView.adapter = adapter
-            addWeatherFab.setOnClickListener {
-                findNavController().navigate(
-                    R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
-                )
-            }
-            swipeRefresh.setOnRefreshListener {
-                refreshScreen()
-                binding.swipeRefresh.isRefreshing = false
-            }
-        }
-    }
 
     private fun refreshScreen() {
         viewModel.refresh()
     }
 
-    /*
- * Listen for option item selections so that we receive a notification
- * when the user requests a refresh by selecting the refresh action bar item.
- *
- */
-    /*
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val adapter = WeatherListAdapter { weather ->
-            val action = WeatherListFragmentDirections
-                .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
-            findNavController().navigate(action)
+/*
+* Listen for option item selections so that we receive a notification
+* when the user requests a refresh by selecting the refresh action bar item.
+*
+*/
+/*
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    val adapter = WeatherListAdapter { weather ->
+        val action = WeatherListFragmentDirections
+            .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
+        findNavController().navigate(action)
+    }
+    when (item.itemId) {
+
+
+        // Check if user triggered a refresh:
+        R.id.menu_refresh -> {
+
+            // Signal SwipeRefreshLayout to start the progress indicator
+            binding.swiperefresh.isRefreshing = true
+
+            // Start the refresh background task.
+            // This method calls setRefreshing(false) when it's finished.
+            refreshScreen(viewModel, adapter = adapter)
+
+            return true
         }
-        when (item.itemId) {
-
-
-            // Check if user triggered a refresh:
-            R.id.menu_refresh -> {
-
-                // Signal SwipeRefreshLayout to start the progress indicator
-                binding.swiperefresh.isRefreshing = true
-
-                // Start the refresh background task.
-                // This method calls setRefreshing(false) when it's finished.
-                refreshScreen(viewModel, adapter = adapter)
-
-                return true
-            }
-        }
-
-        // User didn't trigger a refresh, let the superclass handle this action
-        return super.onOptionsItemSelected(item)
     }
 
-     */
+    // User didn't trigger a refresh, let the superclass handle this action
+    return super.onOptionsItemSelected(item)
+}
+
+ */
 
 
 }

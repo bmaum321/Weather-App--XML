@@ -11,6 +11,7 @@ import com.example.weather.network.ApiResponse
 import com.example.weather.network.WeatherContainer
 import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okio.IOException
@@ -33,7 +34,9 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     AndroidViewModel(application) {
 
 
-    private val refreshFlow = MutableStateFlow(Unit)
+    private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
+        tryEmit(Unit)
+    }
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
@@ -76,12 +79,14 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
 
     // create a property to set to a list of all weather objects from the DAO
     val allWeatherEntity: LiveData<List<WeatherEntity>> =
-        weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
+        weatherDao.getWeatherLocations()
+            .asLiveData() //TODO pull from repo?
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-        return weatherDao.getWeatherById(id).asLiveData()
+        return weatherDao.getWeatherById(id)
+            .asLiveData()
     }
 
     //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
@@ -113,29 +118,29 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
                 }
             }
     }
-//TODO not sure what to do here
-    /*
-    fun getAllWeatherWithErrorHandling(): Flow<List<WeatherViewDataList>> {
+
+    fun getAllWeatherWithErrorHandling(): Flow<WeatherViewDataList> {
         return refreshFlow
             .flatMapLatest {
                 flow {
+                    emit(WeatherViewDataList.Loading())
                     val zipcodes = getZipCodesFromDatabase()
-                    val response = weatherRepository.getWeatherListForZipCodesWithErrorHandling(zipcodes)
                     if(zipcodes.isNotEmpty()) {
-                        if (response.contains(ApiResponse.Success())
-
-
+                        when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())){
+                            is ApiResponse.Success -> emit(WeatherViewDataList.Done(weatherRepository.getWeatherListForZipCodes(zipcodes)))
+                            is ApiResponse.Failure -> emit(WeatherViewDataList.Error())
+                            is ApiResponse.Exception -> emit(WeatherViewDataList.Error())
+                        }
                     }
                 }
             }
 
-
     }
-         */
+
 
     //TODO this isnt working
     fun refresh() {
-        refreshFlow.value = Unit
+        refreshFlow.tryEmit(Unit)
     }
 
 // create a view model factory that takes a WeatherDao as a property and

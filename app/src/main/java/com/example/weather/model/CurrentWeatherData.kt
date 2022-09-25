@@ -14,3 +14,10 @@ data class CurrentWeatherData(
     val feelslike_f: Double,
     val condition: Condition
 )
+
+@JsonClass(generateAdapter = true)
+data class Condition(
+    val text: String,
+    val icon: String,
+    val code: Int
+)

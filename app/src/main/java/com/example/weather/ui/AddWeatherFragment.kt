@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -102,17 +103,27 @@ class AddWeatherFragment : Fragment() {
     private fun addWeather() {
         if (isValidEntry()) {
             viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString()) // trying the new repository
-            findNavController().navigate(
-                R.id.action_addWeatherFragment_to_WeatherListFragment
-            )
+            viewModel.isNetworkErrorShown.observe(this.viewLifecycleOwner) { error ->
+                if (error == true){
+                    showToast()
+                }
+            }
+            findNavController().popBackStack()
         }
+    }
+
+    private fun showToast() {
+        val text = "Cannot add location, check network connection or zipcode"
+        val duration = Toast.LENGTH_LONG
+        val toast = Toast.makeText(context, text, duration)
+        toast.show()
     }
 
     private fun updateWeather() {
         if (isValidEntry()) {
             viewModel.updateWeather(
                 id = navigationArgs.id,
-                name = binding.nameInput.text.toString(),
+                name = weatherEntity.cityName,
                 zipcode = binding.zipcodeInput.text.toString(),
                 tempf = weatherEntity.temp,
                 imgSrcUrl = weatherEntity.imgSrcUrl,
@@ -128,7 +139,7 @@ class AddWeatherFragment : Fragment() {
 
     private fun bindWeather(weatherEntity: WeatherEntity) {
         binding.apply{
-            nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE) //TODO this is setting text views directly from the database still
+            //nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE) //TODO this is setting text views directly from the database still
             zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
@@ -138,7 +149,7 @@ class AddWeatherFragment : Fragment() {
     }
 
     private fun isValidEntry() = viewModel.isValidEntry(
-        binding.nameInput.text.toString(),
+      //  binding.nameInput.text.toString(),
         binding.zipcodeInput.text.toString()
     )
 

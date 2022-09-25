@@ -38,7 +38,8 @@
         tools:layout="@layout/fragment_add_weather_location">
         <action
             android:id="@+id/action_addWeatherFragment_to_WeatherListFragment"
-            app:destination="@id/weatherListFragment" />
+            app:destination="@id/weatherListFragment"
+            app:popUpToInclusive="false" />
         <argument
             android:name="id"
             android:defaultValue="0L"
