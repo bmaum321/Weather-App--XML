@@ -13,17 +13,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <string name="app_name">Weather</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="list_fragment_label">List Fragment</string>
-    <string name="add_fragment_label">Add Fragment</string>
-    <string name="Temp">%s F</string>
-    <string name="city_name">City Name</string>
-    <string name="zip_code">Zip Code</string>
-    <string name="notes">Notes</string>
-    <string name="save">Save</string>
-    <string name="menu_refresh">Refresh</string>
-    <string name="delete">Delete</string>
-</resources>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="#A9A9AC"
+    android:viewportWidth="24.0"
+    android:viewportHeight="24.0">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M21,5v6.59l-3,-3.01 -4,4.01 -4,-4 -4,4 -3,-3.01L3,5c0,-1.1 0.9,-2 2,-2h14c1.1,0 2,0.9 2,2zM18,11.42l3,3.01L21,19c0,1.1 -0.9,2 -2,2L5,21c-1.1,0 -2,-0.9 -2,-2v-6.58l3,2.99 4,-4 4,4 4,-3.99z" />
+</vector>

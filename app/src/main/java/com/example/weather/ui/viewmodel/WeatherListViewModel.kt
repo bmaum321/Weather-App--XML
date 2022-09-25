@@ -5,17 +5,23 @@ import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
 import com.example.weather.domain.WeatherDomainObject
+import com.example.weather.domain.asDomainModel
 import com.example.weather.model.WeatherEntity
+import com.example.weather.network.ApiResponse
 import com.example.weather.network.WeatherContainer
 import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okio.IOException
+import retrofit2.Response
 
-enum class WeatherApiStatus { LOADING, ERROR, DONE }
+
+sealed class WeatherViewDataList() {
+    class Loading() : WeatherViewDataList()
+    class Error() : WeatherViewDataList()
+    class Done(val weatherDomainObjects: List<WeatherDomainObject>): WeatherViewDataList()
+}
 
 /**
  * Shared [ViewModel] to provide data to the [WeatherListFragment], [WeatherLocationDetailFragment],
@@ -26,6 +32,8 @@ enum class WeatherApiStatus { LOADING, ERROR, DONE }
 class WeatherListViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
+
+    private val refreshFlow = MutableStateFlow(Unit)
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
@@ -59,13 +67,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     val isNetworkErrorShown: LiveData<Boolean>
         get() = _isNetworkErrorShown
 
-
-    // The internal MutableLiveData that stores the status of the most recent request
-    private val _status = MutableLiveData<WeatherApiStatus>()
-
-    // The external immutable LiveData for the request status
-    val status: LiveData<WeatherApiStatus> = _status
-
     // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
     // with new values
     private val _weatherData = MutableLiveData<WeatherContainer>()
@@ -94,7 +95,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      * Call getWeatherData to get the data immediately
      */
     init {
-        getAllWeather()
     }
 
     /**
@@ -103,12 +103,39 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      */
 
     fun getAllWeather(): Flow<List<WeatherDomainObject>> {
-        return flow {
-            val zipcodes = getZipCodesFromDatabase()
-            if(zipcodes.isNotEmpty()) {
-                emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
-           }
-        }
+        return refreshFlow
+            .flatMapLatest {
+                 flow {
+                    val zipcodes = getZipCodesFromDatabase()
+                    if(zipcodes.isNotEmpty()) {
+                        emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
+                    }
+                }
+            }
+    }
+//TODO not sure what to do here
+    /*
+    fun getAllWeatherWithErrorHandling(): Flow<List<WeatherViewDataList>> {
+        return refreshFlow
+            .flatMapLatest {
+                flow {
+                    val zipcodes = getZipCodesFromDatabase()
+                    val response = weatherRepository.getWeatherListForZipCodesWithErrorHandling(zipcodes)
+                    if(zipcodes.isNotEmpty()) {
+                        if (response.contains(ApiResponse.Success())
+
+
+                    }
+                }
+            }
+
+
+    }
+         */
+
+    //TODO this isnt working
+    fun refresh() {
+        refreshFlow.value = Unit
     }
 
 // create a view model factory that takes a WeatherDao as a property and

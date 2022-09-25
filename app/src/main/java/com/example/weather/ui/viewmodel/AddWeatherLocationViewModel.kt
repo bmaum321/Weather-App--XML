@@ -53,12 +53,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         get() = _isNetworkErrorShown
 
 
-    // The internal MutableLiveData that stores the status of the most recent request
-    private val _status = MutableLiveData<WeatherApiStatus>()
-
-    // The external immutable LiveData for the request status
-    val status: LiveData<WeatherApiStatus> = _status
-
     // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
     // with new values
     private val _weatherData = MutableLiveData<WeatherContainer>()

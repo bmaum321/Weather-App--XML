@@ -28,10 +28,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
+import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.WeatherDetailViewModel
+import com.example.weather.ui.viewmodel.WeatherViewData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -48,11 +50,13 @@ class WeatherDetailFragment : Fragment() {
     // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: WeatherDetailViewModel by activityViewModels{
+    private val viewModel: WeatherDetailViewModel by activityViewModels {
         WeatherDetailViewModel.WeatherDetailViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao(), Application()  //TODO passing application now
+            (activity?.application as BaseApplication).database.weatherDao(),
+            Application()  //TODO passing application now
         )
     }
+
 
     private lateinit var weatherEntity: WeatherEntity
 
@@ -65,6 +69,7 @@ class WeatherDetailFragment : Fragment() {
     ): View? {
         _binding = FragmentWeatherDetailBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel // TODO TESTING HERE
         return binding.root
     }
@@ -82,14 +87,14 @@ class WeatherDetailFragment : Fragment() {
          */
 
 
-        val zipcode = navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
+        val zipcode =
+            navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
         }
-        // Observe a weather object that is retrieved by id, set the weather variable,
-        //  and call the bind weather method
+        // Collect the flow and call the bind weather method
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getWeatherFromNetworkByZipCode(zipcode).collect {
+            viewModel.getWeatherForZipcode(zipcode).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     bindWeather(it)
                 }
@@ -97,22 +102,54 @@ class WeatherDetailFragment : Fragment() {
         }
     }
 
-    private fun bindWeather(weatherDomainObject: WeatherDomainObject) {
-        binding.apply {
-            name.text = weatherDomainObject.location
-            location.text = weatherDomainObject.zipcode // TODO DO we bind these text views in the code? or do we implemnt them in xml??????
-            tempF.text = weatherDomainObject.tempf.toString()
-            conditionText.text = weatherDomainObject.conditionText
-            windMph.text = weatherDomainObject.windMph.toString()
-            windDirection.text = weatherDomainObject.windDirection
-            editWeatherFab.setOnClickListener {
-                val action = WeatherDetailFragmentDirections
-                    .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(weatherEntity.id)
-                findNavController().navigate(action)
-            }
+    private fun bindWeather(weatherViewData: WeatherViewData) {
+        when (weatherViewData) {
+            is WeatherViewData.Done -> {
+                binding.apply {
+                    name.text = weatherViewData.weatherDomainObject.location
+                    location.text = weatherViewData.weatherDomainObject.zipcode
+                    tempF.text = weatherViewData.weatherDomainObject.tempf.toString()
+                    conditionText.text = weatherViewData.weatherDomainObject.conditionText
+                    windMph.text = weatherViewData.weatherDomainObject.windMph.toString()
+                    windDirection.text = weatherViewData.weatherDomainObject.windDirection
+                    editWeatherFab.setOnClickListener {
+                        val action = WeatherDetailFragmentDirections
+                            .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
+                                weatherEntity.id
+                            )
+                        findNavController().navigate(action)
+                    }
 
-            location.setOnClickListener {
-                launchMap(weatherDomainObject)
+                    location.setOnClickListener {
+                        launchMap(weatherViewData.weatherDomainObject)
+                    }
+                }
+            }
+            is WeatherViewData.Error -> {
+                binding.apply {
+                    statusImage.setImageResource(R.drawable.ic_connection_error)
+                    dividerConditionText.visibility = View.GONE
+                    dividerLocation.visibility = View.GONE
+                    dividerSeason.visibility = View.GONE
+                    dividerWindMph.visibility = View.GONE
+                    icCalendar.visibility = View.GONE
+                    icLocation.visibility = View.GONE
+                    icConditionText.visibility = View.GONE
+                    icWindMph.visibility = View.GONE
+                }
+            }
+            is WeatherViewData.Loading -> {
+                binding.apply {
+                    statusImage.setImageResource(R.drawable.loading_animation)
+                    dividerConditionText.visibility = View.GONE
+                    dividerLocation.visibility = View.GONE
+                    dividerSeason.visibility = View.GONE
+                    dividerWindMph.visibility = View.GONE
+                    icCalendar.visibility = View.GONE
+                    icLocation.visibility = View.GONE
+                    icConditionText.visibility = View.GONE
+                    icWindMph.visibility = View.GONE
+                }
             }
         }
     }
@@ -129,3 +166,4 @@ class WeatherDetailFragment : Fragment() {
         startActivity(mapIntent)
     }
 }
+

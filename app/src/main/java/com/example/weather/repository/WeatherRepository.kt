@@ -6,10 +6,8 @@ import androidx.lifecycle.asLiveData
 import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
-import com.example.weather.network.WeatherApi
-import com.example.weather.network.WeatherContainer
-import com.example.weather.network.asDatabaseModel
 import com.example.weather.model.asDomainModel
+import com.example.weather.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,6 +15,8 @@ class WeatherRepository(private val database: WeatherDatabase) {
 
     // The only thing we should be storing into the database is zipcode and city name, everything
     // else is dynamic
+
+
     suspend fun storeNetworkWeatherInDatabase(zipcode: String) {
         withContext(Dispatchers.IO) {
             val weatherData = WeatherApi.retrofitService.getWeather(zipcode)
@@ -24,13 +24,25 @@ class WeatherRepository(private val database: WeatherDatabase) {
         }
     }
 
+    suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi { WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode) }
+
     suspend fun getWeather(zipcode: String): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
-        return weatherData.asDomainModel(zipcode)
+        return weatherData
+            .asDomainModel(zipcode)
     }
 
     //TODO need to create a function that calls the API for each zip code and returns a list of
     // Weather domain objects for the main screen
+
+    suspend fun getWeatherListForZipCodesWithErrorHandling(zipcodes: List<String>): List<ApiResponse<WeatherContainer>> {
+        val weatherApiResponses = mutableListOf<ApiResponse<WeatherContainer>>()
+        zipcodes.forEach { zipcode ->
+            weatherApiResponses.add(getWeatherWithErrorHandling(zipcode))
+        }
+        return weatherApiResponses
+    }
+
 
 
     suspend fun getWeatherListForZipCodes(zipcodes: List<String>): List<WeatherDomainObject> {

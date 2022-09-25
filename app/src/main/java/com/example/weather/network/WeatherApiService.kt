@@ -2,10 +2,11 @@ package com.example.weather.network
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -32,10 +33,13 @@ private val retrofit = Retrofit.Builder()
 interface WeatherApiService {
     // TODO this needs to be updated to take paramaters
     @GET(API_KEY)
-    suspend fun getWeather(
-        @Query("q") zipcode: String,
-    ): WeatherContainer
+    suspend fun getWeather(@Query("q") zipcode: String): WeatherContainer
+
+    @GET(API_KEY)
+    suspend fun getWeatherWithErrorHandling(@Query("q") zipcode: String): Response<WeatherContainer>
 }
+
+
 
 /**
  * Main entry point for network access
@@ -43,4 +47,38 @@ interface WeatherApiService {
 
 object WeatherApi {
     val retrofitService: WeatherApiService by lazy  { retrofit.create(WeatherApiService::class.java) }
+}
+
+
+/**
+ * Sealed class to handle API responses
+ */
+sealed class ApiResponse<T: Any> {
+    class Success<T: Any>(val data: T): ApiResponse<T>()
+    class Failure<T: Any>(val code: Int, val message: String?): ApiResponse<T>()
+    class Exception<T: Any>(val e: Throwable): ApiResponse<T>()
+}
+
+/**
+ * The handleApi function receives an executable lambda function, which returns a Retrofit response.
+ * After executing the lambda function, the handleApi function returns ApiResponse.Success if the
+ * response is successful and the body data is a non-null value.
+ */
+
+suspend fun <T : Any> handleApi(
+    execute: suspend () -> Response<T>
+): ApiResponse<T> {
+    return try {
+        val response = execute()
+        val body = response.body()
+        if (response.isSuccessful && body != null) {
+            ApiResponse.Success(body)
+        } else {
+            ApiResponse.Failure(code = response.code(), message = response.message())
+        }
+    } catch (e: HttpException) {
+        ApiResponse.Failure(code = e.code(), message = e.message())
+    } catch (e: Throwable) {
+        ApiResponse.Exception(e)
+    }
 }

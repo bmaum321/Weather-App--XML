@@ -5,6 +5,8 @@ import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import coil.load
+import com.example.weather.R
+import com.example.weather.ui.viewmodel.WeatherViewData
 
 /**
  * Binding adapter used to hide the spinner once data is available.
@@ -24,3 +26,24 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
         imgView.load(imgUri)
     }
 }
+
+/*
+@BindingAdapter("WeatherViewData")
+fun bindStatus(statusImageView: ImageView,
+               status: WeatherViewData?) {
+    when (status) {
+        WeatherViewData.Loading() -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.loading_animation)
+        }
+        WeatherViewData.Error() -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.ic_connection_error)
+        }
+        WeatherViewData.Done() -> {
+            statusImageView.visibility = View.GONE
+        }
+    }
+}
+
+ */

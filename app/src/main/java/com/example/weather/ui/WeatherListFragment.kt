@@ -2,13 +2,16 @@ package com.example.weather.ui
 
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
@@ -16,6 +19,7 @@ import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.WeatherListAdapter
 import com.example.weather.ui.viewmodel.WeatherListViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +42,7 @@ class WeatherListFragment : Fragment() {
         )
     }
 
+
     private var _binding: FragmentWeatherListBinding? = null
     private lateinit var weatherEntity: WeatherEntity // NEW
 
@@ -52,6 +57,11 @@ class WeatherListFragment : Fragment() {
 
         _binding = FragmentWeatherListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refresh()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -89,8 +99,51 @@ class WeatherListFragment : Fragment() {
                     R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
                 )
             }
+            swipeRefresh.setOnRefreshListener {
+                refreshScreen()
+                binding.swipeRefresh.isRefreshing = false
+            }
         }
     }
+
+    private fun refreshScreen() {
+        viewModel.refresh()
+    }
+
+    /*
+ * Listen for option item selections so that we receive a notification
+ * when the user requests a refresh by selecting the refresh action bar item.
+ *
+ */
+    /*
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val adapter = WeatherListAdapter { weather ->
+            val action = WeatherListFragmentDirections
+                .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
+            findNavController().navigate(action)
+        }
+        when (item.itemId) {
+
+
+            // Check if user triggered a refresh:
+            R.id.menu_refresh -> {
+
+                // Signal SwipeRefreshLayout to start the progress indicator
+                binding.swiperefresh.isRefreshing = true
+
+                // Start the refresh background task.
+                // This method calls setRefreshing(false) when it's finished.
+                refreshScreen(viewModel, adapter = adapter)
+
+                return true
+            }
+        }
+
+        // User didn't trigger a refresh, let the superclass handle this action
+        return super.onOptionsItemSelected(item)
+    }
+
+     */
 
 
 }

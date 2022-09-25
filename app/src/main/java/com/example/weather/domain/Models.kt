@@ -23,18 +23,22 @@ data class WeatherDomainObject(
     val imgSrcUrl: String,
     val conditionText: String,
     val windMph: Double,
-    val windDirection: String
+    val windDirection: String,
+    val code: Int?, //TDOO new
+    val message: String?
 )
 
 fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
     return WeatherDomainObject(
-            location = location.name,
-            zipcode = zipcode,
-            tempf = current.temp_f,
-            imgSrcUrl = current.condition.icon,
-            conditionText = current.condition.text,
-            windMph = current.wind_mph,
-            windDirection = current.wind_dir
-        )
-    }
+        location = location.name,
+        zipcode = zipcode,
+        tempf = current.temp_f,
+        imgSrcUrl = current.condition.icon,
+        conditionText = current.condition.text,
+        windMph = current.wind_mph,
+        windDirection = current.wind_dir,
+        code = null,
+        message = null
+    )
+}
 
