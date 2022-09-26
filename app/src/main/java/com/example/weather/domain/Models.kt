@@ -3,6 +3,7 @@ package com.example.weather.domain
 import com.example.weather.model.Days
 import com.example.weather.model.ForecastContainer
 import com.example.weather.model.ForecastDay
+import com.example.weather.model.Hours
 import com.example.weather.network.WeatherContainer
 
 
@@ -26,11 +27,14 @@ data class WeatherDomainObject(
 
 )
 
-// TODO the forecast needs to return a list of forecast domain objects?
+// TODO do I need to destructure this into further data class to use with the list adapter?
 data class ForecastDomainObject(
     val days: List<Days>
 )
 
+data class HourlyForecastDomainObject(
+    val hours: List<Hours>
+)
 
 
 fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
@@ -45,9 +49,15 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
     )
 }
 
-fun ForecastContainer.asDomainModel(zipcode: String): ForecastDomainObject {
+fun ForecastContainer.asDomainModel(): ForecastDomainObject {
     return ForecastDomainObject(
         days = forecast.forecastday
     )
+}
+
+fun Days.asDomainModel(): HourlyForecastDomainObject {
+    return HourlyForecastDomainObject(
+            hours = hour
+            )
 }
 

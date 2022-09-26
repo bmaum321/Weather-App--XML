@@ -47,11 +47,25 @@
     </fragment>
     <fragment
         android:id="@+id/weatherLocationDetailFragment"
-        android:name="com.example.weather.ui.WeatherDetailFragment"
+        android:name="com.example.weather.ui.DailyForecastFragment"
         android:label="Weather Details"
         tools:layout="@layout/fragment_weather_detail">
         <action
             android:id="@+id/action_weatherLocationDetailFragment_to_addWeatherLocationFragment"
+            app:destination="@id/addWeatherLocationFragment" />
+        <argument
+            android:name="zipcode"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_weatherLocationDetailFragment_to_hourlyForecastFragment"
+            app:destination="@id/hourlyForecastFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/hourlyForecastFragment"
+        android:name="com.example.weather.ui.HourlyForecastFragment"
+        android:label="HourlyForecastFragment" >
+        <action
+            android:id="@+id/action_hourlyForecastFragment_to_addWeatherLocationFragment"
             app:destination="@id/addWeatherLocationFragment" />
         <argument
             android:name="zipcode"

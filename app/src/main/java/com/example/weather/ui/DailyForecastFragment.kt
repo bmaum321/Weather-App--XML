@@ -16,8 +16,6 @@
 package com.example.weather.ui
 
 import android.app.Application
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,11 +28,12 @@ import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.adapter.ForecastAdapter
 import com.example.weather.ui.viewmodel.ForecastViewData
+import com.example.weather.ui.viewmodel.HourlyForecastViewModel
 import com.example.weather.ui.viewmodel.WeatherDetailViewModel
-import com.example.weather.ui.viewmodel.WeatherViewData
+import com.example.weather.ui.viewmodel.WeatherViewDataList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -44,9 +43,9 @@ import kotlinx.coroutines.withContext
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
  * The [AddWeatherFragment] can be launched from this fragment to edit the [WeatherEntity]
  */
-class WeatherDetailFragment : Fragment() {
+class DailyForecastFragment : Fragment() {
 
-    private val navigationArgs: WeatherDetailFragmentArgs by navArgs()
+    private val navigationArgs: DailyForecastFragmentArgs by navArgs()
 
     // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
@@ -57,7 +56,6 @@ class WeatherDetailFragment : Fragment() {
             Application()  //TODO passing application now
         )
     }
-
 
     private lateinit var weatherEntity: WeatherEntity
 
@@ -71,12 +69,70 @@ class WeatherDetailFragment : Fragment() {
         _binding = FragmentWeatherDetailBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel // TODO TESTING HERE
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.updateActionBarTitle("TEST") //TODO
+        val zipcode =
+            navigationArgs.zipcode
+        viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
+            weatherEntity = selectedWeather
+        }
+        val adapter = ForecastAdapter { forecast ->
+            val action = DailyForecastFragmentDirections
+                .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment()
+            findNavController().navigate(action)
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.getForecastForZipcode(zipcode).collect {
+                withContext(Dispatchers.Main) { //Data binding always done on main thread
+                    when (it) {
+                        is ForecastViewData.Done -> {
+                            adapter.submitList(it.forecastDomainObject.days)
+
+                            binding.apply {
+
+                                recyclerView.adapter = adapter
+                                editWeatherFab.show()
+                                editWeatherFab.setOnClickListener {
+                                    val action = DailyForecastFragmentDirections
+                                        .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
+                                            weatherEntity.id
+                                        )
+                                    findNavController().navigate(action)
+                                }
+                                swipeRefresh.setOnRefreshListener {
+                                    refreshScreen()
+                                    binding.swipeRefresh.isRefreshing = false
+                                }
+                                statusImage.visibility = View.GONE
+                            }
+                        }
+                        is ForecastViewData.Error -> {
+                            binding.apply {
+                                statusImage.setImageResource(R.drawable.ic_connection_error)
+                                adapter.submitList(emptyList())
+                                recyclerView.adapter = adapter
+                                editWeatherFab.hide()
+                                swipeRefresh.setOnRefreshListener {
+                                    refreshScreen()
+                                    binding.swipeRefresh.isRefreshing = false
+                                }
+                            }
+                        }
+
+                        is ForecastViewData.Loading -> {
+                            binding.apply {
+                                statusImage.setImageResource(R.drawable.loading_animation)
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         /*
         //TODO this is old code, need to try and pass something else as ID to the add fragment
@@ -85,7 +141,7 @@ class WeatherDetailFragment : Fragment() {
             weatherEntity = selectedWeather
         }
 
-         */
+
 
 
         val zipcode =
@@ -182,6 +238,12 @@ class WeatherDetailFragment : Fragment() {
                 }
             }
         }
+            */
+
+    }
+
+    private fun refreshScreen() {
+        viewModel.refresh()
     }
 }
 

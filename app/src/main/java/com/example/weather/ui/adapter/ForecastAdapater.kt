@@ -7,30 +7,31 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ForecastListItemBinding
 import com.example.weather.domain.ForecastDomainObject
+import com.example.weather.model.Days
 
 /**
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
 class ForecastAdapter(
-    private val clickListener: (ForecastDomainObject) -> Unit
-) : ListAdapter<ForecastDomainObject, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
+    private val clickListener: (Days) -> Unit
+) : ListAdapter<Days, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
 
     class ForecastViewHolder(
         private var binding: ForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(forecastDomainObject: ForecastDomainObject) {
-            binding.forecast = forecastDomainObject
+        fun bind(day: Days) {
+            binding.forecast = day
             binding.executePendingBindings()
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<ForecastDomainObject>() {
-        override fun areItemsTheSame(oldItem: ForecastDomainObject, newItem: ForecastDomainObject): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<Days>() {
+        override fun areItemsTheSame(oldItem: Days, newItem: Days): Boolean {
             return oldItem == newItem //TODO
         }
 
-        override fun areContentsTheSame(oldItem: ForecastDomainObject, newItem: ForecastDomainObject): Boolean {
+        override fun areContentsTheSame(oldItem:Days, newItem: Days): Boolean {
             return oldItem == newItem
         }
 

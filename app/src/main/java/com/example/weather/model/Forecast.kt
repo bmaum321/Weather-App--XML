@@ -22,7 +22,7 @@ data class ForecastDay(val forecastday: List<Days>) // another list of "hour" un
 data class Days(
     val date: String,
     val day: ForecastForDay,
-    val hour: List<Hour>
+    val hour: List<Hours>
 )
 
 @JsonClass(generateAdapter = true)
@@ -31,10 +31,10 @@ data class ForecastForDay(
     val avgtemp_f: Double,
     val maxtemp_f: Double,
     val mintemp_f: Double,
-    val daily_will_it_rain: Double
+    val daily_chance_of_rain: Double
 )
 
-data class Hour(
+data class Hours(
     val time: String,
     val temp_f: Double,
     val is_day: Int,

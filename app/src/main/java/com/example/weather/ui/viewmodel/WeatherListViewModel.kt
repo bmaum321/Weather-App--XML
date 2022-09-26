@@ -22,7 +22,7 @@ import retrofit2.Response
 sealed class WeatherViewDataList() {
     class Loading() : WeatherViewDataList()
     class Error() : WeatherViewDataList()
-    class Done(val weatherDomainObjects: List<WeatherDomainObject>): WeatherViewDataList()
+    class Done(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherViewDataList()
 }
 
 /**
@@ -104,7 +104,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     }
 
     /**
-     *     Method that takes a list of zipcodes as a parameter and retrieve a list of weather
+     *     Method that takes a list of zipcodes as a parameter and retrieve a list of weathera
      *     objects from the repository
      */
 
@@ -113,10 +113,14 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
             .flatMapLatest {
                 flow {
                     val zipcodes = getZipCodesFromDatabase()
-                    if(zipcodes.isNotEmpty()) {
+                    if (zipcodes.isNotEmpty()) {
                         emit(WeatherViewDataList.Loading()) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
-                        when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())){
-                            is ApiResponse.Success -> emit(WeatherViewDataList.Done(weatherRepository.getWeatherListForZipCodes(zipcodes)))
+                        when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
+                            is ApiResponse.Success -> emit(
+                                WeatherViewDataList.Done(
+                                    weatherRepository.getWeatherListForZipCodes(zipcodes)
+                                )
+                            )
                             is ApiResponse.Failure -> emit(WeatherViewDataList.Error())
                             is ApiResponse.Exception -> emit(WeatherViewDataList.Error())
                         }

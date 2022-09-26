@@ -2,16 +2,13 @@ package com.example.weather.ui
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
@@ -21,7 +18,6 @@ import com.example.weather.ui.viewmodel.WeatherListViewModel
 import com.example.weather.ui.viewmodel.WeatherViewDataList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,7 +25,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * A fragment to view the list of [Weathers]s stored in the database.
- * Clicking on a [Weather] list item launches the [WeatherDetailFragment].
+ * Clicking on a [Weather] list item launches the [DailyForecastFragment].
  * Clicking the [FloatingActionButton] launched the [AddWeatherFragment]
  */
 class WeatherListFragment : Fragment() {
@@ -98,6 +94,7 @@ class WeatherListFragment : Fragment() {
 
                             binding.apply {
                                 recyclerView.adapter = adapter
+                                addWeatherFab.show()
                                 addWeatherFab.setOnClickListener {
                                     findNavController().navigate(
                                         R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
@@ -115,6 +112,7 @@ class WeatherListFragment : Fragment() {
                                 statusImage.setImageResource(R.drawable.ic_connection_error)
                                 adapter.submitList(emptyList())
                                 recyclerView.adapter = adapter
+                                addWeatherFab.hide()
                                 swipeRefresh.setOnRefreshListener {
                                     refreshScreen()
                                     binding.swipeRefresh.isRefreshing = false

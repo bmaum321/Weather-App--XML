@@ -10,20 +10,23 @@ import com.example.weather.domain.asDomainModel
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.ApiResponse
 import com.example.weather.repository.WeatherRepository
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 
 sealed class WeatherViewData() {
     class Loading() : WeatherViewData()
     class Error() : WeatherViewData()
-    class Done(val weatherDomainObject: WeatherDomainObject): WeatherViewData()
+    class Done(val weatherDomainObject: WeatherDomainObject) : WeatherViewData()
 }
 
 sealed class ForecastViewData() {
     class Loading() : ForecastViewData()
     class Error(val code: Int, val message: String?) : ForecastViewData()
-    class Done(val forecastDomainObject: ForecastDomainObject): ForecastViewData()
+    class Done(val forecastDomainObject: ForecastDomainObject) : ForecastViewData()
 }
 
 /**
@@ -34,26 +37,34 @@ sealed class ForecastViewData() {
 class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
+    private val _title = MutableLiveData<String>()
+    val title: LiveData<String>
+        get() = _title
+
+    /**
+     * Function to update the title bar in the fragment
+     */
+    fun updateActionBarTitle(title: String) = _title.postValue(title)
+
     private val _status = MutableLiveData<WeatherViewData>()
 
     val status: LiveData<WeatherViewData> = _status
 
-
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
-    // A list of weather results for the list screen
-    val weatherList = weatherRepository.weatherDomainObjects //TODO when does this get populated?
+    private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
+        .apply {
+            tryEmit(Unit)
+        }
 
-
-    // Method that takes id: Long as a parameter and retrieve a Weather from the
-    //  database by id via the DAO.
-    fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-        return weatherDao.getWeatherById(id).asLiveData()
+    fun refresh() {
+        refreshFlow.tryEmit(Unit)
     }
 
     fun getWeatherByZipcode(zipcode: String): LiveData<WeatherEntity> {
-        return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
+        return weatherDao.getWeatherByZipcode(zipcode)
+            .asLiveData()
     }
 
     // Method that takes zipcode as a parameter and retrieve a Weather from the
@@ -68,7 +79,15 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
         return flow {
             emit(WeatherViewData.Loading())
             when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
-                is ApiResponse.Success -> emit(WeatherViewData.Done(response.data.asDomainModel(zipcode)))
+                is ApiResponse.Success -> emit(
+                    WeatherViewData.Done(
+                        response
+                            .data
+                            .asDomainModel(
+                                zipcode
+                            )
+                    )
+                )
                 is ApiResponse.Failure -> emit(WeatherViewData.Error())
                 is ApiResponse.Exception -> emit(WeatherViewData.Error())
             }
@@ -76,16 +95,32 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
     }
 
     fun getForecastForZipcode(zipcode: String): Flow<ForecastViewData> {
-        return flow {
-            emit(ForecastViewData.Loading()) //TODO bug here
-            when (val response = weatherRepository.getForecast(zipcode)) {
-                is ApiResponse.Success -> emit(ForecastViewData.Done(response.data.asDomainModel(zipcode)))
-                is ApiResponse.Failure -> emit(ForecastViewData.Error(code = response.code, message = response.message))
-                is ApiResponse.Exception -> emit(ForecastViewData.Error(code = 0, message=response.e.message))
+        return refreshFlow
+            .flatMapLatest {
+                flow {
+                    emit(ForecastViewData.Loading())
+                    when (val response = weatherRepository.getForecast(zipcode)) {
+                        is ApiResponse.Success -> emit(
+                            ForecastViewData.Done(
+                                response.data.asDomainModel()
+                            )
+                        )
+                        is ApiResponse.Failure -> emit(
+                            ForecastViewData.Error(
+                                code = response.code,
+                                message = response.message
+                            )
+                        )
+                        is ApiResponse.Exception -> emit(
+                            ForecastViewData.Error(
+                                code = 0,
+                                message = response.e.message
+                            )
+                        )
+                    }
+                }
             }
-        }
     }
-
 
 
 // create a view model factory that takes a WeatherDao as a property and

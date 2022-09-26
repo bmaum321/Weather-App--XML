@@ -27,23 +27,4 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
     }
 }
 
-/*
-@BindingAdapter("WeatherViewData")
-fun bindStatus(statusImageView: ImageView,
-               status: WeatherViewData?) {
-    when (status) {
-        WeatherViewData.Loading() -> {
-            statusImageView.visibility = View.VISIBLE
-            statusImageView.setImageResource(R.drawable.loading_animation)
-        }
-        WeatherViewData.Error() -> {
-            statusImageView.visibility = View.VISIBLE
-            statusImageView.setImageResource(R.drawable.ic_connection_error)
-        }
-        WeatherViewData.Done() -> {
-            statusImageView.visibility = View.GONE
-        }
-    }
-}
 
- */

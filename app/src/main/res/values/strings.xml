@@ -19,7 +19,8 @@
     <!-- Strings used for fragments for navigation -->
     <string name="list_fragment_label">List Fragment</string>
     <string name="add_fragment_label">Add Fragment</string>
-    <string name="Temp">%s F</string>
+    <string name="Temp">%s"\u00B0"</string>
+    <string name="rain_percentage">%s %%</string>
     <string name="city_name">City Name</string>
     <string name="zip_code">Zip Code</string>
     <string name="notes">Notes</string>
