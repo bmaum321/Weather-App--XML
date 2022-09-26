@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
+import com.example.weather.model.ForecastContainer
 import com.example.weather.model.asDomainModel
 import com.example.weather.network.*
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,8 @@ class WeatherRepository(private val database: WeatherDatabase) {
     }
 
     suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi { WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode) }
+
+    suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> = handleApi { WeatherApi.retrofitService.getForecast(zipcode) }
 
     suspend fun getWeather(zipcode: String): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
@@ -53,14 +56,10 @@ class WeatherRepository(private val database: WeatherDatabase) {
         return weatherDomainObjects
     }
 
-
     /**
      * Note: LiveData is retained in this example for simplicity. In general, it's recommended
      * to use Flow with repositories as it's independent of the lifecycle.
      */
-    //I think transformations.map only works with live data, need to transform flow
-    //We need to change the data base structure to map the data in the database to the domain entity
-    //which is just a regular kotlin class
 
     /**
      * This live data obkect should be updated automatically when the database is updated

@@ -1,9 +1,8 @@
 package com.example.weather.domain
 
-import androidx.lifecycle.Transformations.map
-import com.example.weather.model.CurrentWeatherData
-import com.example.weather.model.LocationData
-import com.example.weather.model.WeatherEntity
+import com.example.weather.model.Days
+import com.example.weather.model.ForecastContainer
+import com.example.weather.model.ForecastDay
 import com.example.weather.network.WeatherContainer
 
 
@@ -24,9 +23,15 @@ data class WeatherDomainObject(
     val conditionText: String,
     val windMph: Double,
     val windDirection: String,
-    val code: Int?, //TDOO new
-    val message: String?
+
 )
+
+// TODO the forecast needs to return a list of forecast domain objects?
+data class ForecastDomainObject(
+    val days: List<Days>
+)
+
+
 
 fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
     return WeatherDomainObject(
@@ -37,8 +42,12 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
         conditionText = current.condition.text,
         windMph = current.wind_mph,
         windDirection = current.wind_dir,
-        code = null,
-        message = null
+    )
+}
+
+fun ForecastContainer.asDomainModel(zipcode: String): ForecastDomainObject {
+    return ForecastDomainObject(
+        days = forecast.forecastday
     )
 }
 

@@ -131,7 +131,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:src="@drawable/ic_baseline_speed_24"
+            android:src="@drawable/ic_wind"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider_conditionText" />
 
@@ -166,6 +166,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/windMph" />
 
+        <ImageView
+            android:id="@+id/ic_forecast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_calendar_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider_windMph" />
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintBottom_toBottomOf="@+id/ic_forecast"
+            app:layout_constraintStart_toEndOf="@+id/ic_forecast"
+            app:layout_constraintTop_toTopOf="@+id/ic_forecast"
+            tools:text="Forecast" />
+
+        <View
+            android:id="@+id/divider_forecast"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="16dp"
+            android:background="?attr/dividerHorizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ic_forecast" />
+
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/edit_weather_fab"
@@ -176,6 +205,17 @@
             android:src="@drawable/ic_edit_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/forecastplaceholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            tools:text="Forecast"
+            app:layout_constraintBottom_toBottomOf="@+id/ic_forecast"
+            app:layout_constraintStart_toEndOf="@+id/day"
+            app:layout_constraintTop_toTopOf="@+id/ic_forecast"
+            app:layout_constraintVertical_bias="0.6" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

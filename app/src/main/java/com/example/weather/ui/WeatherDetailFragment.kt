@@ -32,6 +32,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.viewmodel.ForecastViewData
 import com.example.weather.ui.viewmodel.WeatherDetailViewModel
 import com.example.weather.ui.viewmodel.WeatherViewData
 import kotlinx.coroutines.Dispatchers
@@ -100,6 +101,14 @@ class WeatherDetailFragment : Fragment() {
                 }
             }
         }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.getForecastForZipcode(zipcode).collect {
+                withContext(Dispatchers.Main) { //Data binding always done on main thread
+                    bindForecast(it)
+                }
+            }
+        }
     }
 
     private fun bindWeather(weatherViewData: WeatherViewData) {
@@ -157,6 +166,22 @@ class WeatherDetailFragment : Fragment() {
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
         startActivity(mapIntent)
+    }
+
+    private fun bindForecast(weatherViewData: ForecastViewData) {
+        when (weatherViewData) {
+            is ForecastViewData.Done -> {
+                binding.apply {
+                    day.text = weatherViewData.forecastDomainObject.days[0].date
+                    forecastplaceholder.text = weatherViewData.forecastDomainObject.days[0].hour[5].time
+                }
+            }
+            is ForecastViewData.Error -> {
+                binding.apply {
+                    day.text = weatherViewData.message
+                }
+            }
+        }
     }
 }
 

@@ -36,8 +36,7 @@ fun List<WeatherEntity>.asDomainModel(): List<WeatherDomainObject> {
             conditionText = it.conditionText,
             windMph = it.windMph,
             windDirection = it.windDirection,
-            code = null,
-            message = null
+
         )
     }
 }

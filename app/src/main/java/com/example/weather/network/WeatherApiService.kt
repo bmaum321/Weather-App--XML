@@ -1,5 +1,6 @@
 package com.example.weather.network
 
+import com.example.weather.model.ForecastContainer
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
@@ -13,8 +14,10 @@ import retrofit2.http.Query
  * A retrofit service to fetch the weather data from the API
  */
 
-private const val BASE_URL ="https://api.weatherapi.com/v1/"
-private const val API_KEY ="current.json?key=759618142cff4efb89d192409221909"
+private const val BASE_URL = "https://api.weatherapi.com/v1/"
+private const val CURRENT = "current.json?key=759618142cff4efb89d192409221909"
+private const val FORECAST = "forecast.json?key=759618142cff4efb89d192409221909"
+
 
 /**
  * Build the Moshi object that Retrofit will be using, making sure to add the Kotlin adapter for
@@ -32,13 +35,18 @@ private val retrofit = Retrofit.Builder()
 
 interface WeatherApiService {
     // TODO this needs to be updated to take paramaters
-    @GET(API_KEY)
+    @GET(CURRENT)
     suspend fun getWeather(@Query("q") zipcode: String): WeatherContainer
 
-    @GET(API_KEY)
+    @GET(CURRENT)
     suspend fun getWeatherWithErrorHandling(@Query("q") zipcode: String): Response<WeatherContainer>
-}
 
+    @GET(FORECAST)
+    suspend fun getForecast(
+        @Query("q") zipcode: String,
+        @Query("days") days: Int = 3 // Maximum forecast days for free API is 3 days
+    ): Response<ForecastContainer>
+}
 
 
 /**
@@ -46,17 +54,17 @@ interface WeatherApiService {
  */
 
 object WeatherApi {
-    val retrofitService: WeatherApiService by lazy  { retrofit.create(WeatherApiService::class.java) }
+    val retrofitService: WeatherApiService by lazy { retrofit.create(WeatherApiService::class.java) }
 }
 
 
 /**
  * Sealed class to handle API responses
  */
-sealed class ApiResponse<T: Any> {
-    class Success<T: Any>(val data: T): ApiResponse<T>()
-    class Failure<T: Any>(val code: Int, val message: String?): ApiResponse<T>()
-    class Exception<T: Any>(val e: Throwable): ApiResponse<T>()
+sealed class ApiResponse<T : Any> {
+    class Success<T : Any>(val data: T) : ApiResponse<T>()
+    class Failure<T : Any>(val code: Int, val message: String?) : ApiResponse<T>()
+    class Exception<T : Any>(val e: Throwable) : ApiResponse<T>()
 }
 
 /**

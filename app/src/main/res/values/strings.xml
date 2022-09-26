@@ -26,4 +26,5 @@
     <string name="save">Save</string>
     <string name="menu_refresh">Refresh</string>
     <string name="delete">Delete</string>
+    <string name="weather_condition_icon_content_description">Weather Condition Icon</string>
 </resources>
