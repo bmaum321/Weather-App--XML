@@ -64,7 +64,7 @@ class WeatherListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            delay(300)
+            delay(500)
             viewModel.refresh()
         }
 
@@ -77,6 +77,15 @@ class WeatherListFragment : Fragment() {
             val action = WeatherListFragmentDirections
                 .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
             findNavController().navigate(action)
+        }
+        /**
+         * Need to have an initial listener set here if the database is empty because none of
+         * the code below is reached
+         */
+        binding.addWeatherFab.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_weatherLocationListFragment_to_addWeatherLocationFragment
+            )
         }
 
 

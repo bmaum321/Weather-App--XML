@@ -10,7 +10,7 @@ import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 
 /**
- * ListAdapter for the list of [WeatherEntity]s retrieved from the database
+ * ListAdapter for the list of [WeatherDomainObject]s retrieved from the repository
  */
 class WeatherListAdapter(
     private val clickListener: (WeatherDomainObject) -> Unit

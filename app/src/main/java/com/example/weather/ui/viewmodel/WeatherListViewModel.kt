@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
+import com.example.weather.domain.ForecastDomainObject
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
 import com.example.weather.model.WeatherEntity
@@ -107,25 +108,13 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      *     objects from the repository
      */
 
-    fun getAllWeather(): Flow<List<WeatherDomainObject>> {
-        return refreshFlow
-            .flatMapLatest {
-                 flow {
-                    val zipcodes = getZipCodesFromDatabase()
-                    if(zipcodes.isNotEmpty()) {
-                        emit(weatherRepository.getWeatherListForZipCodes(zipcodes))
-                    }
-                }
-            }
-    }
-
     fun getAllWeatherWithErrorHandling(): Flow<WeatherViewDataList> {
         return refreshFlow
             .flatMapLatest {
                 flow {
-                    emit(WeatherViewDataList.Loading())
                     val zipcodes = getZipCodesFromDatabase()
                     if(zipcodes.isNotEmpty()) {
+                        emit(WeatherViewDataList.Loading()) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
                         when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())){
                             is ApiResponse.Success -> emit(WeatherViewDataList.Done(weatherRepository.getWeatherListForZipCodes(zipcodes)))
                             is ApiResponse.Failure -> emit(WeatherViewDataList.Error())

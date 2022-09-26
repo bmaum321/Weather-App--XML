@@ -6,7 +6,7 @@
 
     <data>
         <variable
-            name="weather"
+            name="forecast"
             type="com.example.weather.domain.ForecastDomainObject" />
         <variable
             name="viewModel"
@@ -44,7 +44,7 @@
 
                 <!--TODO This is still pulling from the database, should pull from the repo-->
                 <TextView
-                    android:id="@+id/name"
+                    android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?attr/textAppearanceBody2"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/name"
+                    app:layout_constraintTop_toBottomOf="@id/date"
                     tools:text="Weather for Day" />
 
                 <View
