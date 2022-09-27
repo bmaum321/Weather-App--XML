@@ -16,10 +16,12 @@
 package com.example.weather.ui
 
 import android.app.Application
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,10 +32,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.ForecastAdapter
-import com.example.weather.ui.viewmodel.ForecastViewData
-import com.example.weather.ui.viewmodel.HourlyForecastViewModel
-import com.example.weather.ui.viewmodel.WeatherDetailViewModel
-import com.example.weather.ui.viewmodel.WeatherViewDataList
+import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -57,6 +56,8 @@ class DailyForecastFragment : Fragment() {
         )
     }
 
+    private val mainViewModel: MainViewModel by activityViewModels()
+
     private lateinit var weatherEntity: WeatherEntity
 
     private var _binding: FragmentWeatherDetailBinding? = null
@@ -72,9 +73,10 @@ class DailyForecastFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.updateActionBarTitle("TEST") //TODO
+
         val zipcode = navigationArgs.zipcode
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
@@ -85,13 +87,14 @@ class DailyForecastFragment : Fragment() {
             findNavController().navigate(action)
         }
 
+
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getForecastForZipcode(zipcode).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is ForecastViewData.Done -> {
                             adapter.submitList(it.forecastDomainObject.days)
-
+                            mainViewModel.updateActionBarTitle(weatherEntity.cityName)
                             binding.apply {
 
                                 recyclerView.adapter = adapter
@@ -134,83 +137,6 @@ class DailyForecastFragment : Fragment() {
         }
 
         /*
-        //TODO this is old code, need to try and pass something else as ID to the add fragment
-        val id = navigationArgs.id
-        viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weatherEntity = selectedWeather
-        }
-
-
-
-
-        val zipcode =
-            navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
-        viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weatherEntity = selectedWeather
-        }
-        // Collect the flow and call the bind weather method
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getWeatherForZipcode(zipcode).collect {
-                withContext(Dispatchers.Main) { //Data binding always done on main thread
-                    bindWeather(it)
-                }
-            }
-        }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getForecastForZipcode(zipcode).collect {
-                withContext(Dispatchers.Main) { //Data binding always done on main thread
-                    bindForecast(it)
-                }
-            }
-        }
-    }
-
-    private fun bindWeather(weatherViewData: WeatherViewData) {
-        when (weatherViewData) {
-            is WeatherViewData.Done -> {
-                binding.apply {
-                    name.text = weatherViewData.weatherDomainObject.location
-                    location.text = weatherViewData.weatherDomainObject.zipcode
-                    tempF.text = weatherViewData.weatherDomainObject.tempf.toString()
-                    conditionText.text = weatherViewData.weatherDomainObject.conditionText
-                    windMph.text = weatherViewData.weatherDomainObject.windMph.toString()
-                    windDirection.text = weatherViewData.weatherDomainObject.windDirection
-                    statusImage.visibility = View.GONE
-                    editWeatherFab.setOnClickListener {
-                        val action = WeatherDetailFragmentDirections
-                            .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
-                                weatherEntity.id
-                            )
-                        findNavController().navigate(action)
-                    }
-
-                    location.setOnClickListener {
-                        launchMap(weatherViewData.weatherDomainObject)
-                    }
-                }
-            }
-            is WeatherViewData.Error -> {
-                binding.apply {
-                    statusImage.setImageResource(R.drawable.ic_connection_error)
-                    dividerConditionText.visibility = View.GONE
-                    dividerLocation.visibility = View.GONE
-                    dividerSeason.visibility = View.GONE
-                    dividerWindMph.visibility = View.GONE
-                    icCalendar.visibility = View.GONE
-                    icLocation.visibility = View.GONE
-                    icConditionText.visibility = View.GONE
-                    icWindMph.visibility = View.GONE
-                }
-            }
-            is WeatherViewData.Loading -> {
-                binding.apply {
-                    statusImage.setImageResource(R.drawable.loading_animation)
-                }
-            }
-        }
-    }
-
     private fun launchMap(weatherDomainObject: WeatherDomainObject) {
         val address = weatherDomainObject.zipcode.let {
             it.replace(", ", ",")
@@ -223,20 +149,6 @@ class DailyForecastFragment : Fragment() {
         startActivity(mapIntent)
     }
 
-    private fun bindForecast(weatherViewData: ForecastViewData) {
-        when (weatherViewData) {
-            is ForecastViewData.Done -> {
-                binding.apply {
-                    day.text = weatherViewData.forecastDomainObject.days[0].date
-                    forecastplaceholder.text = weatherViewData.forecastDomainObject.days[0].hour[5].time
-                }
-            }
-            is ForecastViewData.Error -> {
-                binding.apply {
-                    day.text = weatherViewData.message
-                }
-            }
-        }
             */
 
     }

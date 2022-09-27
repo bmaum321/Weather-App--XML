@@ -3,12 +3,17 @@ package com.example.weather
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.weather.databinding.ActivityMainBinding
+import com.example.weather.ui.viewmodel.MainViewModel
 
 /**
  * A Main activity that hosts all [Fragment]s for this application and hosts the nav controller.
@@ -29,6 +34,13 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        val mainViewModel: MainViewModel by viewModels()
+        mainViewModel.title.observe(this, Observer {
+            supportActionBar?.title = it
+        })
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

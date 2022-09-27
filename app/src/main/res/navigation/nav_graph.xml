@@ -23,7 +23,7 @@
     <fragment
         android:id="@+id/weatherListFragment"
         android:name="com.example.weather.ui.WeatherListFragment"
-        android:label="Weather">
+        android:label="Places">
         <action
             android:id="@+id/action_weatherLocationListFragment_to_addWeatherLocationFragment"
             app:destination="@id/addWeatherLocationFragment" />

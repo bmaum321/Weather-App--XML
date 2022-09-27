@@ -1,10 +1,17 @@
 package com.example.weather.domain
 
-import com.example.weather.model.Days
+import android.icu.text.DateFormat.getTimeInstance
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.weather.model.Day
 import com.example.weather.model.ForecastContainer
-import com.example.weather.model.ForecastDay
 import com.example.weather.model.Hours
 import com.example.weather.network.WeatherContainer
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.*
 
 
 /**
@@ -25,11 +32,11 @@ data class WeatherDomainObject(
     val windMph: Double,
     val windDirection: String,
 
-)
+    )
 
 // TODO do I need to destructure this into further data class to use with the list adapter?
 data class ForecastDomainObject(
-    val days: List<Days>
+    val days: List<Day>
 )
 
 data class HourlyForecastDomainObject(
@@ -49,15 +56,37 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun ForecastContainer.asDomainModel(): ForecastDomainObject {
+
+    val date = getTimeInstance()
+    /**
+     * Convert daily timestamp from API into day of week for the daily forecast
+     * Convert hourly timestamp from API from 24hr format to 12hr format
+     * This should be converted to use kotlinx-datetime
+     * https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+     */
+    forecast.forecastday.forEach { day ->
+        day.date = LocalDate.parse(day.date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        day.hour.forEach { hour ->
+            hour.time = LocalTime.parse(hour.time.substring(11))
+                .format(
+                    DateTimeFormatter
+                        .ofPattern("hh:mm a")
+                )
+                .removePrefix("0")
+
+
+        }
+    }
     return ForecastDomainObject(
         days = forecast.forecastday
     )
 }
 
-fun Days.asDomainModel(): HourlyForecastDomainObject {
+fun Day.asDomainModel(): HourlyForecastDomainObject {
     return HourlyForecastDomainObject(
-            hours = hour
-            )
+        hours = hour
+    )
 }
 

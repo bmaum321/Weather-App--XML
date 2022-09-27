@@ -5,10 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.ForecastListItemBinding
 import com.example.weather.databinding.HourlyForecastListItemBinding
-import com.example.weather.domain.ForecastDomainObject
-import com.example.weather.model.Days
 import com.example.weather.model.Hours
 
 /**

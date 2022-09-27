@@ -30,27 +30,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
 
 
-    /**
-     * Flag to display the error message. This is private to avoid exposing a
-     * way to set this value to observers.
-     */
-    private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
-
-    /**
-     * Flag to display the error message. Views should use this to get access
-     * to the data.
-     */
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
-
-    // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
-    // with new values
-    private val _weatherData = MutableLiveData<WeatherContainer>()
-
-    // The external LiveData interface to the property is immutable, so only this class can modify
-    val weatherData: LiveData<WeatherContainer> = _weatherData
-
     // create a property to set to a list of all weather objects from the DAO
     val allWeatherEntity: LiveData<List<WeatherEntity>> =
         weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
@@ -71,7 +50,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     }
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
-        var result = false
+        var networkError = false
 
         /**
          * This runs on a background thread by default so any value modified within this scoupe cannot
@@ -81,12 +60,12 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
             is ApiResponse.Success -> {
                 weatherDao.insert(response.data.asDatabaseModel(zipcode))
-                result = true
+                networkError = true
             }
-            is ApiResponse.Failure -> result = false
-            is ApiResponse.Exception -> result = false
+            is ApiResponse.Failure -> networkError = false
+            is ApiResponse.Exception -> networkError = false
         }
-        return result
+        return networkError
 
     }
 

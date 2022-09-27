@@ -16,11 +16,11 @@ data class ForecastContainer(
 data class ForecastContainer(val forecast: ForecastDay)
 
 @JsonClass(generateAdapter = true)
-data class ForecastDay(val forecastday: List<Days>) // another list of "hour" under forecast day
+data class ForecastDay(val forecastday: List<Day>) // another list of "hour" under forecast day
 
 @JsonClass(generateAdapter = true)
-data class Days(
-    val date: String,
+data class Day(
+    var date: String,
     val day: ForecastForDay,
     val hour: List<Hours>
 )
@@ -35,7 +35,7 @@ data class ForecastForDay(
 )
 
 data class Hours(
-    val time: String,
+    var time: String,
     val temp_f: Double,
     val is_day: Int,
     val condition: Condition,

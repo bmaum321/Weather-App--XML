@@ -1,6 +1,8 @@
 package com.example.weather.ui.viewmodel
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
@@ -37,14 +39,6 @@ sealed class ForecastViewData() {
 class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
-    private val _title = MutableLiveData<String>()
-    val title: LiveData<String>
-        get() = _title
-
-    /**
-     * Function to update the title bar in the fragment
-     */
-    fun updateActionBarTitle(title: String) = _title.postValue(title)
 
     private val _status = MutableLiveData<WeatherViewData>()
 
@@ -94,6 +88,7 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getForecastForZipcode(zipcode: String): Flow<ForecastViewData> {
         return refreshFlow
             .flatMapLatest {

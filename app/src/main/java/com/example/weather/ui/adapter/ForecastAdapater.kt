@@ -6,32 +6,31 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ForecastListItemBinding
-import com.example.weather.domain.ForecastDomainObject
-import com.example.weather.model.Days
+import com.example.weather.model.Day
 
 /**
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
 class ForecastAdapter(
-    private val clickListener: (Days) -> Unit
-) : ListAdapter<Days, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
+    private val clickListener: (Day) -> Unit
+) : ListAdapter<Day, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
 
     class ForecastViewHolder(
          private var binding: ForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(day: Days) {
+        fun bind(day: Day) {
             binding.forecast = day
             binding.executePendingBindings()
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<Days>() {
-        override fun areItemsTheSame(oldItem: Days, newItem: Days): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<Day>() {
+        override fun areItemsTheSame(oldItem: Day, newItem: Day): Boolean {
             return oldItem == newItem //TODO
         }
 
-        override fun areContentsTheSame(oldItem:Days, newItem: Days): Boolean {
+        override fun areContentsTheSame(oldItem:Day, newItem: Day): Boolean {
             return oldItem == newItem
         }
 
