@@ -75,14 +75,13 @@ class DailyForecastFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.updateActionBarTitle("TEST") //TODO
-        val zipcode =
-            navigationArgs.zipcode
+        val zipcode = navigationArgs.zipcode
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
         }
-        val adapter = ForecastAdapter { forecast ->
+        val adapter = ForecastAdapter { day ->
             val action = DailyForecastFragmentDirections
-                .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment()
+                .actionWeatherLocationDetailFragmentToHourlyForecastFragment(zipcode, day.date) //TODO how do we pass the date from the clicked option...
             findNavController().navigate(action)
         }
 

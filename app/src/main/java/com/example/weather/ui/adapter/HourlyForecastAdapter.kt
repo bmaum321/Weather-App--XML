@@ -48,9 +48,9 @@ class HourlyForecastAdapter(
 
     override fun onBindViewHolder(holder: HourlyForecastViewHolder, position: Int) {
         val forecast = getItem(position)
-        holder.itemView.setOnClickListener {
-            clickListener(forecast)
-        }
+       // holder.itemView.setOnClickListener {
+       //     clickListener(forecast)
+      //  }
         holder.bind(forecast)
     }
 }

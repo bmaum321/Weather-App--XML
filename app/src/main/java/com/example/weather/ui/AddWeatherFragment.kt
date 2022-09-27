@@ -24,6 +24,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
@@ -31,6 +32,9 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -102,13 +106,16 @@ class AddWeatherFragment : Fragment() {
 
     private fun addWeather() {
         if (isValidEntry()) {
-            viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString()) // trying the new repository
-            viewModel.isNetworkErrorShown.observe(this.viewLifecycleOwner) { error ->
-                if (error == true){
-                    showToast()
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+               if( !viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString())) {
+                   withContext(Dispatchers.Main) { //Lets you launce a new coroutine on a differnt thread within an existing coroutine
+                       showToast()
+                   }
+               }
+                withContext(Dispatchers.Main) { //Navigtion must be run on main thread
+                    findNavController().popBackStack()
                 }
             }
-            findNavController().popBackStack()
         }
     }
 

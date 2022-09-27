@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 
 
 sealed class HourlyForecastViewData() {
-    class Done(val hourlyForecastdomainObject: HourlyForecastDomainObject): HourlyForecastViewData()
-    class Error(): HourlyForecastViewData()
-    class Loading(): HourlyForecastViewData()
+    class Done(val forecastDomainObject: ForecastDomainObject) : HourlyForecastViewData()
+    class Error() : HourlyForecastViewData()
+    class Loading() : HourlyForecastViewData()
 }
 
 /**
@@ -53,50 +53,69 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
     }
 
-    fun getForecastForZipcode(zipcode: String): Flow<HourlyForecastViewData> {
-        val hours = mutableListOf<Hours>()
-        viewModelScope.launch {
-            val response = weatherRepository.getForecast(zipcode)
-            if (response is ApiResponse.Success) {
-                response.data.forecast.forecastday.forEach { day ->
-                    hours.add(day.hour)
-                }
-            }
-        }
+    /*
 
-
-
-
+    fun getHourlyForecastForZipcode(zipcode: String): Flow<HourlyForecastViewData> {
         return refreshFlow
             .flatMapLatest {
+                val hours = mutableListOf<Hours>()
+                val response = weatherRepository.getForecast(zipcode)
+                if (response is ApiResponse.Success) {
+                    response.data.forecast.forecastday.forEach { daysList ->
+                        daysList.hour.forEach { hoursList ->
+                            hours.add(hoursList)
+                        }
+                    }
+                }
+
                 flow {
                     emit(HourlyForecastViewData.Loading())
                     when (response) {
                         is ApiResponse.Success -> emit(
-                            HourlyForecastViewData.Done(
-
-
-                            )
+                            HourlyForecastViewData.Done(hours)
                         )
                         is ApiResponse.Failure -> emit(
-                            HourlyForecastViewData.Error(
-
-                            )
+                            HourlyForecastViewData.Error()
                         )
                         is ApiResponse.Exception -> emit(
-                            HourlyForecastViewData.Error(
-                            )
+                            HourlyForecastViewData.Error()
                         )
                     }
                 }
             }
     }
 
+     */
+
+    fun getForecastForZipcode(zipcode: String): Flow<HourlyForecastViewData> {
+        return refreshFlow
+            .flatMapLatest {
+                flow {
+                    emit(HourlyForecastViewData.Loading())
+                    when (val response = weatherRepository.getForecast(zipcode)) {
+                        is ApiResponse.Success -> emit(
+                            HourlyForecastViewData.Done(
+                                response.data.asDomainModel()
+                            )
+                        )
+                        is ApiResponse.Failure -> emit(
+                            HourlyForecastViewData.Error()
+                        )
+                        is ApiResponse.Exception -> emit(
+                            HourlyForecastViewData.Error()
+                        )
+                    }
+                }
+            }
+    }
 
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
-    class HourlyForecastViewModelFactory(private val weatherDao: WeatherDao, val app: Application) :
+    class HourlyForecastViewModelFactory(
+        private val weatherDao: WeatherDao,
+        val app: Application
+    ) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HourlyForecastViewModel::class.java)) {
@@ -107,4 +126,5 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         }
     }
 }
+
 

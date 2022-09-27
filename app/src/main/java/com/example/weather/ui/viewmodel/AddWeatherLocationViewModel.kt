@@ -44,7 +44,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         get() = _isNetworkErrorShown
 
 
-
     // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
     // with new values
     private val _weatherData = MutableLiveData<WeatherContainer>()
@@ -71,18 +70,23 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         // getWeatherData()
     }
 
-    fun storeNetworkDataInDatabase(zipcode: String) {
-        viewModelScope.launch {
-           when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
-               is ApiResponse.Success -> {
-                   weatherDao.insert(response.data.asDatabaseModel(zipcode))
-                   _isNetworkErrorShown.value = false
-               }
-               is ApiResponse.Failure -> _isNetworkErrorShown.value = true
-               is ApiResponse.Exception -> _isNetworkErrorShown.value = true
-           }
+    suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
+        var result = false
 
+        /**
+         * This runs on a background thread by default so any value modified within this scoupe cannot
+         * be returned outside of the scope
+         */
+
+        when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
+            is ApiResponse.Success -> {
+                weatherDao.insert(response.data.asDatabaseModel(zipcode))
+                result = true
+            }
+            is ApiResponse.Failure -> result = false
+            is ApiResponse.Exception -> result = false
         }
+        return result
 
     }
 

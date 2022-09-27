@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -73,6 +74,7 @@ class HourlyForecastFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val date = navigationArgs.date //TODO testing here
         val zipcode =
             navigationArgs.zipcode
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
@@ -89,10 +91,8 @@ class HourlyForecastFragment : Fragment() {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is HourlyForecastViewData.Done -> {
-                            adapter.submitList(it.hourlyForecastdomainObject.hours)
-
+                            adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour)
                             binding.apply {
-
                                 recyclerView.adapter = adapter
                                 swipeRefresh.setOnRefreshListener {
                                     refreshScreen()
@@ -122,113 +122,6 @@ class HourlyForecastFragment : Fragment() {
                 }
             }
         }
-
-        /*
-        //TODO this is old code, need to try and pass something else as ID to the add fragment
-        val id = navigationArgs.id
-        viewModel.getWeatherById(id).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weatherEntity = selectedWeather
-        }
-
-
-
-
-        val zipcode =
-            navigationArgs.zipcode // TODO this was changed, how is this getting the zipcode???
-        viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
-            weatherEntity = selectedWeather
-        }
-        // Collect the flow and call the bind weather method
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getWeatherForZipcode(zipcode).collect {
-                withContext(Dispatchers.Main) { //Data binding always done on main thread
-                    bindWeather(it)
-                }
-            }
-        }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getForecastForZipcode(zipcode).collect {
-                withContext(Dispatchers.Main) { //Data binding always done on main thread
-                    bindForecast(it)
-                }
-            }
-        }
-    }
-
-    private fun bindWeather(weatherViewData: WeatherViewData) {
-        when (weatherViewData) {
-            is WeatherViewData.Done -> {
-                binding.apply {
-                    name.text = weatherViewData.weatherDomainObject.location
-                    location.text = weatherViewData.weatherDomainObject.zipcode
-                    tempF.text = weatherViewData.weatherDomainObject.tempf.toString()
-                    conditionText.text = weatherViewData.weatherDomainObject.conditionText
-                    windMph.text = weatherViewData.weatherDomainObject.windMph.toString()
-                    windDirection.text = weatherViewData.weatherDomainObject.windDirection
-                    statusImage.visibility = View.GONE
-                    editWeatherFab.setOnClickListener {
-                        val action = WeatherDetailFragmentDirections
-                            .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
-                                weatherEntity.id
-                            )
-                        findNavController().navigate(action)
-                    }
-
-                    location.setOnClickListener {
-                        launchMap(weatherViewData.weatherDomainObject)
-                    }
-                }
-            }
-            is WeatherViewData.Error -> {
-                binding.apply {
-                    statusImage.setImageResource(R.drawable.ic_connection_error)
-                    dividerConditionText.visibility = View.GONE
-                    dividerLocation.visibility = View.GONE
-                    dividerSeason.visibility = View.GONE
-                    dividerWindMph.visibility = View.GONE
-                    icCalendar.visibility = View.GONE
-                    icLocation.visibility = View.GONE
-                    icConditionText.visibility = View.GONE
-                    icWindMph.visibility = View.GONE
-                }
-            }
-            is WeatherViewData.Loading -> {
-                binding.apply {
-                    statusImage.setImageResource(R.drawable.loading_animation)
-                }
-            }
-        }
-    }
-
-    private fun launchMap(weatherDomainObject: WeatherDomainObject) {
-        val address = weatherDomainObject.zipcode.let {
-            it.replace(", ", ",")
-            it.replace(". ", " ")
-            it.replace(" ", "+")
-        }
-        val gmmIntentUri = Uri.parse("geo:0,0?q=$address")
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        startActivity(mapIntent)
-    }
-
-    private fun bindForecast(weatherViewData: ForecastViewData) {
-        when (weatherViewData) {
-            is ForecastViewData.Done -> {
-                binding.apply {
-                    day.text = weatherViewData.forecastDomainObject.days[0].date
-                    forecastplaceholder.text = weatherViewData.forecastDomainObject.days[0].hour[5].time
-                }
-            }
-            is ForecastViewData.Error -> {
-                binding.apply {
-                    day.text = weatherViewData.message
-                }
-            }
-        }
-            */
-
     }
 
     private fun refreshScreen() {

@@ -17,7 +17,7 @@ class ForecastAdapter(
 ) : ListAdapter<Days, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
 
     class ForecastViewHolder(
-        private var binding: ForecastListItemBinding
+         private var binding: ForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(day: Days) {
@@ -45,6 +45,7 @@ class ForecastAdapter(
     }
 
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
+      // TODO holder.binding.forecast
         val forecast = getItem(position)
         holder.itemView.setOnClickListener {
             clickListener(forecast)

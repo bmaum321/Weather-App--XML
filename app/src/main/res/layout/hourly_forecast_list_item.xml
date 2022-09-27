@@ -48,13 +48,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@{forecast.time}"
+                    android:text="@{forecast.time.substring(10)}"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Date" />
+                <!--                     android:text="@{forecast.hour[0].time}" -->
 
                 <TextView
                     android:id="@+id/weather_for_day"
@@ -65,6 +66,10 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/date"
                     tools:text="Weather for Day" />
+                <!--
+                 android:text="@{forecast.condition.text}"\
+                 -->
+
 
                 <View
                     android:layout_width="match_parent"
@@ -83,21 +88,39 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+                <!--                app:imageUrl="@{forecast.condition.icon}"   -->
 
 
                 <TextView
-                    android:id="@+id/tempLow"
+                    android:id="@+id/temp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="84dp"
+                    android:layout_marginEnd="40dp"
+                    android:layout_marginBottom="12dp"
                     android:text="@{@string/Temp(String.valueOf(forecast.temp_f))}"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/weather_for_day"
+                    tools:text="Temp" />
+
+                <TextView
+                    android:id="@+id/rain_chance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{@string/rain_percentage(String.valueOf(forecast.chance_of_rain))}"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@+id/temp"
+                    app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
+                    app:layout_constraintHorizontal_bias="0.826"
+                    app:layout_constraintStart_toEndOf="@+id/date"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.49"
-                    tools:text="Low" />
+                    app:layout_constraintVertical_bias="0.551"
+                    tools:text="Rain Chance" />
+                <!--                      android:text="@{@string/Temp(String.valueOf(forecast.temp_f))}"   -->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

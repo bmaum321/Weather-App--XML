@@ -40,5 +40,6 @@ data class Hours(
     val is_day: Int,
     val condition: Condition,
     val wind_mph: Double,
-    val wind_dir: String
+    val wind_dir: String,
+    val chance_of_rain: Int
 )

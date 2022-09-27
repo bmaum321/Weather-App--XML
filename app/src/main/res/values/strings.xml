@@ -20,7 +20,7 @@
     <string name="list_fragment_label">List Fragment</string>
     <string name="add_fragment_label">Add Fragment</string>
     <string name="Temp">%s"\u00B0"</string>
-    <string name="rain_percentage">%s %%</string>
+    <string name="rain_percentage">%s %% Rain</string>
     <string name="city_name">City Name</string>
     <string name="zip_code">Zip Code</string>
     <string name="notes">Notes</string>
@@ -28,4 +28,6 @@
     <string name="menu_refresh">Refresh</string>
     <string name="delete">Delete</string>
     <string name="weather_condition_icon_content_description">Weather Condition Icon</string>
+    <string name="low">Low</string>
+    <string name="high">High</string>
 </resources>

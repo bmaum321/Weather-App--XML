@@ -63,12 +63,12 @@
     <fragment
         android:id="@+id/hourlyForecastFragment"
         android:name="com.example.weather.ui.HourlyForecastFragment"
-        android:label="HourlyForecastFragment" >
-        <action
-            android:id="@+id/action_hourlyForecastFragment_to_addWeatherLocationFragment"
-            app:destination="@id/addWeatherLocationFragment" />
+        android:label="Hourly Forecast">
         <argument
             android:name="zipcode"
+            app:argType="string" />
+        <argument
+            android:name="date"
             app:argType="string" />
     </fragment>
 
