@@ -7,11 +7,13 @@ import com.example.weather.model.Day
 import com.example.weather.model.ForecastContainer
 import com.example.weather.model.Hours
 import com.example.weather.network.WeatherContainer
+import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
+import kotlin.time.Duration.Companion.hours
 
 
 /**
@@ -57,28 +59,32 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun ForecastContainer.asDomainModel(): ForecastDomainObject {
+suspend fun ForecastContainer.asDomainModel(): ForecastDomainObject {
 
-    val date = getTimeInstance()
     /**
      * Convert daily timestamp from API into day of week for the daily forecast
      * Convert hourly timestamp from API from 24hr format to 12hr format
      * This should be converted to use kotlinx-datetime
      * https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
      */
-    forecast.forecastday.forEach { day ->
-        day.date = LocalDate.parse(day.date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-        day.hour.forEach { hour ->
-            hour.time = LocalTime.parse(hour.time.substring(11))
-                .format(
-                    DateTimeFormatter
-                        .ofPattern("hh:mm a")
-                )
-                .removePrefix("0")
+    val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm"))
+  //  forecast.forecastday.forEach { day ->
+    //    day.date = LocalDate.parse(day.date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH) // Convert to day of week
+     //   forecast.forecastday.first().date = "Today"
+      //  day.hour.forEach { hour ->
+      //      hour.time = LocalTime.parse(hour.time.substring(11)) //Convert to 12hr time format
+        //        .format(
+         //           DateTimeFormatter
+              //          .ofPattern("hh:mm a")
+                //)
+        //    if(hour.time < currentTime) {
+           //     day.hour.remove(hour)
+        //    }
+             //   .removePrefix("0")
 
 
-        }
-    }
+    //    }
+ //   }
     return ForecastDomainObject(
         days = forecast.forecastday
     )

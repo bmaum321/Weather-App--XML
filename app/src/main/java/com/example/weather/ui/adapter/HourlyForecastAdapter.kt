@@ -1,6 +1,7 @@
 package com.example.weather.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -20,6 +21,12 @@ class HourlyForecastAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(hour: Hours) {
+            /**
+             * If no chance of rain, hide the view
+             */
+            if (hour.chance_of_rain == 0) {
+                binding.rainChance.visibility = View.GONE
+            } else binding.rainChance.visibility = View.VISIBLE //this seems to be needed for some reason
             binding.forecast = hour
             binding.executePendingBindings()
         }
@@ -27,27 +34,30 @@ class HourlyForecastAdapter(
 
     companion object DiffCallback : DiffUtil.ItemCallback<Hours>() {
         override fun areItemsTheSame(oldItem: Hours, newItem: Hours): Boolean {
-            return oldItem == newItem //TODO
+            return oldItem.time == newItem.time //TODO
         }
 
-        override fun areContentsTheSame(oldItem:Hours, newItem: Hours): Boolean {
+        override fun areContentsTheSame(oldItem: Hours, newItem: Hours): Boolean {
             return oldItem == newItem
         }
 
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HourlyForecastViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): HourlyForecastAdapter.HourlyForecastViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        return HourlyForecastViewHolder(
+        return HourlyForecastAdapter.HourlyForecastViewHolder(
             HourlyForecastListItemBinding.inflate(layoutInflater, parent, false)
         )
     }
 
     override fun onBindViewHolder(holder: HourlyForecastViewHolder, position: Int) {
         val forecast = getItem(position)
-       // holder.itemView.setOnClickListener {
-       //     clickListener(forecast)
-      //  }
+        // holder.itemView.setOnClickListener { // Disabling click listener on hour list
+        //     clickListener(forecast)
+        //  }
         holder.bind(forecast)
     }
 }

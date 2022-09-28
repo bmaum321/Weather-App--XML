@@ -35,9 +35,12 @@ import com.example.weather.ui.adapter.ForecastAdapter
 import com.example.weather.ui.adapter.HourlyForecastAdapter
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /**
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
@@ -91,6 +94,25 @@ class HourlyForecastFragment : Fragment() {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is HourlyForecastViewData.Done -> {
+                            /**
+                             * Find hour list matching the date passed from the previous fragment
+                             * and submit to the list adapter for display
+                             */
+
+                            val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm"))
+                            it.forecastDomainObject.days.forEach { day ->
+                                day.hour.forEach { hour ->
+                                    hour.time = LocalTime.parse(hour.time.substring(11)).format(
+                                        DateTimeFormatter
+                                            .ofPattern("hh:mm"))
+                                        if(hour.time < currentTime){
+                                            day.hour.remove(hour)
+                                        }
+
+
+                                }
+                            }
+                            delay(5000)
                             adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour)
                             binding.apply {
                                 recyclerView.adapter = adapter

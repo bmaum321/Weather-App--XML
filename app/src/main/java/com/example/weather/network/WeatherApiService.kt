@@ -62,7 +62,7 @@ object WeatherApi {
  * Sealed class to handle API responses
  */
 sealed class ApiResponse<T : Any> {
-    class Success<T : Any>(val data: T) : ApiResponse<T>()
+    class Success<T : Any>(var data: T) : ApiResponse<T>() //TODO trying to change to var to manipulate data after retrieveing from api
     class Failure<T : Any>(val code: Int, val message: String?) : ApiResponse<T>()
     class Exception<T : Any>(val e: Throwable) : ApiResponse<T>()
 }

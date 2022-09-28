@@ -22,7 +22,7 @@ data class ForecastDay(val forecastday: List<Day>) // another list of "hour" und
 data class Day(
     var date: String,
     val day: ForecastForDay,
-    val hour: List<Hours>
+    val hour: MutableList<Hours> //trying to make mutable to manipulate api data
 )
 
 @JsonClass(generateAdapter = true)
