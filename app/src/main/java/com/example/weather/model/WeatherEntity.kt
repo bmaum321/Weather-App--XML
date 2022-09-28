@@ -19,13 +19,16 @@ data class WeatherEntity(
     val imgSrcUrl: String,
     val conditionText: String,
     val windMph: Double,
-    val windDirection: String
+    val windDirection: String,
+    val time: String
 )
 
 
 /**
  * Map weather objects to domain entities
+ *
  */
+/*
 fun List<WeatherEntity>.asDomainModel(): List<WeatherDomainObject> {
     return map {
         WeatherDomainObject(
@@ -36,9 +39,12 @@ fun List<WeatherEntity>.asDomainModel(): List<WeatherDomainObject> {
             conditionText = it.conditionText,
             windMph = it.windMph,
             windDirection = it.windDirection,
+            time = it.time
 
         )
     }
+
+
 }
 
-
+     */

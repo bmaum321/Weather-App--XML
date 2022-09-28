@@ -136,7 +136,8 @@ class AddWeatherFragment : Fragment() {
                 imgSrcUrl = weatherEntity.imgSrcUrl,
                 windDirection = weatherEntity.windDirection,
                 windMph = weatherEntity.windMph,
-                conditonText = weatherEntity.conditionText
+                conditonText = weatherEntity.conditionText,
+                time = weatherEntity.time
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment

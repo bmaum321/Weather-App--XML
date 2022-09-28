@@ -42,41 +42,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
-    // A list of weather results for the list screen
-    val weatherList = weatherRepository.weatherDomainObjects //TODO when does this get populated?
-
-    /**
-     * Event triggered for network error. This is private to avoid exposing a
-     * way to set this value to observers.
-     */
-    private var _eventNetworkError = MutableLiveData<Boolean>(false)
-
-    /**
-     * Event triggered for network error. Views should use this to get access
-     * to the data.
-     */
-    val eventNetworkError: LiveData<Boolean>
-        get() = _eventNetworkError
-
-    /**
-     * Flag to display the error message. This is private to avoid exposing a
-     * way to set this value to observers.
-     */
-    private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
-
-    /**
-     * Flag to display the error message. Views should use this to get access
-     * to the data.
-     */
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
-    // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto
-    // with new values
-    private val _weatherData = MutableLiveData<WeatherContainer>()
-
-    // The external LiveData interface to the property is immutable, so only this class can modify
-    val weatherData: LiveData<WeatherContainer> = _weatherData
 
     // create a property to set to a list of all weather objects from the DAO
     val allWeatherEntity: LiveData<List<WeatherEntity>> =
@@ -97,11 +62,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         // correlate the weather response with each list item
     }
 
-    /**
-     * Call getWeatherData to get the data immediately
-     */
-    init {
-    }
+
 
     /**
      *     Method that takes a list of zipcodes as a parameter and retrieve a list of weathera

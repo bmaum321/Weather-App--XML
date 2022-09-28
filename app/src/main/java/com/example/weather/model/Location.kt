@@ -7,12 +7,12 @@ data class Location(val location: LocationData)
 
 @JsonClass(generateAdapter = true)
 data class LocationData(
-    var name: String,
-    var region: String,
-    var country: String,
-    var lat: Double,
-    var lon: Double,
-    var tz_id: String,
-    var localtime_epoch: Float,
+    val name: String,
+    val region: String,
+    val country: String,
+    val lat: Double,
+    val lon: Double,
+    val tz_id: String,
+    val localtime_epoch: Long,
     var localtime: String
 )

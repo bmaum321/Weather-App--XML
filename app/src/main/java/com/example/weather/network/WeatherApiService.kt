@@ -14,9 +14,11 @@ import retrofit2.http.Query
  * A retrofit service to fetch the weather data from the API
  */
 
+private const val APIKEY = "759618142cff4efb89d192409221909"
 private const val BASE_URL = "https://api.weatherapi.com/v1/"
-private const val CURRENT = "current.json?key=759618142cff4efb89d192409221909"
-private const val FORECAST = "forecast.json?key=759618142cff4efb89d192409221909"
+private const val CURRENT = "current.json?key=$APIKEY"
+private const val FORECAST = "forecast.json?key=$APIKEY"
+
 
 
 /**
@@ -34,17 +36,21 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface WeatherApiService {
-    // TODO this needs to be updated to take paramaters
     @GET(CURRENT)
-    suspend fun getWeather(@Query("q") zipcode: String): WeatherContainer
+    suspend fun getWeather(
+        @Query("q") zipcode: String
+    ): WeatherContainer
 
     @GET(CURRENT)
-    suspend fun getWeatherWithErrorHandling(@Query("q") zipcode: String): Response<WeatherContainer>
+    suspend fun getWeatherWithErrorHandling(
+        @Query("q") zipcode: String
+    ): Response<WeatherContainer>
 
     @GET(FORECAST)
     suspend fun getForecast(
         @Query("q") zipcode: String,
-        @Query("days") days: Int = 3 // Maximum forecast days for free API is 3 days
+        @Query("days") days: Int = 3, // Maximum forecast days for free API is 3 days
+        @Query("alerts") alerts: String = "yes"
     ): Response<ForecastContainer>
 }
 

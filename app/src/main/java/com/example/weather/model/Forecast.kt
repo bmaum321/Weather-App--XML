@@ -35,6 +35,7 @@ data class ForecastForDay(
 )
 
 data class Hours(
+    val time_epoch: Int,
     var time: String,
     val temp_f: Double,
     val is_day: Int,

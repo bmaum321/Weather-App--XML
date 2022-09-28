@@ -26,8 +26,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
     // A list of weather results for the list screen
-    val weatherList =
-        weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
+//    val weatherList =
+   //     weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
 
 
     // create a property to set to a list of all weather objects from the DAO
@@ -78,7 +78,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         imgSrcUrl: String,
         conditonText: String,
         windMph: Double,
-        windDirection: String
+        windDirection: String,
+        time: String
     ) {
         val weatherEntity = WeatherEntity(
             id = id,
@@ -88,7 +89,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
             imgSrcUrl = imgSrcUrl,
             conditionText = conditonText,
             windMph = windMph,
-            windDirection = windDirection
+            windDirection = windDirection,
+            time = time
         )
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to update a weather object to the database here

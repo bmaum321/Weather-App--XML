@@ -1,13 +1,9 @@
 package com.example.weather.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.asLiveData
 import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
 import com.example.weather.model.ForecastContainer
-import com.example.weather.model.asDomainModel
 import com.example.weather.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,9 +61,9 @@ class WeatherRepository(private val database: WeatherDatabase) {
      * This live data obkect should be updated automatically when the database is updated
      */
 
-    val weatherDomainObjects: LiveData<List<WeatherDomainObject>> =
-        Transformations.map(database.weatherDao().getWeatherLocations().asLiveData()) {
-            it.asDomainModel()
-        }
+   // val weatherDomainObjects: LiveData<List<WeatherDomainObject>> =
+     //   Transformations.map(database.weatherDao().getWeatherLocations().asLiveData()) {
+      //      it.asDomainModel()
+    //    }
 
 }
