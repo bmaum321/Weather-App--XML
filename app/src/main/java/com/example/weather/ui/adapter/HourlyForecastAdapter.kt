@@ -7,24 +7,25 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.HourlyForecastListItemBinding
+import com.example.weather.model.Day
 import com.example.weather.model.Hours
 
 /**
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
 class HourlyForecastAdapter(
-    private val clickListener: (Hours) -> Unit
-) : ListAdapter<Hours, HourlyForecastAdapter.HourlyForecastViewHolder>(DiffCallback) {
+    private val clickListener: (HourlyForecastItemViewData) -> Unit
+) : ListAdapter<HourlyForecastItemViewData, HourlyForecastAdapter.HourlyForecastViewHolder>(DiffCallback) {
 
     class HourlyForecastViewHolder(
         private var binding: HourlyForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(hour: Hours) {
+        fun bind(hour: HourlyForecastItemViewData) {
             /**
              * If no chance of rain, hide the view
              */
-            if (hour.chance_of_rain == 0) {
+            if (hour.hour.chance_of_rain == 0) {
                 binding.rainChance.visibility = View.GONE
             } else binding.rainChance.visibility = View.VISIBLE //this seems to be needed for some reason
             binding.forecast = hour
@@ -32,12 +33,12 @@ class HourlyForecastAdapter(
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<Hours>() {
-        override fun areItemsTheSame(oldItem: Hours, newItem: Hours): Boolean {
-            return oldItem.time == newItem.time //TODO
+    companion object DiffCallback : DiffUtil.ItemCallback<HourlyForecastItemViewData>() {
+        override fun areItemsTheSame(oldItem: HourlyForecastItemViewData, newItem: HourlyForecastItemViewData): Boolean {
+            return oldItem == newItem //TODO
         }
 
-        override fun areContentsTheSame(oldItem: Hours, newItem: Hours): Boolean {
+        override fun areContentsTheSame(oldItem: HourlyForecastItemViewData, newItem: HourlyForecastItemViewData): Boolean {
             return oldItem == newItem
         }
 
@@ -60,4 +61,9 @@ class HourlyForecastAdapter(
         //  }
         holder.bind(forecast)
     }
+}
+
+data class HourlyForecastItemViewData(val hour: Hours) {
+    val temp = hour.temp_f.toInt().toString()
+
 }

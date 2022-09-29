@@ -7,7 +7,7 @@
 
         <variable
             name="forecast"
-            type="com.example.weather.model.Hours" />
+            type="com.example.weather.ui.adapter.HourlyForecastItemViewData" />
 
         <variable
             name="viewModel"
@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@{forecast.time}"
+                    android:text="@{forecast.hour.time}"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -60,7 +60,7 @@
                     android:id="@+id/weather_for_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{forecast.condition.text}"
+                    android:text="@{forecast.hour.condition.text}"
                     android:textAppearance="?attr/textAppearanceBody2"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/date"
@@ -80,7 +80,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:contentDescription="@string/weather_condition_icon_content_description"
-                    app:imageUrl="@{forecast.condition.icon}"
+                    app:imageUrl="@{forecast.hour.condition.icon}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -92,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="40dp"
                     android:layout_marginBottom="12dp"
-                    android:text="@{@string/Temp(String.valueOf(forecast.temp_f))}"
+                    android:text="@{@string/Temp(forecast.temp)}"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -105,7 +105,7 @@
                     android:id="@+id/rain_chance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{@string/rain_percentage(String.valueOf(forecast.chance_of_rain))}"
+                    android:text="@{@string/rain_percentage(String.valueOf(forecast.hour.chance_of_rain))}"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/temp"

@@ -64,13 +64,13 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
 
     // Method that takes zipcode as a parameter and retrieve a Weather from the
     //  repository
-    fun getWeatherFromNetworkByZipCode(zipcode: String): Flow<WeatherDomainObject> {
+    fun getWeatherFromNetworkByZipCode(zipcode: String, resources: Resources): Flow<WeatherDomainObject> {
         return flow {
-            emit(weatherRepository.getWeather(zipcode))
+            emit(weatherRepository.getWeather(zipcode, resources))
         }
     }
 
-    fun getWeatherForZipcode(zipcode: String): Flow<WeatherViewData> {
+    fun getWeatherForZipcode(zipcode: String, resources: Resources): Flow<WeatherViewData> {
         return flow {
             emit(WeatherViewData.Loading())
             when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
@@ -79,7 +79,8 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
                         response
                             .data
                             .asDomainModel(
-                                zipcode
+                                zipcode,
+                                resources
                             )
                     )
                 )

@@ -30,6 +30,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentHourlyForecastBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.HourlyForecastAdapter
+import com.example.weather.ui.adapter.HourlyForecastItemViewData
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -94,7 +95,9 @@ class HourlyForecastFragment : Fragment() {
                              * Find hour list matching the date passed from the previous fragment
                              * and submit to the list adapter for display
                              */
-                            adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour)
+                            adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour.map {
+                                HourlyForecastItemViewData(it)
+                            })
                             mainViewModel.updateActionBarTitle(it.forecastDomainObject.days.first { it.date == date }.date) // Update title bar with day of week
                             binding.apply {
                                 recyclerView.adapter = adapter

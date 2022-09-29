@@ -1,5 +1,6 @@
 package com.example.weather.repository
 
+import android.content.res.Resources
 import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
@@ -29,10 +30,10 @@ class WeatherRepository(private val database: WeatherDatabase) {
     }
 
 
-    suspend fun getWeather(zipcode: String): WeatherDomainObject {
+    suspend fun getWeather(zipcode: String, resources: Resources): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
         return weatherData
-            .asDomainModel(zipcode)
+            .asDomainModel(zipcode, resources)
     }
 
     //TODO need to create a function that calls the API for each zip code and returns a list of
@@ -48,10 +49,10 @@ class WeatherRepository(private val database: WeatherDatabase) {
 
 
 
-    suspend fun getWeatherListForZipCodes(zipcodes: List<String>): List<WeatherDomainObject> {
+    suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
-            weatherDomainObjects.add(getWeather(zipcode))
+            weatherDomainObjects.add(getWeather(zipcode, resources))
         }
         return weatherDomainObjects
     }

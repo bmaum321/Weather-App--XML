@@ -22,9 +22,13 @@ interface WeatherDao {
     @Query("SELECT * FROM weather_database WHERE id = :id")
     fun getWeatherById(id: Long): Flow<WeatherEntity>
 
-    // method to retrieve a Weather from the database by id
+    // method to retrieve a Weather from the database by zipcode
     @Query("SELECT * FROM weather_database WHERE zipCode = :zipcode")
     fun getWeatherByZipcode(zipcode: String): Flow<WeatherEntity>
+
+    // method to retrieve a Weather from the database by location and return as object
+    @Query("SELECT * FROM weather_database WHERE zipCode = :location")
+    fun getWeatherByLocation(location: String): WeatherEntity
 
     // method to insert a Weather into the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)

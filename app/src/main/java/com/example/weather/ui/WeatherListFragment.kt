@@ -2,6 +2,9 @@ package com.example.weather.ui
 
 import android.app.Application
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
+import android.util.Log.DEBUG
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -100,15 +103,24 @@ class WeatherListFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                Toast.makeText(context, "on Swiped ", Toast.LENGTH_SHORT).show()
+
                 //Remove swiped item from list and notify the RecyclerView
                 val position = viewHolder.adapterPosition
-
-               // deleteWeather(weatherEntity)
+                val itemLocation = adapter.currentList[position].zipcode
+                lifecycleScope.launch(Dispatchers.IO) {
+                    weatherEntity = viewModel.getWeatherByZipcode(itemLocation)
+                    deleteWeather(weatherEntity)
+                    if (Looper.myLooper()==null)
+                        Looper.prepare()
+                    Toast.makeText(context, "${weatherEntity.cityName} deleted", Toast.LENGTH_SHORT).show()
+                    delay(500)
+                    refreshScreen()
+                }
                 adapter.notifyItemRemoved(position)
             }
         }
 
+        // Attach the touch helper to the recycler view
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(binding.recyclerView)
 
         /**
@@ -123,7 +135,7 @@ class WeatherListFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getAllWeatherWithErrorHandling().collect {
+            viewModel.getAllWeatherWithErrorHandling(resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is WeatherViewDataList.Done -> {

@@ -1,6 +1,7 @@
 package com.example.weather.ui.viewmodel
 
 import android.app.Application
+import android.content.res.Resources
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
@@ -55,6 +56,10 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
             .asLiveData()
     }
 
+    fun getWeatherByZipcode(location: String): WeatherEntity {
+        return weatherDao.getWeatherByLocation(location)
+    }
+
     //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
     private fun getZipCodesFromDatabase(): List<String> {
         return weatherDao.getZipcodes()
@@ -69,7 +74,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      *     objects from the repository
      */
 
-    fun getAllWeatherWithErrorHandling(): Flow<WeatherViewDataList> {
+    fun getAllWeatherWithErrorHandling(resources: Resources): Flow<WeatherViewDataList> {
         return refreshFlow
             .flatMapLatest {
                 flow {
@@ -79,7 +84,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
                         when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
                             is ApiResponse.Success -> emit(
                                 WeatherViewDataList.Done(
-                                    weatherRepository.getWeatherListForZipCodes(zipcodes)
+                                    weatherRepository.getWeatherListForZipCodes(zipcodes, resources)
                                 )
                             )
                             is ApiResponse.Failure -> emit(WeatherViewDataList.Error())

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.ForecastListItemBinding
+import com.example.weather.databinding.DailyForecastListItemBinding
 import com.example.weather.model.Day
 
 /**
@@ -16,7 +16,7 @@ class ForecastAdapter(
 ) : ListAdapter<ForecastItemViewData, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
 
     class ForecastViewHolder(
-         private var binding: ForecastListItemBinding
+         private var binding: DailyForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(day: ForecastItemViewData) {
@@ -39,7 +39,7 @@ class ForecastAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return ForecastViewHolder(
-            ForecastListItemBinding.inflate(layoutInflater, parent, false)
+            DailyForecastListItemBinding.inflate(layoutInflater, parent, false)
         )
     }
 
@@ -54,13 +54,12 @@ class ForecastAdapter(
 }
 
 /**
- * Converting the data types before they are presented to the UT in order to convert the double ffrom
+ * Converting the data types before they are presented to the UI in order to convert the double from
  * the API into a string
  */
 
 data class ForecastItemViewData(val day: Day) {
-
     val high: String = day.day.maxtemp_f.toInt().toString()
 
-    val low: String = day.day.maxtemp_f.toInt().toString()
+    val low: String = day.day.mintemp_f.toInt().toString()
 }

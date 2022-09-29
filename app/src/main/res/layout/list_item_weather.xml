@@ -17,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
+        android:background="@{weather.backgroundColor}"
         app:cardCornerRadius="4dp"
         app:cardElevation="2dp"
         app:cardMaxElevation="4dp"
@@ -59,11 +60,12 @@
                     android:id="@+id/weather_for_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{weather.zipcode}"
+                    android:text="@{weather.conditionText}"
                     android:textAppearance="?attr/textAppearanceBody2"
+                    android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/name"
-                    tools:text="Address" />
+                    tools:text="Condition" />
 
                 <View
                     android:layout_width="match_parent"
@@ -94,20 +96,20 @@
                     android:text="@{@string/Temp(weather.tempf.toString())}"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
                     app:layout_constraintBottom_toTopOf="@+id/local_time"
+                    app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Temp" />
 
                 <TextView
                     android:id="@+id/local_time"
-                    android:text="@{weather.time}"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="16dp"
+                    android:text="@{weather.time}"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
                     tools:text="12:30" />

@@ -23,10 +23,12 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/zipcode_input"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="match_parent"/>
+            <!--
             android:inputType="number"
             android:maxLength="5"
-            />
+            -->
+
 
     </com.google.android.material.textfield.TextInputLayout>
 

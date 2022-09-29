@@ -2,6 +2,8 @@ package com.example.weather.domain
 
 
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.Color.WHITE
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.weather.R
@@ -28,6 +30,7 @@ import kotlin.math.floor
  * @see network for objects that parse or prepare network calls
  */
 
+private const val HHMM = "hh:mm a"
 
 data class WeatherDomainObject(
     val location: String,
@@ -37,7 +40,8 @@ data class WeatherDomainObject(
     val conditionText: String,
     val windMph: Double,
     val windDirection: String,
-    val time: String
+    val time: String,
+    val backgroundColor: Int // CAn i make this of type Color?
 )
 
 data class ForecastDomainObject(
@@ -50,16 +54,32 @@ data class HourlyForecastDomainObject(
 )
 
 
-fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
+fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): WeatherDomainObject {
+
     // Get local time for display
     location.localtime = Instant
         .ofEpochSecond(location.localtime_epoch)
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern("hh:mm a")
+                .ofPattern(HHMM)
         )
         .removePrefix("0")
+
+    val color = when (current.condition.code) {
+        1000 -> {
+            if (current.condition.text == "Sunny") {
+                R.color.yellow // sunny
+            } else R.color.white // clear night
+        }
+        in 1003..1030 -> R.color.yellow // clouds/overcast
+        in 1063..1117 -> R.color.yellow // rain
+        in 1150..1207 -> R.color.yellow // rain
+        in 1240..1282 -> R.color.yellow // rain
+        else -> R.color.gray
+    }
+
+
     return WeatherDomainObject(
         time = location.localtime,
         location = location.name,
@@ -69,6 +89,7 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
         conditionText = current.condition.text,
         windMph = current.wind_mph,
         windDirection = current.wind_dir,
+        backgroundColor = color
     )
 }
 
@@ -83,11 +104,9 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
      * https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
      */
 
+    // Subtracting an hour from current time to see the current hour in the forecast
     val currentEpochTime = System
-        .currentTimeMillis()
-        .toString()
-        .dropLast(3) // can divide by 1000 here
-        .toInt() //get current epoch time in seconds
+        .currentTimeMillis() / 1000 - 3600
     forecast.forecastday
         .forEach { day ->
             /**
@@ -106,7 +125,7 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
                     Locale.ENGLISH
                 ) // Convert to day of week
             forecast.forecastday
-                .first().date = resource.getString(R.string.today) // TODO no magic strings, reference  srings.xml
+                .first().date = resource.getString(R.string.today)
             day.hour
                 .forEach { hour ->
                     hour.time = LocalTime.parse(
@@ -115,7 +134,7 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
                     ) // Remove date stamp
                         .format(
                             DateTimeFormatter
-                                .ofPattern("hh:mm a") // Add AM/PM postfix
+                                .ofPattern(HHMM) // Add AM/PM postfix
                         )
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
