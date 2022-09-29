@@ -13,10 +13,28 @@ data class ForecastContainer(
 
 
 @JsonClass(generateAdapter = true)
-data class ForecastContainer(val forecast: ForecastDay)
+data class ForecastContainer(val forecast: ForecastDay,
+                             val alerts: AlertList )
 
 @JsonClass(generateAdapter = true)
-data class ForecastDay(val forecastday: List<Day>) // another list of "hour" under forecast day
+data class ForecastDay(
+    val forecastday: List<Day>
+)
+
+data class AlertList(
+    val alert: List<Alert>
+)
+
+@JsonClass(generateAdapter = true)
+data class Alert(
+    val headline: String,
+    val category: String,
+    val severity: String,
+    val event: String,
+    val effective: String,
+    val expires: String,
+    val desc: String
+)
 
 @JsonClass(generateAdapter = true)
 data class Day(
@@ -29,8 +47,8 @@ data class Day(
 data class ForecastForDay(
     val condition: Condition,
     val avgtemp_f: Double,
-    val maxtemp_f: Double,
-    val mintemp_f: Double,
+    var maxtemp_f: Double,
+    var mintemp_f: Double,
     val daily_chance_of_rain: Double
 )
 

@@ -30,4 +30,5 @@
     <string name="weather_condition_icon_content_description">Weather Condition Icon</string>
     <string name="low">Low</string>
     <string name="high">High</string>
+    <string name="today">Today</string>
 </resources>

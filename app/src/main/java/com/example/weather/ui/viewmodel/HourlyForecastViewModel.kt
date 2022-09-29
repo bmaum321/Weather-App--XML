@@ -1,14 +1,12 @@
 package com.example.weather.ui.viewmodel
 
 import android.app.Application
+import android.content.res.Resources
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.ForecastDomainObject
-import com.example.weather.domain.HourlyForecastDomainObject
 import com.example.weather.domain.asDomainModel
-import com.example.weather.model.Hours
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.ApiResponse
 import com.example.weather.repository.WeatherRepository
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 
 
 sealed class HourlyForecastViewData() {
@@ -87,7 +84,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
 
      */
 
-    fun getForecastForZipcode(zipcode: String): Flow<HourlyForecastViewData> {
+    fun getForecastForZipcode(zipcode: String, resources: Resources): Flow<HourlyForecastViewData> {
         return refreshFlow
             .flatMapLatest {
                 flow {
@@ -95,7 +92,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
                     when (val response = weatherRepository.getForecast(zipcode)) {
                         is ApiResponse.Success -> emit(
                             HourlyForecastViewData.Done(
-                                response.data.asDomainModel()
+                                response.data.asDomainModel(resources)
                             )
                         )
                         is ApiResponse.Failure -> emit(

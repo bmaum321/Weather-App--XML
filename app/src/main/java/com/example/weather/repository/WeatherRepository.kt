@@ -23,7 +23,11 @@ class WeatherRepository(private val database: WeatherDatabase) {
 
     suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi { WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode) }
 
-    suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> = handleApi { WeatherApi.retrofitService.getForecast(zipcode) }
+    suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> = handleApi {
+        WeatherApi.retrofitService.getForecast(zipcode)
+
+    }
+
 
     suspend fun getWeather(zipcode: String): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)

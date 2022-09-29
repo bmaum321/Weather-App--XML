@@ -12,25 +12,25 @@ import com.example.weather.model.Day
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
 class ForecastAdapter(
-    private val clickListener: (Day) -> Unit
-) : ListAdapter<Day, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
+    private val clickListener: (ForecastItemViewData) -> Unit
+) : ListAdapter<ForecastItemViewData, ForecastAdapter.ForecastViewHolder>(DiffCallback) {
 
     class ForecastViewHolder(
          private var binding: ForecastListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(day: Day) {
+        fun bind(day: ForecastItemViewData) {
             binding.forecast = day
             binding.executePendingBindings()
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<Day>() {
-        override fun areItemsTheSame(oldItem: Day, newItem: Day): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<ForecastItemViewData>() {
+        override fun areItemsTheSame(oldItem: ForecastItemViewData, newItem: ForecastItemViewData): Boolean {
             return oldItem == newItem //TODO
         }
 
-        override fun areContentsTheSame(oldItem:Day, newItem: Day): Boolean {
+        override fun areContentsTheSame(oldItem:ForecastItemViewData, newItem: ForecastItemViewData): Boolean {
             return oldItem == newItem
         }
 
@@ -51,4 +51,16 @@ class ForecastAdapter(
         }
         holder.bind(forecast)
     }
+}
+
+/**
+ * Converting the data types before they are presented to the UT in order to convert the double ffrom
+ * the API into a string
+ */
+
+data class ForecastItemViewData(val day: Day) {
+
+    val high: String = day.day.maxtemp_f.toInt().toString()
+
+    val low: String = day.day.maxtemp_f.toInt().toString()
 }

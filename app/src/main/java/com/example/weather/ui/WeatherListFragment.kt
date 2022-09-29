@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
@@ -48,6 +51,7 @@ class WeatherListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -69,11 +73,44 @@ class WeatherListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         val adapter = WeatherListAdapter { weather ->
             val action = WeatherListFragmentDirections
                 .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
             findNavController().navigate(action)
         }
+
+        /**
+         * Testing a swipe to delete from main page. Need to somehow pull an id that
+         * correlates to the entity from the position
+         */
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                Toast.makeText(context, "on Move", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                Toast.makeText(context, "on Swiped ", Toast.LENGTH_SHORT).show()
+                //Remove swiped item from list and notify the RecyclerView
+                val position = viewHolder.adapterPosition
+
+               // deleteWeather(weatherEntity)
+                adapter.notifyItemRemoved(position)
+            }
+        }
+
+        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(binding.recyclerView)
+
         /**
          * Need to have an initial listener set here if the database is empty because none of
          * the code below is reached
@@ -145,6 +182,10 @@ class WeatherListFragment : Fragment() {
 
     private fun refreshScreen() {
         viewModel.refresh()
+    }
+
+    private fun deleteWeather(weather: WeatherEntity) {
+        viewModel.deleteWeather(weather)
     }
 
 /*

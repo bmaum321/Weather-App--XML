@@ -18,6 +18,7 @@ package com.example.weather.ui
 import android.app.Application
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,7 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.ForecastAdapter
+import com.example.weather.ui.adapter.ForecastItemViewData
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -81,19 +83,23 @@ class DailyForecastFragment : Fragment() {
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
         }
-        val adapter = ForecastAdapter { day ->
+        val adapter = ForecastAdapter { viewData ->
             val action = DailyForecastFragmentDirections
-                .actionWeatherLocationDetailFragmentToHourlyForecastFragment(zipcode, day.date) //TODO how do we pass the date from the clicked option...
+                .actionWeatherLocationDetailFragmentToHourlyForecastFragment(zipcode, viewData.day.date) //TODO how do we pass the date from the clicked option...
             findNavController().navigate(action)
         }
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getForecastForZipcode(zipcode).collect {
+            viewModel.getForecastForZipcode(zipcode, resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is ForecastViewData.Done -> {
-                            adapter.submitList(it.forecastDomainObject.days)
+                            adapter.submitList(
+                                it.forecastDomainObject.days.map {  // take items in list and submit as new list
+                                    ForecastItemViewData(it)
+                                }
+                            )
                             mainViewModel.updateActionBarTitle(weatherEntity.cityName)
                             binding.apply {
 
@@ -116,6 +122,8 @@ class DailyForecastFragment : Fragment() {
                         is ForecastViewData.Error -> {
                             binding.apply {
                                 statusImage.setImageResource(R.drawable.ic_connection_error)
+                                Log.e("API", "${it.message}")
+                                Log.e("API", "${it.code}")
                                 adapter.submitList(emptyList())
                                 recyclerView.adapter = adapter
                                 editWeatherFab.hide()

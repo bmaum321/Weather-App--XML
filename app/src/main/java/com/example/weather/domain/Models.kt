@@ -1,8 +1,11 @@
 package com.example.weather.domain
 
 
+import android.content.res.Resources
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.weather.R
+import com.example.weather.model.Alert
 import com.example.weather.model.Day
 import com.example.weather.model.ForecastContainer
 import com.example.weather.model.Hours
@@ -14,7 +17,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
-
+import kotlin.math.floor
 
 
 /**
@@ -38,7 +41,8 @@ data class WeatherDomainObject(
 )
 
 data class ForecastDomainObject(
-    val days: List<Day>
+    val days: List<Day>,
+    val alerts: List<Alert>
 )
 
 data class HourlyForecastDomainObject(
@@ -69,7 +73,7 @@ fun WeatherContainer.asDomainModel(zipcode: String): WeatherDomainObject {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun ForecastContainer.asDomainModel(): ForecastDomainObject {
+suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomainObject {
 
     /**
      * Remove any hours that are in the past
@@ -82,7 +86,7 @@ suspend fun ForecastContainer.asDomainModel(): ForecastDomainObject {
     val currentEpochTime = System
         .currentTimeMillis()
         .toString()
-        .dropLast(3)
+        .dropLast(3) // can divide by 1000 here
         .toInt() //get current epoch time in seconds
     forecast.forecastday
         .forEach { day ->
@@ -98,13 +102,11 @@ suspend fun ForecastContainer.asDomainModel(): ForecastDomainObject {
                 .parse(day.date)
                 .dayOfWeek
                 .getDisplayName(
-                TextStyle.FULL,
-                Locale.ENGLISH
-            ) // Convert to day of week
+                    TextStyle.FULL,
+                    Locale.ENGLISH
+                ) // Convert to day of week
             forecast.forecastday
-                .first().date = "Today"
-            day.day.mintemp_f.toString().dropLast(2) // doesnt seem to work
-            day.day.maxtemp_f.toString().dropLast(2)
+                .first().date = resource.getString(R.string.today) // TODO no magic strings, reference  srings.xml
             day.hour
                 .forEach { hour ->
                     hour.time = LocalTime.parse(
@@ -120,7 +122,8 @@ suspend fun ForecastContainer.asDomainModel(): ForecastDomainObject {
         }
 
     return ForecastDomainObject(
-        days = forecast.forecastday
+        days = forecast.forecastday,
+        alerts = alerts.alert
     )
 }
 

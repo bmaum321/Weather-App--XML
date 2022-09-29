@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,18 +28,13 @@ import androidx.navigation.fragment.navArgs
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentHourlyForecastBinding
-import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.model.WeatherEntity
-import com.example.weather.ui.adapter.ForecastAdapter
 import com.example.weather.ui.adapter.HourlyForecastAdapter
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /**
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
@@ -59,6 +53,8 @@ class HourlyForecastFragment : Fragment() {
             Application()  //TODO passing application now
         )
     }
+
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     private lateinit var weatherEntity: WeatherEntity
 
@@ -90,7 +86,7 @@ class HourlyForecastFragment : Fragment() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getForecastForZipcode(zipcode).collect {
+            viewModel.getForecastForZipcode(zipcode, resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is HourlyForecastViewData.Done -> {
@@ -99,6 +95,7 @@ class HourlyForecastFragment : Fragment() {
                              * and submit to the list adapter for display
                              */
                             adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour)
+                            mainViewModel.updateActionBarTitle(it.forecastDomainObject.days.first { it.date == date }.date) // Update title bar with day of week
                             binding.apply {
                                 recyclerView.adapter = adapter
                                 swipeRefresh.setOnRefreshListener {

@@ -97,6 +97,13 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         refreshFlow.tryEmit(Unit)
     }
 
+    fun deleteWeather(weatherEntity: WeatherEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // call the DAO method to delete a weather object to the database here
+            weatherDao.delete(weatherEntity)
+        }
+    }
+
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
