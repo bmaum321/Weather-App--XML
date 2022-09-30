@@ -110,13 +110,11 @@ class WeatherListFragment : Fragment() {
                 lifecycleScope.launch(Dispatchers.IO) {
                     weatherEntity = viewModel.getWeatherByZipcode(itemLocation)
                     deleteWeather(weatherEntity)
-                    if (Looper.myLooper()==null)
-                        Looper.prepare()
-                    Toast.makeText(context, "${weatherEntity.cityName} deleted", Toast.LENGTH_SHORT).show()
-                    delay(500)
-                    refreshScreen()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "${weatherEntity.cityName} deleted", Toast.LENGTH_SHORT).show()
+                    }
                 }
-                adapter.notifyItemRemoved(position)
+
             }
         }
 

@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weather.R
 import com.example.weather.databinding.DailyForecastListItemBinding
+import com.example.weather.domain.ForecastDomainObject
 import com.example.weather.model.Day
 
 /**
@@ -62,4 +64,5 @@ data class ForecastItemViewData(val day: Day) {
     val high: String = day.day.maxtemp_f.toInt().toString()
 
     val low: String = day.day.mintemp_f.toInt().toString()
+
 }

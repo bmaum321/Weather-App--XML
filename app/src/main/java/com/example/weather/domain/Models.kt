@@ -41,12 +41,13 @@ data class WeatherDomainObject(
     val windMph: Double,
     val windDirection: String,
     val time: String,
-    val backgroundColor: Int // CAn i make this of type Color?
+    val backgroundColor: Int, // CAn i make this of type Color?
+    val code: Int
 )
 
 data class ForecastDomainObject(
     val days: List<Day>,
-    val alerts: List<Alert>
+    val alerts: List<Alert>,
 )
 
 data class HourlyForecastDomainObject(
@@ -69,14 +70,14 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
     val color = when (current.condition.code) {
         1000 -> {
             if (current.condition.text == "Sunny") {
-                R.color.yellow // sunny
+               R.color.yellow // sunny
             } else R.color.white // clear night
         }
-        in 1003..1030 -> R.color.yellow // clouds/overcast
-        in 1063..1117 -> R.color.yellow // rain
-        in 1150..1207 -> R.color.yellow // rain
-        in 1240..1282 -> R.color.yellow // rain
-        else -> R.color.gray
+        in 1003..1030 -> R.color.gray// clouds/overcast
+        in 1063..1117 -> R.color.blue // rain
+        in 1150..1207 -> R.color.blue // rain
+        in 1240..1282 -> R.color.blue // rain
+        else -> R.color.white
     }
 
 
@@ -89,7 +90,8 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
         conditionText = current.condition.text,
         windMph = current.wind_mph,
         windDirection = current.wind_dir,
-        backgroundColor = color
+        backgroundColor = color,
+        code = current.condition.code
     )
 }
 
@@ -109,6 +111,7 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
         .currentTimeMillis() / 1000 - 3600
     forecast.forecastday
         .forEach { day ->
+
             /**
              * Remove all method is used to avoid concurrent modification error on collections. Lets you
              * delete items from a collection as you iterate through it
@@ -139,6 +142,7 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
         }
+
 
     return ForecastDomainObject(
         days = forecast.forecastday,
