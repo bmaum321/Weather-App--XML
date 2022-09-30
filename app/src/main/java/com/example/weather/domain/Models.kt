@@ -41,8 +41,9 @@ data class WeatherDomainObject(
     val windMph: Double,
     val windDirection: String,
     val time: String,
-    val backgroundColor: Int, // CAn i make this of type Color?
-    val code: Int
+    val backgroundColor: Int,
+    val code: Int,
+    val textColor: Int
 )
 
 data class ForecastDomainObject(
@@ -67,7 +68,11 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
         )
         .removePrefix("0")
 
-    val color = when (current.condition.code) {
+    /**
+     * Change background color of card based off current condition code from APU
+     */
+    var textColor = R.color.white
+    val backgroudColor = when (current.condition.code) {
         1000 -> {
             if (current.condition.text == "Sunny") {
                R.color.yellow // sunny
@@ -80,6 +85,10 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
         else -> R.color.white
     }
 
+    if( backgroudColor == R.color.white ||  backgroudColor == R.color.yellow) {
+        textColor = R.color.black
+    }
+
 
     return WeatherDomainObject(
         time = location.localtime,
@@ -90,8 +99,9 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
         conditionText = current.condition.text,
         windMph = current.wind_mph,
         windDirection = current.wind_dir,
-        backgroundColor = color,
-        code = current.condition.code
+        backgroundColor =  backgroudColor,
+        code = current.condition.code,
+        textColor = textColor
     )
 }
 
