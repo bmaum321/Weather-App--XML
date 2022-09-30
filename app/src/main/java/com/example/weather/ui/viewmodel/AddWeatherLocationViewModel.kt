@@ -4,12 +4,21 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
+import com.example.weather.domain.SearchDomainObject
+import com.example.weather.domain.WeatherDomainObject
+import com.example.weather.domain.asDomainModel
+import com.example.weather.model.Search
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.ApiResponse
 import com.example.weather.network.WeatherContainer
 import com.example.weather.network.asDatabaseModel
 import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 
@@ -21,14 +30,13 @@ import kotlinx.coroutines.launch
 class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
+    private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
+        .apply {
+            tryEmit(Unit)
+        }
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
-
-    // A list of weather results for the list screen
-//    val weatherList =
-   //     weatherRepository.weatherDomainObjects //TODO this should get populated anytime the database gets updated
-
 
     // create a property to set to a list of all weather objects from the DAO
     val allWeatherEntity: LiveData<List<WeatherEntity>> =
@@ -40,13 +48,24 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         return weatherDao.getWeatherById(id).asLiveData()
     }
 
-    /**
-     * Call getWeatherData to get the data immediately
-     */
-    init {
-        //TODO right now the app is only calling the api once, when the viewmodel is created,
-        // or when the app is first started
-        // getWeatherData()
+
+    suspend fun getSearchResults(location: String): Flow<SearchViewData> {
+        return refreshFlow
+            .flatMapLatest {
+                flow {
+                    when (val response = weatherRepository.getSearchResults(location)) {
+                        is ApiResponse.Success -> {
+                            emit(SearchViewData.Done(response.data))
+                        }
+                        is ApiResponse.Failure -> {
+                            emit(SearchViewData.Error(code = response.code, message = response.message))
+                        }
+                        is ApiResponse.Exception -> {
+                            emit(SearchViewData.Error(code = response.e.hashCode(), message = response.e.message))
+                        }
+                    }
+                }
+            }
     }
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
@@ -57,13 +76,13 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
          * be returned outside of the scope
          */
 
-        when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
+        networkError = when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
             is ApiResponse.Success -> {
                 weatherDao.insert(response.data.asDatabaseModel(zipcode))
-                networkError = true
+                true
             }
-            is ApiResponse.Failure -> networkError = false
-            is ApiResponse.Exception -> networkError = false
+            is ApiResponse.Failure -> false
+            is ApiResponse.Exception -> false
         }
         return networkError
 
@@ -126,5 +145,11 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         }
     }
 
+}
+
+sealed class SearchViewData() {
+    class Loading() : SearchViewData()
+    class Error(val code: Int, val message: String?) : SearchViewData()
+    class Done(val searchDomainObject: List<Search>) : SearchViewData() // TODO this is a response directly from the API, need to copy into
 }
 

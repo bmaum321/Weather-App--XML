@@ -31,10 +31,6 @@ sealed class HourlyForecastViewData() {
 class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
-    private val _status = MutableLiveData<WeatherViewData>()
-
-    val status: LiveData<WeatherViewData> = _status
-
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 

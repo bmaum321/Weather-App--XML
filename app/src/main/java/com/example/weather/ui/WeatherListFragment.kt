@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 
 /**
@@ -91,13 +92,16 @@ class WeatherListFragment : Fragment() {
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(
                 0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT //or ItemTouchHelper.UP or ItemTouchHelper.DOWN
             ) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
+                val fromPosition = viewHolder.adapterPosition
+                val toPosition = target.adapterPosition
+                recyclerView.adapter?.notifyItemMoved(fromPosition, toPosition);
                 Toast.makeText(context, "on Move", Toast.LENGTH_SHORT).show()
                 return false
             }

@@ -5,6 +5,7 @@ import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.domain.asDomainModel
 import com.example.weather.model.ForecastContainer
+import com.example.weather.model.Search
 import com.example.weather.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,11 +23,16 @@ class WeatherRepository(private val database: WeatherDatabase) {
         }
     }
 
-    suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi { WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode) }
+    suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi {
+        WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode)
+    }
 
     suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> = handleApi {
         WeatherApi.retrofitService.getForecast(zipcode)
+    }
 
+    suspend fun getSearchResults(location: String): ApiResponse<List<Search>> = handleApi {
+        WeatherApi.retrofitService.locationSearch(location)
     }
 
 
@@ -47,8 +53,6 @@ class WeatherRepository(private val database: WeatherDatabase) {
         return weatherApiResponses
     }
 
-
-
     suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
@@ -56,19 +60,5 @@ class WeatherRepository(private val database: WeatherDatabase) {
         }
         return weatherDomainObjects
     }
-
-    /**
-     * Note: LiveData is retained in this example for simplicity. In general, it's recommended
-     * to use Flow with repositories as it's independent of the lifecycle.
-     */
-
-    /**
-     * This live data obkect should be updated automatically when the database is updated
-     */
-
-   // val weatherDomainObjects: LiveData<List<WeatherDomainObject>> =
-     //   Transformations.map(database.weatherDao().getWeatherLocations().asLiveData()) {
-      //      it.asDomainModel()
-    //    }
 
 }

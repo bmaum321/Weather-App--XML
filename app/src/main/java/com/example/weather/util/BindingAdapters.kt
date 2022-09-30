@@ -5,8 +5,7 @@ import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import coil.load
-import com.example.weather.R
-import com.example.weather.ui.viewmodel.WeatherViewData
+
 
 /**
  * Binding adapter used to hide the spinner once data is available.

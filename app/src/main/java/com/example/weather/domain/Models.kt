@@ -7,10 +7,7 @@ import android.graphics.Color.WHITE
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.weather.R
-import com.example.weather.model.Alert
-import com.example.weather.model.Day
-import com.example.weather.model.ForecastContainer
-import com.example.weather.model.Hours
+import com.example.weather.model.*
 import com.example.weather.network.WeatherContainer
 import java.time.Instant
 import java.time.LocalDate
@@ -43,7 +40,8 @@ data class WeatherDomainObject(
     val time: String,
     val backgroundColor: Int,
     val code: Int,
-    val textColor: Int
+    val textColor: Int,
+    val country: String
 )
 
 data class ForecastDomainObject(
@@ -51,8 +49,8 @@ data class ForecastDomainObject(
     val alerts: List<Alert>,
 )
 
-data class HourlyForecastDomainObject(
-    val hours: List<Hours>
+data class SearchDomainObject(
+    val searchResults: List<Search>
 )
 
 
@@ -75,20 +73,29 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
     val backgroudColor = when (current.condition.code) {
         1000 -> {
             if (current.condition.text == "Sunny") {
-               R.color.yellow // sunny
-            } else R.color.white // clear night
+               R.drawable.sungradient// sunny
+            } else R.color.purple_night // clear night
         }
-        in 1003..1030 -> R.color.gray// clouds/overcast
-        in 1063..1117 -> R.color.blue // rain
-        in 1150..1207 -> R.color.blue // rain
-        in 1240..1282 -> R.color.blue // rain
+        1003 -> R.drawable.gradient// partly cloudy
+        in 1006..1030 -> R.color.gray// clouds/overcast
+        in 1063..1117 -> R.drawable.raingradient // rain
+        in 1150..1207 -> R.drawable.raingradient // rain
+        in 1210..1237 -> R.color.white //snow
+        in 1240..1282 -> R.drawable.raingradient // rain
         else -> R.color.white
     }
 
-    if( backgroudColor == R.color.white ||  backgroudColor == R.color.yellow) {
-        textColor = R.color.black
+    if( backgroudColor == R.color.white ||  backgroudColor == R.drawable.sungradient) {
+        textColor = R.color.light_black
     }
 
+    /**
+     * Country formatting
+     */
+    when(location.country){
+        resource.getString(R.string.USA) -> location.country = "USA"
+        resource.getString(R.string.UK) -> location.country = "UK"
+    }
 
     return WeatherDomainObject(
         time = location.localtime,
@@ -101,7 +108,8 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
         windDirection = current.wind_dir,
         backgroundColor =  backgroudColor,
         code = current.condition.code,
-        textColor = textColor
+        textColor = textColor,
+        country = location.country
     )
 }
 
@@ -160,9 +168,17 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
     )
 }
 
-fun Day.asDomainModel(): HourlyForecastDomainObject {
-    return HourlyForecastDomainObject(
-        hours = hour
+/* TODO
+fun Search.asDomainModel(): SearchDomainObject {
+    val searchList = mutableListOf<Search>()
+    searchList.add(Search().copy())
+    return SearchDomainObject(
+
+        searchResults = searchList
     )
 }
+
+ */
+
+
 

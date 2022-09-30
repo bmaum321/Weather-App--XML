@@ -1,6 +1,7 @@
 package com.example.weather.network
 
 import com.example.weather.model.ForecastContainer
+import com.example.weather.model.Search
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
@@ -18,6 +19,7 @@ private const val APIKEY = "759618142cff4efb89d192409221909"
 private const val BASE_URL = "https://api.weatherapi.com/v1/"
 private const val CURRENT = "current.json?key=$APIKEY"
 private const val FORECAST = "forecast.json?key=$APIKEY"
+private const val SEARCH = "search.json?key=$APIKEY"
 
 
 
@@ -46,6 +48,11 @@ interface WeatherApiService {
         @Query("q") zipcode: String
     ): Response<WeatherContainer>
 
+    @GET(SEARCH)
+    suspend fun locationSearch(
+        @Query("Q") location: String
+    ): Response<List<Search>>
+
     @GET(FORECAST)
     suspend fun getForecast(
         @Query("q") zipcode: String,
@@ -68,7 +75,7 @@ object WeatherApi {
  * Sealed class to handle API responses
  */
 sealed class ApiResponse<T : Any> {
-    class Success<T : Any>(var data: T) : ApiResponse<T>() //TODO trying to change to var to manipulate data after retrieveing from api
+    class Success<T : Any>(val data: T) : ApiResponse<T>() //TODO trying to change to var to manipulate data after retrieveing from api
     class Failure<T : Any>(val code: Int, val message: String?) : ApiResponse<T>()
     class Exception<T : Any>(val e: Throwable) : ApiResponse<T>()
 }

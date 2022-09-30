@@ -40,7 +40,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp">
 
@@ -51,8 +51,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@{weather.location}"
-                    android:textColor="@{context.getColor(weather.textColor)}"
                     android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:textColor="@{context.getColor(weather.textColor)}"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -60,25 +60,27 @@
                     tools:text="Name" />
 
                 <TextView
+                    android:id="@+id/country"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{weather.country}"
+                    android:textColor="@{context.getColor(weather.textColor)}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name"
+                    tools:text="USA" />
+
+                <TextView
                     android:id="@+id/weather_for_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{weather.conditionText}"
-                    android:textColor="@{context.getColor(weather.textColor)}"
                     android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="@{context.getColor(weather.textColor)}"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/name"
+                    app:layout_constraintTop_toBottomOf="@id/country"
                     tools:text="Condition" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
-                    android:background="?attr/dividerHorizontal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/weather_for_day" />
 
                 <ImageView
                     android:id="@+id/conditionIcon"

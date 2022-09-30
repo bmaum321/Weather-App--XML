@@ -19,13 +19,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
-
-sealed class WeatherViewData() {
-    class Loading() : WeatherViewData()
-    class Error() : WeatherViewData()
-    class Done(val weatherDomainObject: WeatherDomainObject) : WeatherViewData()
-}
-
 sealed class ForecastViewData() {
     class Loading() : ForecastViewData()
     class Error(val code: Int, val message: String?) : ForecastViewData()
@@ -39,11 +32,6 @@ sealed class ForecastViewData() {
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
 class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
-
-
-    private val _status = MutableLiveData<WeatherViewData>()
-
-    val status: LiveData<WeatherViewData> = _status
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
@@ -60,34 +48,6 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
     fun getWeatherByZipcode(zipcode: String): LiveData<WeatherEntity> {
         return weatherDao.getWeatherByZipcode(zipcode)
             .asLiveData()
-    }
-
-    // Method that takes zipcode as a parameter and retrieve a Weather from the
-    //  repository
-    fun getWeatherFromNetworkByZipCode(zipcode: String, resources: Resources): Flow<WeatherDomainObject> {
-        return flow {
-            emit(weatherRepository.getWeather(zipcode, resources))
-        }
-    }
-
-    fun getWeatherForZipcode(zipcode: String, resources: Resources): Flow<WeatherViewData> {
-        return flow {
-            emit(WeatherViewData.Loading())
-            when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
-                is ApiResponse.Success -> emit(
-                    WeatherViewData.Done(
-                        response
-                            .data
-                            .asDomainModel(
-                                zipcode,
-                                resources
-                            )
-                    )
-                )
-                is ApiResponse.Failure -> emit(WeatherViewData.Error())
-                is ApiResponse.Exception -> emit(WeatherViewData.Error())
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -15,13 +15,18 @@
  */
 package com.example.weather.ui
 
+import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -32,11 +37,14 @@ import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
+import com.example.weather.ui.viewmodel.SearchViewData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+private const val ERRORTEXT = "Cannot add location, check network connection or zipcode"
 /**
  * A fragment to enter data for a new [WeatherEntity] or edit data for an existing [WeatherEntity].
  * [WeatherEntity]s can be saved or deleted from this fragment.
@@ -93,8 +101,23 @@ class AddWeatherFragment : Fragment() {
         } else {
             binding.saveBtn.setOnClickListener {
                 addWeather()
+                //addWeatherFromSearch()
             }
         }
+
+
+        //TODO likely need to create a custom adapter for this,
+        // Somehow call api as characters are added to input text and then submit that list to the adapter continously
+        // Start new autocomplete code
+        val x = listOf<Pair<String,String>>(Pair("Weather", "Weald"), Pair("Wealth", "Error"))
+        val adapter = context?.let {
+            ArrayAdapter(
+                it,
+                android.R.layout.simple_dropdown_item_1line, x //
+            )
+        }
+        binding.autoCompleteTextView.setAdapter(adapter)
+
     }
 
     private fun deleteWeather(weather: WeatherEntity) {
@@ -108,8 +131,8 @@ class AddWeatherFragment : Fragment() {
         if (isValidEntry()) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                if( !viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString())) {
-                   withContext(Dispatchers.Main) { //Lets you launce a new coroutine on a differnt thread within an existing coroutine
-                       showToast()
+                   withContext(Dispatchers.Main) { //Lets you launch a new coroutine on a different thread within an existing coroutine
+                       showToast(ERRORTEXT)
                    }
                }
                 withContext(Dispatchers.Main) { //Navigtion must be run on main thread
@@ -119,8 +142,30 @@ class AddWeatherFragment : Fragment() {
         }
     }
 
-    private fun showToast() {
-        val text = "Cannot add location, check network connection or zipcode"
+    private fun addWeatherFromSearch(): List<String>{
+        val searchResultsAsList = mutableListOf<String>()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.getSearchResults("81005").collect { searchResults ->
+             //   withContext(Dispatchers.Main){
+                    when(searchResults) {
+                        is SearchViewData.Done -> {
+                            searchResultsAsList.add(searchResults.searchDomainObject.forEach { result ->
+                                result.url }.toString())
+                        }
+                        is SearchViewData.Error -> {
+                            Log.d("API", "${searchResults.message}")
+                        }
+                        is SearchViewData.Loading -> {
+                            Log.d("API", "$searchResults")
+                        }
+                    }
+           //     }
+            }
+        }
+        return searchResultsAsList
+    }
+
+    private fun showToast(text: String?) {
         val duration = Toast.LENGTH_LONG
         val toast = Toast.makeText(context, text, duration)
         toast.show()
@@ -147,7 +192,6 @@ class AddWeatherFragment : Fragment() {
 
     private fun bindWeather(weatherEntity: WeatherEntity) {
         binding.apply{
-            //nameInput.setText(weatherEntity.cityName, TextView.BufferType.SPANNABLE) //TODO this is setting text views directly from the database still
             zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
@@ -157,7 +201,6 @@ class AddWeatherFragment : Fragment() {
     }
 
     private fun isValidEntry() = viewModel.isValidEntry(
-      //  binding.nameInput.text.toString(),
         binding.zipcodeInput.text.toString()
     )
 
@@ -166,3 +209,25 @@ class AddWeatherFragment : Fragment() {
         _binding = null
     }
 }
+
+class CountriesActivity : Activity() {
+    override fun onCreate(icicle: Bundle?) {
+        super.onCreate(icicle)
+        setContentView(R.layout.fragment_add_weather_location)
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line, COUNTRIES
+        )
+        val textView = findViewById<View>(R.id.autoCompleteTextView) as AutoCompleteTextView
+        textView.setAdapter(adapter)
+    }
+
+    companion object {
+        val COUNTRIES = arrayOf(
+            "Belgium", "France", "Italy", "Germany", "Spain"
+        )
+    }
+}
+
+
+

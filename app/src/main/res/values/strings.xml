@@ -31,4 +31,7 @@
     <string name="low">Low</string>
     <string name="high">High</string>
     <string name="today">Today</string>
+    <string name="USA">United States of America</string>
+    <string name="UK">United Kingdom</string>
+    <string name="search_for_places">Search for Places...</string>
 </resources>
