@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+        <Preference
+            app:icon="@drawable/ic_temperature"
+            app:key="units"
+            app:title="Units"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"/>
+
+
+        <Preference
+            app:icon="@drawable/ic_baseline_format_paint_24"
+            app:key="interface"
+            app:title="Interface"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"/>
+
+        <Preference
+            app:icon="@drawable/ic_baseline_help_24"
+            app:key="about"
+            app:title="About"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"
+   />
+
+
+
+</PreferenceScreen>

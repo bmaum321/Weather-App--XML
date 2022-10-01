@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+<ListPreference
+    app:icon="@drawable/ic_temperature"
+    app:key="temperature"
+    app:title="Temperature"
+    app:dialogTitle="Temperature"
+    app:defaultValue="1"
+    app:entries="@array/temperature_preference"
+    app:entryValues="@array/temperature_unit_preference"
+    app:allowDividerBelow="true"
+    app:allowDividerAbove="true"
+    />
+
+
+
+</PreferenceScreen>

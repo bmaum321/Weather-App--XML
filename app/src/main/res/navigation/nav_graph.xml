@@ -72,4 +72,29 @@
             app:argType="string" />
     </fragment>
 
+    <!--Settings fragment-->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.weather.ui.settings.SettingsFragment"
+        android:label="Settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_unitSettingsFragment"
+            app:destination="@id/unitSettingsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_interfaceSettingsFragment"
+            app:destination="@id/interfaceSettingsFragment" />
+    </fragment>
+
+    <!--Global action-->
+    <action android:id="@+id/open_settings_fragment"
+        app:destination="@id/settingsFragment"/>
+    <fragment
+        android:id="@+id/unitSettingsFragment"
+        android:name="com.example.weather.ui.settings.UnitSettingsFragment"
+        android:label="Unit Settings" />
+    <fragment
+        android:id="@+id/interfaceSettingsFragment"
+        android:name="com.example.weather.ui.settings.InterfaceSettingsFragment"
+        android:label="Interface Settings" />
+
 </navigation>

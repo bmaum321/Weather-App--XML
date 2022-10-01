@@ -2,8 +2,6 @@ package com.example.weather.domain
 
 
 import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.Color.WHITE
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.weather.R
@@ -16,7 +14,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
-import kotlin.math.floor
 
 
 /**
@@ -76,8 +73,10 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
                R.drawable.sungradient// sunny
             } else R.color.purple_night // clear night
         }
-        1003 -> R.drawable.gradient// partly cloudy
-        in 1006..1030 -> R.color.gray// clouds/overcast
+        1003 -> if(current.is_day == 1) {
+            R.drawable.day_partly_cloudy_gradient // partly cloudy day
+        } else {R.drawable.night_partly_cloudy} // partly cloudy night
+        in 1006..1030 -> R.color.gray // clouds/overcast
         in 1063..1117 -> R.drawable.raingradient // rain
         in 1150..1207 -> R.drawable.raingradient // rain
         in 1210..1237 -> R.color.white //snow

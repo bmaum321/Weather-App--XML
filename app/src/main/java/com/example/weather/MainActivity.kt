@@ -5,9 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -35,10 +33,14 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        /**
+         * Main view model with title value and method to update action bar title
+         */
+
         val mainViewModel: MainViewModel by viewModels()
-        mainViewModel.title.observe(this, Observer {
+        mainViewModel.title.observe(this) {
             supportActionBar?.title = it
-        })
+        }
 
 
     }
@@ -54,7 +56,13 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                /**
+                 * The open_settings_fragment is a global action defined in nav_graph.xml
+                 */
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.open_settings_fragment)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -65,3 +73,5 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 }
+
+
