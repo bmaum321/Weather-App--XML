@@ -36,7 +36,6 @@ sealed class WeatherViewDataList() {
 class WeatherListViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
-
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)
     }
@@ -44,18 +43,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
-
-    // create a property to set to a list of all weather objects from the DAO
-    val allWeatherEntity: LiveData<List<WeatherEntity>> =
-        weatherDao.getWeatherLocations()
-            .asLiveData() //TODO pull from repo?
-
-    // Method that takes id: Long as a parameter and retrieve a Weather from the
-    //  database by id via the DAO.
-    fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-        return weatherDao.getWeatherById(id)
-            .asLiveData()
-    }
 
     fun getWeatherByZipcode(location: String): WeatherEntity {
         return weatherDao.getWeatherByLocation(location)
@@ -102,8 +89,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
             }
     }
 
-
-    //TODO this isnt working
     fun refresh() {
         refreshFlow.tryEmit(Unit)
     }

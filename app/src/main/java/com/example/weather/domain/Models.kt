@@ -8,6 +8,9 @@ import androidx.annotation.RequiresApi
 import com.example.weather.R
 import com.example.weather.model.*
 import com.example.weather.network.WeatherContainer
+import com.example.weather.ui.adapter.ForecastItemViewData
+import com.example.weather.ui.settings.GetSettings
+import com.example.weather.ui.viewmodel.ForecastViewData
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -15,7 +18,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
-
 
 /**
  * Domain objects are plain Kotlin data classes that represent the things in our app. These are the
@@ -25,8 +27,6 @@ import java.util.*
  * @see network for objects that parse or prepare network calls
  */
 
-private const val TWELVE_HOUR = "hh:mm a"
-private const val TWENTY_FOUR_HOUR = "kk:mm"
 
 data class WeatherDomainObject(
     val location: String,
@@ -40,7 +40,8 @@ data class WeatherDomainObject(
     val backgroundColor: Int,
     val code: Int,
     val textColor: Int,
-    val country: String
+    val country: String,
+    val feelsLikeTemp: String
 )
 
 data class ForecastDomainObject(
@@ -52,45 +53,6 @@ data class SearchDomainObject(
     val searchResults: List<String>
 )
 
-// Move these functions to separate file?
-
-fun getTimeFormatFromPreferences(
-    sharedPreferences: SharedPreferences,
-    resource: Resources
-): String {
-    var timeFormat = TWELVE_HOUR
-    val clockFormatPreference = sharedPreferences.getString("clock_format", "") // TODO Should all of these string resources be extracted? Even key values in preferences?
-    if (clockFormatPreference == resource.getString(R.string.twenty_four_hour)) {
-        timeFormat = TWENTY_FOUR_HOUR
-    }
-    return timeFormat
-}
-
-fun getTemperatureFormatFromPreferences(
-    sharedPreferences: SharedPreferences,
-    resources: Resources
-): Boolean {
-    var tempFormat = true
-    val tempFormatPreference = sharedPreferences.getString("temperature_unit", "")
-    if (tempFormatPreference == "c") {
-        tempFormat = false
-    }
-    return tempFormat
-}
-
-fun getWindSpeedFormatFromPreferences(
-    sharedPreferences: SharedPreferences,
-    resources: Resources
-): Boolean {
-    var windSpeedFormat = true
-    val tempFormatPreference = sharedPreferences.getString("wind", "")
-    if (tempFormatPreference == "kph") {
-        windSpeedFormat = false
-    }
-    return windSpeedFormat
-}
-
-
 fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
@@ -98,21 +60,13 @@ fun WeatherContainer.asDomainModel(
 ): WeatherDomainObject {
 
     // Get local time for display
-    /*
-    var timeFormat = TWELVE_HOUR
-    val clockFormatPreference = sharedPreferences.getString("clock_format", "")
-    if (clockFormatPreference == resource.getString(R.string.twenty_four_hour)) {
-        timeFormat = TWENTY_FOUR_HOUR
-    }
-
-     */
 
     location.localtime = Instant
         .ofEpochSecond(location.localtime_epoch)
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern(getTimeFormatFromPreferences(sharedPreferences, resources))
+                .ofPattern(GetSettings().getTimeFormatFromPreferences(sharedPreferences, resources))
         )
         .removePrefix("0")
 
@@ -148,6 +102,7 @@ fun WeatherContainer.asDomainModel(
             else -> R.color.white
         }
 
+        // Change text color to black for certain gradients for easier reading
         if (backgroudColor == R.color.white || backgroudColor == R.drawable.sungradient) {
             textColor = R.color.light_black
         }
@@ -170,24 +125,28 @@ fun WeatherContainer.asDomainModel(
         location = location.name,
         zipcode = zipcode,
         temp =
-        if (getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
-            current.temp_f.toString().dropLast(2)
-        } else current.temp_c.toString().dropLast(2),
+        if (GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
+            current.temp_f.toInt().toString()
+        } else current.temp_c.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windSpeed = if (getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
+        windSpeed = if (GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
             current.wind_mph
         } else current.wind_kph,
         windDirection = current.wind_dir,
         backgroundColor = backgroudColor,
         code = current.condition.code,
         textColor = textColor,
-        country = location.country
+        country = location.country,
+        feelsLikeTemp =
+        if (GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
+            current.feelslike_f.toInt().toString()
+        } else current.feelslike_c.toInt().toString()
     )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun ForecastContainer.asDomainModel(
+fun ForecastContainer.asDomainModel(
     sharedPreferences: SharedPreferences,
     resources: Resources
 )
@@ -228,11 +187,12 @@ suspend fun ForecastContainer.asDomainModel(
                 .forEach { hour ->
                     hour.time = LocalTime.parse(
                         hour.time
-                            .substring(11)
+                            .substring(11) // Remove date from time
                     ) // Remove date stamp
                         .format(
                             DateTimeFormatter
                                 .ofPattern(
+                                    GetSettings().
                                     getTimeFormatFromPreferences(
                                         sharedPreferences,
                                         resources
@@ -251,14 +211,6 @@ suspend fun ForecastContainer.asDomainModel(
 }
 
 
-fun Search.asDomainModel(): SearchDomainObject {
-    val searchList = mutableListOf<String>()
-    searchList.add(url)
-    return SearchDomainObject(
-
-        searchResults = searchList
-    )
-}
 
 
 

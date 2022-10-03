@@ -58,11 +58,11 @@ data class ForecastForDay(
 data class Hours(
     val time_epoch: Int,
     var time: String,
-    val temp_f: Double,
+    var temp_f: Double,
     val temp_c: Double,
     val is_day: Int,
     val condition: Condition,
-    val wind_mph: Double,
+    var wind_mph: Double,
     val wind_kph: Double,
     val wind_dir: String,
     val chance_of_rain: Int

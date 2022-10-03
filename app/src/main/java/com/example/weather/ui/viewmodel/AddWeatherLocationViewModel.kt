@@ -38,10 +38,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
 
-    // create a property to set to a list of all weather objects from the DAO
-    val allWeatherEntity: LiveData<List<WeatherEntity>> =
-        weatherDao.getWeatherLocations().asLiveData() //TODO pull from repo?
-
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     fun getWeatherById(id: Long): LiveData<WeatherEntity> {
@@ -104,23 +100,11 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         id: Long,
         name: String,
         zipcode: String,
-        tempf: Double?,
-        imgSrcUrl: String,
-        conditonText: String,
-        windMph: Double,
-        windDirection: String,
-        time: String
     ) {
         val weatherEntity = WeatherEntity(
             id = id,
             cityName = name,
             zipCode = zipcode,
-            temp = tempf,
-            imgSrcUrl = imgSrcUrl,
-            conditionText = conditonText,
-            windMph = windMph,
-            windDirection = windDirection,
-            time = time
         )
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to update a weather object to the database here

@@ -16,14 +16,6 @@ class WeatherRepository(private val database: WeatherDatabase) {
     // The only thing we should be storing into the database is zipcode and city name, everything
     // else is dynamic
 
-
-    suspend fun storeNetworkWeatherInDatabase(zipcode: String) {
-        withContext(Dispatchers.IO) {
-            val weatherData = WeatherApi.retrofitService.getWeather(zipcode)
-            database.weatherDao().insert(weatherData.asDatabaseModel(zipcode))
-        }
-    }
-
     suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> = handleApi {
         WeatherApi.retrofitService.getWeatherWithErrorHandling(zipcode)
     }
@@ -43,16 +35,6 @@ class WeatherRepository(private val database: WeatherDatabase) {
             .asDomainModel(zipcode, resources, sharedPreferences)
     }
 
-    //TODO need to create a function that calls the API for each zip code and returns a list of
-    // Weather domain objects for the main screen
-
-    suspend fun getWeatherListForZipCodesWithErrorHandling(zipcodes: List<String>): List<ApiResponse<WeatherContainer>> {
-        val weatherApiResponses = mutableListOf<ApiResponse<WeatherContainer>>()
-        zipcodes.forEach { zipcode ->
-            weatherApiResponses.add(getWeatherWithErrorHandling(zipcode))
-        }
-        return weatherApiResponses
-    }
 
     suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources, sharedPreferences: SharedPreferences): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()

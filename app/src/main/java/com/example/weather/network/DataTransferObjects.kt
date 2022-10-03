@@ -28,12 +28,6 @@ fun WeatherContainer.asDatabaseModel(zipcode: String): WeatherEntity {
     return WeatherEntity(
         zipCode = zipcode,
         cityName = location.name,
-        temp = current.temp_f,
-        imgSrcUrl = current.condition.icon,
-        windDirection = current.wind_dir,
-        windMph = current.wind_mph,
-        conditionText = current.condition.text,
-        time = location.localtime
     )
 
 }

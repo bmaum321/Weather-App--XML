@@ -47,40 +47,6 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
     }
 
-    /*
-
-    fun getHourlyForecastForZipcode(zipcode: String): Flow<HourlyForecastViewData> {
-        return refreshFlow
-            .flatMapLatest {
-                val hours = mutableListOf<Hours>()
-                val response = weatherRepository.getForecast(zipcode)
-                if (response is ApiResponse.Success) {
-                    response.data.forecast.forecastday.forEach { daysList ->
-                        daysList.hour.forEach { hoursList ->
-                            hours.add(hoursList)
-                        }
-                    }
-                }
-
-                flow {
-                    emit(HourlyForecastViewData.Loading())
-                    when (response) {
-                        is ApiResponse.Success -> emit(
-                            HourlyForecastViewData.Done(hours)
-                        )
-                        is ApiResponse.Failure -> emit(
-                            HourlyForecastViewData.Error()
-                        )
-                        is ApiResponse.Exception -> emit(
-                            HourlyForecastViewData.Error()
-                        )
-                    }
-                }
-            }
-    }
-
-     */
-
     fun getForecastForZipcode(zipcode: String,
                               sharedPreferences: SharedPreferences,
                               resources: Resources): Flow<HourlyForecastViewData> {

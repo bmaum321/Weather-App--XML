@@ -6,8 +6,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.weather.R
-
-private const val VERSION = "Version: 0.1.0"
+import com.example.weather.util.Constants
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -21,7 +20,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         builder.setMessage("Thanks for trying my app! \n bmaum1@gmail.com" )
 
         // Set Alert Title
-        builder.setTitle(VERSION)
+        builder.setTitle(Constants.VERSION)
 
         // Set Cancelable false for when the user clicks on the outside the Dialog Box then it will remain show
         builder.setCancelable(true)

@@ -18,6 +18,7 @@ package com.example.weather.ui
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -105,10 +106,14 @@ class AddWeatherFragment : Fragment() {
             }
         }
 
+        /**
+         *
+         */
+
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect { searchResults ->
-                //   withContext(Dispatchers.Main){
+
                 when (searchResults) {
                     is SearchViewData.Done -> {
                         withContext(Dispatchers.Main) {
@@ -130,7 +135,6 @@ class AddWeatherFragment : Fragment() {
                         Log.d("API", "$searchResults")
                     }
                 }
-                //     }
             }
         }
     }
@@ -162,29 +166,6 @@ class AddWeatherFragment : Fragment() {
         }
     }
 
-    private fun addWeatherFromSearch() {
-
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getSearchResults("81005").collect { searchResults ->
-                //   withContext(Dispatchers.Main){
-                when (searchResults) {
-                    is SearchViewData.Done -> {
-
-                    }
-
-                        is SearchViewData.Error -> {
-                            Log.d("API", "${searchResults.message}")
-                        }
-                        is SearchViewData.Loading -> {
-                            Log.d("API", "$searchResults")
-                        }
-                    }
-                    //     }
-                }
-            }
-        }
-
-
     private fun showToast(text: String?) {
         val duration = Toast.LENGTH_LONG
         val toast = Toast.makeText(context, text, duration)
@@ -197,12 +178,6 @@ class AddWeatherFragment : Fragment() {
                 id = navigationArgs.id,
                 name = weatherEntity.cityName,
                 zipcode = binding.zipcodeInput.text.toString(),
-                tempf = weatherEntity.temp,
-                imgSrcUrl = weatherEntity.imgSrcUrl,
-                windDirection = weatherEntity.windDirection,
-                windMph = weatherEntity.windMph,
-                conditonText = weatherEntity.conditionText,
-                time = weatherEntity.time
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment

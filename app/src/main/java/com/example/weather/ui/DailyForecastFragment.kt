@@ -16,9 +16,9 @@
 package com.example.weather.ui
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +36,7 @@ import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.ForecastAdapter
 import com.example.weather.ui.adapter.ForecastItemViewData
+import com.example.weather.ui.adapter.withPreferenceConversion
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -101,7 +102,8 @@ class DailyForecastFragment : Fragment() {
                         is ForecastViewData.Done -> {
                             adapter.submitList(
                                 it.forecastDomainObject.days.map {  // take items in list and submit as new list
-                                    ForecastItemViewData(it)
+                                    ForecastItemViewData(it).withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(context),
+                                        resources)
                                 }
                             )
                             mainViewModel.updateActionBarTitle(weatherEntity.cityName)

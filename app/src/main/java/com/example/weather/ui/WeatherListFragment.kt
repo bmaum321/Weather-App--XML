@@ -20,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
+import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
 import com.example.weather.ui.adapter.WeatherListAdapter
+import com.example.weather.ui.settings.GetSettings
 import com.example.weather.ui.viewmodel.WeatherListViewModel
 import com.example.weather.ui.viewmodel.WeatherViewDataList
 import kotlinx.coroutines.Dispatchers
@@ -184,18 +186,6 @@ class WeatherListFragment : Fragment() {
         }
     }
 
-
-/*
-        // TODO: observe the list of weather objects from the view model and submit it the adapter
-        //TODO: This should instead observe the repository
-        viewModel.allWeatherEntity.observe(this.viewLifecycleOwner) { weathers ->
-            weathers.let {
-                adapter.submitList(it)
-            }
-        }
- */
-
-
     private fun refreshScreen() {
         viewModel.refresh()
     }
@@ -203,41 +193,4 @@ class WeatherListFragment : Fragment() {
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
     }
-
-/*
-* Listen for option item selections so that we receive a notification
-* when the user requests a refresh by selecting the refresh action bar item.
-*
-*/
-/*
-override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    val adapter = WeatherListAdapter { weather ->
-        val action = WeatherListFragmentDirections
-            .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
-        findNavController().navigate(action)
-    }
-    when (item.itemId) {
-
-
-        // Check if user triggered a refresh:
-        R.id.menu_refresh -> {
-
-            // Signal SwipeRefreshLayout to start the progress indicator
-            binding.swiperefresh.isRefreshing = true
-
-            // Start the refresh background task.
-            // This method calls setRefreshing(false) when it's finished.
-            refreshScreen(viewModel, adapter = adapter)
-
-            return true
-        }
-    }
-
-    // User didn't trigger a refresh, let the superclass handle this action
-    return super.onOptionsItemSelected(item)
-}
-
- */
-
-
 }
