@@ -40,4 +40,5 @@
     <string name="USA_Acronym">USA</string>
     <string name="UK_Acronym">UK</string>
     <string name="show_current_condition_color">Show Condition Colors</string>
+    <string name="USA2">USA United States of America</string>
 </resources>

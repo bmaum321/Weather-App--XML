@@ -159,6 +159,8 @@ fun WeatherContainer.asDomainModel(
     when (location.country) {
         resources.getString(R.string.USA) -> location.country =
             resources.getString(R.string.USA_Acronym)
+        resources.getString(R.string.USA2) -> location.country =
+            resources.getString(R.string.USA_Acronym)
         resources.getString(R.string.UK) -> location.country =
             resources.getString(R.string.UK_Acronym)
     }
