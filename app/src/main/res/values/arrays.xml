@@ -6,8 +6,41 @@
     </string-array>
 
     <string-array name="temperature_unit_preference">
-        <item>"1"</item>
-        <item>"0"</item>
+        <item>"f"</item>
+        <item>"c"</item>
+    </string-array>
+
+
+        <string-array name="wind_preference">
+            <item>"MPH"</item>
+            <item>"KPH"</item>
+        </string-array>
+
+        <string-array name="wind_unit_preference">
+            <item>"mph"</item>
+            <item>"kph"</item>
+        </string-array>
+
+
+            <string-array name="precipitation_preference">
+                <item>"Inches"</item>
+                <item>"Millimeters"</item>
+            </string-array>
+
+            <string-array name="precipitation_unit_preference">
+                <item>"in"</item>
+                <item>"mm"</item>
+            </string-array>
+
+
+    <string-array name="clock_preference">
+        <item>"12 Hour"</item>
+        <item>"24 Hour"</item>
+    </string-array>
+
+    <string-array name="clock_unit_preference">
+        <item>@string/twelve_hour</item>
+        <item>@string/twenty_four_hour</item>
     </string-array>
 
 </resources>

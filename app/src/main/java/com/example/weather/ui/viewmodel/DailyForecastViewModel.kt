@@ -1,6 +1,7 @@
 package com.example.weather.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -51,7 +52,10 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getForecastForZipcode(zipcode: String, resources: Resources): Flow<ForecastViewData> {
+    fun getForecastForZipcode(zipcode: String,
+                              sharedPreferences: SharedPreferences,
+                              resources: Resources)
+    : Flow<ForecastViewData> {
         return refreshFlow
             .flatMapLatest {
                 flow {
@@ -59,7 +63,7 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
                     when (val response = weatherRepository.getForecast(zipcode)) {
                         is ApiResponse.Success -> emit(
                             ForecastViewData.Done(
-                                response.data.asDomainModel(resources)
+                                response.data.asDomainModel(sharedPreferences, resources)
                             )
                         )
                         is ApiResponse.Failure -> emit(

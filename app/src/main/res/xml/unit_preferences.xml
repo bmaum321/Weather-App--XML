@@ -1,19 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
-<ListPreference
-    app:icon="@drawable/ic_temperature"
-    app:key="temperature"
-    app:title="Temperature"
-    app:dialogTitle="Temperature"
-    app:defaultValue="1"
-    app:entries="@array/temperature_preference"
-    app:entryValues="@array/temperature_unit_preference"
-    app:allowDividerBelow="true"
-    app:allowDividerAbove="true"
-    />
+    <ListPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="f"
+        app:dialogTitle="Temperature Unit"
+        app:entries="@array/temperature_preference"
+        app:entryValues="@array/temperature_unit_preference"
+        app:icon="@drawable/ic_temperature"
+        app:key="temperature_unit"
+        app:isPreferenceVisible="true"
+        app:title="Temperature" />
+
+    <ListPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="mph"
+        app:dialogTitle="Wind Speed"
+        app:entries="@array/wind_preference"
+        app:entryValues="@array/wind_unit_preference"
+        app:icon="@drawable/ic_wind"
+        app:key="wind"
+        app:isPreferenceVisible="true"
+        app:title="Wind" />
+
+    <ListPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="in"
+        app:dialogTitle="Precipitation"
+        app:entries="@array/precipitation_preference"
+        app:entryValues="@array/precipitation_unit_preference"
+        app:icon="@drawable/ic_rain_svgrepo_com"
+        app:key="precipitation"
+        app:isPreferenceVisible="true"
+        app:title="Precipitation" />
+
+    <ListPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="@string/twelve_hour"
+        app:dialogTitle="Clock Format"
+        app:entries="@array/clock_preference"
+        app:entryValues="@array/clock_unit_preference"
+        app:icon="@drawable/ic_baseline_access_time_24"
+        app:key="clock_format"
+        app:isPreferenceVisible="true"
+        app:title="Clock Format" />
+
 
 
 

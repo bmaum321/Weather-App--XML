@@ -16,6 +16,7 @@
 package com.example.weather.ui
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
@@ -91,7 +93,9 @@ class DailyForecastFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getForecastForZipcode(zipcode, resources).collect {
+            viewModel.getForecastForZipcode(zipcode,
+                PreferenceManager.getDefaultSharedPreferences(context),
+                resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is ForecastViewData.Done -> {

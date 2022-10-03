@@ -1,5 +1,6 @@
 package com.example.weather.repository
 
+import android.content.SharedPreferences
 import android.content.res.Resources
 import com.example.weather.data.WeatherDatabase
 import com.example.weather.domain.WeatherDomainObject
@@ -36,10 +37,10 @@ class WeatherRepository(private val database: WeatherDatabase) {
     }
 
 
-    suspend fun getWeather(zipcode: String, resources: Resources): WeatherDomainObject {
+    suspend fun getWeather(zipcode: String, resources: Resources, sharedPreferences: SharedPreferences): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
         return weatherData
-            .asDomainModel(zipcode, resources)
+            .asDomainModel(zipcode, resources, sharedPreferences)
     }
 
     //TODO need to create a function that calls the API for each zip code and returns a list of
@@ -53,10 +54,10 @@ class WeatherRepository(private val database: WeatherDatabase) {
         return weatherApiResponses
     }
 
-    suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources): List<WeatherDomainObject> {
+    suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources, sharedPreferences: SharedPreferences): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
-            weatherDomainObjects.add(getWeather(zipcode, resources))
+            weatherDomainObjects.add(getWeather(zipcode, resources, sharedPreferences))
         }
         return weatherDomainObjects
     }

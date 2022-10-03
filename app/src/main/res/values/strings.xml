@@ -34,4 +34,10 @@
     <string name="USA">United States of America</string>
     <string name="UK">United Kingdom</string>
     <string name="search_for_places">Search for Places...</string>
+    <string name="twelve_hour">12 Hour Clock Format</string>
+    <string name="twenty_four_hour">24 Hour Clock Format</string>
+    <string name="Sunny">Sunny</string>
+    <string name="USA_Acronym">USA</string>
+    <string name="UK_Acronym">UK</string>
+    <string name="show_current_condition_color">Show Condition Colors</string>
 </resources>

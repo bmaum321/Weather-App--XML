@@ -2,5 +2,31 @@
 <PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <CheckBoxPreference
+        app:icon="@drawable/ic_baseline_color_lens_24"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="true"
+        app:enabled="true"
+        app:key="@string/show_current_condition_color"
+        app:title="Dynamic Condition Colors" />
+
+    <CheckBoxPreference
+        app:icon="@drawable/ic_baseline_crisis_alert_24"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="false"
+        app:enabled="true"
+        app:key="alerts"
+        app:title="Show Local Weather Alerts?" />
+
+    <CheckBoxPreference
+        app:icon="@drawable/ic_temperature"
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="false"
+        app:enabled="true"
+        app:key="show_feels_like_temp"
+        app:title="Show Feels Like Temperature" />
 
 </PreferenceScreen>

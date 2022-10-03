@@ -11,12 +11,14 @@ private const val VERSION = "Version: 0.1.0"
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
+
+
     private fun showAboutDialog(){
         // Create the object of AlertDialog Builder class
         val builder = AlertDialog.Builder(context)
 
         // Set the message show for the Alert time
-        builder.setMessage("Thanks for trying my app!")
+        builder.setMessage("Thanks for trying my app! \n bmaum1@gmail.com" )
 
         // Set Alert Title
         builder.setTitle(VERSION)

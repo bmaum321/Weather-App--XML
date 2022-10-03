@@ -1,6 +1,7 @@
 package com.example.weather.domain
 
 
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -24,15 +25,16 @@ import java.util.*
  * @see network for objects that parse or prepare network calls
  */
 
-private const val HHMM = "hh:mm a"
+private const val TWELVE_HOUR = "hh:mm a"
+private const val TWENTY_FOUR_HOUR = "kk:mm"
 
 data class WeatherDomainObject(
     val location: String,
-    val tempf: String,
+    val temp: String,
     val zipcode: String,
     val imgSrcUrl: String,
     val conditionText: String,
-    val windMph: Double,
+    val windSpeed: Double,
     val windDirection: String,
     val time: String,
     val backgroundColor: Int,
@@ -47,65 +49,135 @@ data class ForecastDomainObject(
 )
 
 data class SearchDomainObject(
-    val searchResults: List<Search>
+    val searchResults: List<String>
 )
 
+// Move these functions to separate file?
 
-fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): WeatherDomainObject {
+fun getTimeFormatFromPreferences(
+    sharedPreferences: SharedPreferences,
+    resource: Resources
+): String {
+    var timeFormat = TWELVE_HOUR
+    val clockFormatPreference = sharedPreferences.getString("clock_format", "") // TODO Should all of these string resources be extracted? Even key values in preferences?
+    if (clockFormatPreference == resource.getString(R.string.twenty_four_hour)) {
+        timeFormat = TWENTY_FOUR_HOUR
+    }
+    return timeFormat
+}
+
+fun getTemperatureFormatFromPreferences(
+    sharedPreferences: SharedPreferences,
+    resources: Resources
+): Boolean {
+    var tempFormat = true
+    val tempFormatPreference = sharedPreferences.getString("temperature_unit", "")
+    if (tempFormatPreference == "c") {
+        tempFormat = false
+    }
+    return tempFormat
+}
+
+fun getWindSpeedFormatFromPreferences(
+    sharedPreferences: SharedPreferences,
+    resources: Resources
+): Boolean {
+    var windSpeedFormat = true
+    val tempFormatPreference = sharedPreferences.getString("wind", "")
+    if (tempFormatPreference == "kph") {
+        windSpeedFormat = false
+    }
+    return windSpeedFormat
+}
+
+
+fun WeatherContainer.asDomainModel(
+    zipcode: String,
+    resources: Resources,
+    sharedPreferences: SharedPreferences
+): WeatherDomainObject {
 
     // Get local time for display
+    /*
+    var timeFormat = TWELVE_HOUR
+    val clockFormatPreference = sharedPreferences.getString("clock_format", "")
+    if (clockFormatPreference == resource.getString(R.string.twenty_four_hour)) {
+        timeFormat = TWENTY_FOUR_HOUR
+    }
+
+     */
+
     location.localtime = Instant
         .ofEpochSecond(location.localtime_epoch)
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern(HHMM)
+                .ofPattern(getTimeFormatFromPreferences(sharedPreferences, resources))
         )
         .removePrefix("0")
 
-    /**
-     * Change background color of card based off current condition code from APU
-     */
-    var textColor = R.color.white
-    val backgroudColor = when (current.condition.code) {
-        1000 -> {
-            if (current.condition.text == "Sunny") {
-               R.drawable.sungradient// sunny
-            } else R.color.purple_night // clear night
-        }
-        1003 -> if(current.is_day == 1) {
-            R.drawable.day_partly_cloudy_gradient // partly cloudy day
-        } else {R.drawable.night_partly_cloudy} // partly cloudy night
-        in 1006..1030 -> R.color.gray // clouds/overcast
-        in 1063..1117 -> R.drawable.raingradient // rain
-        in 1150..1207 -> R.drawable.raingradient // rain
-        in 1210..1237 -> R.color.white //snow
-        in 1240..1282 -> R.drawable.raingradient // rain
-        else -> R.color.white
-    }
 
-    if( backgroudColor == R.color.white ||  backgroudColor == R.drawable.sungradient) {
-        textColor = R.color.light_black
+    /**
+     * Change background color of card based off current condition code from API if setting is checked
+     * otherwise, the background is transparent
+     */
+
+    var backgroudColor = R.color.transparent
+    var textColor: Int = R.color.white
+    if (sharedPreferences.getBoolean(
+            resources.getString(R.string.show_current_condition_color),
+            true
+        )
+    ) {
+        backgroudColor = when (current.condition.code) {
+            1000 -> {
+                if (current.condition.text == resources.getString(R.string.Sunny)) {
+                    R.drawable.sungradient// sunny
+                } else R.color.purple_night // clear night
+            }
+            1003 -> if (current.is_day == 1) {
+                R.drawable.day_partly_cloudy_gradient // partly cloudy day
+            } else {
+                R.drawable.night_partly_cloudy
+            } // partly cloudy night
+            in 1006..1030 -> R.color.gray // clouds/overcast
+            in 1063..1117 -> R.drawable.raingradient // rain
+            in 1150..1207 -> R.drawable.raingradient // rain
+            in 1210..1237 -> R.color.white //snow
+            in 1240..1282 -> R.drawable.raingradient // rain
+            else -> R.color.white
+        }
+
+        if (backgroudColor == R.color.white || backgroudColor == R.drawable.sungradient) {
+            textColor = R.color.light_black
+        }
     }
 
     /**
      * Country formatting
      */
-    when(location.country){
-        resource.getString(R.string.USA) -> location.country = "USA"
-        resource.getString(R.string.UK) -> location.country = "UK"
+    when (location.country) {
+        resources.getString(R.string.USA) -> location.country =
+            resources.getString(R.string.USA_Acronym)
+        resources.getString(R.string.UK) -> location.country =
+            resources.getString(R.string.UK_Acronym)
     }
 
     return WeatherDomainObject(
         time = location.localtime,
         location = location.name,
         zipcode = zipcode,
-        tempf = current.temp_f.toString().dropLast(2),
+        temp =
+        if (getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
+            current.temp_f.toString().dropLast(2)
+        } else current.temp_c.toString().dropLast(2),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windMph = current.wind_mph,
+        windSpeed = if (getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
+            current.wind_mph
+        } else current.wind_kph,
         windDirection = current.wind_dir,
-        backgroundColor =  backgroudColor,
+        backgroundColor = backgroudColor,
         code = current.condition.code,
         textColor = textColor,
         country = location.country
@@ -113,7 +185,11 @@ fun WeatherContainer.asDomainModel(zipcode: String, resource: Resources): Weathe
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomainObject {
+suspend fun ForecastContainer.asDomainModel(
+    sharedPreferences: SharedPreferences,
+    resources: Resources
+)
+        : ForecastDomainObject {
 
     /**
      * Remove any hours that are in the past
@@ -145,7 +221,7 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
                     Locale.ENGLISH
                 ) // Convert to day of week
             forecast.forecastday
-                .first().date = resource.getString(R.string.today)
+                .first().date = resources.getString(R.string.today)
             day.hour
                 .forEach { hour ->
                     hour.time = LocalTime.parse(
@@ -154,7 +230,12 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
                     ) // Remove date stamp
                         .format(
                             DateTimeFormatter
-                                .ofPattern(HHMM) // Add AM/PM postfix
+                                .ofPattern(
+                                    getTimeFormatFromPreferences(
+                                        sharedPreferences,
+                                        resources
+                                    )
+                                ) // Add AM/PM postfix
                         )
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
@@ -167,17 +248,17 @@ suspend fun ForecastContainer.asDomainModel(resource: Resources): ForecastDomain
     )
 }
 
-/* TODO
+
 fun Search.asDomainModel(): SearchDomainObject {
-    val searchList = mutableListOf<Search>()
-    searchList.add(Search().copy())
+    val searchList = mutableListOf<String>()
+    searchList.add(url)
     return SearchDomainObject(
 
         searchResults = searchList
     )
 }
 
- */
+
 
 
 

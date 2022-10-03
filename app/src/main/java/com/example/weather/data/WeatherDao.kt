@@ -18,6 +18,10 @@ interface WeatherDao {
     @Query("SELECT zipCode FROM weather_database")
     fun getZipcodes(): List<String>
 
+    //method to retrieve all Weather object statically
+    @Query("SELECT zipCode FROM weather_database")
+    fun getZipcodesFlow(): Flow<List<String>>
+
     // method to retrieve a Weather from the database by id
     @Query("SELECT * FROM weather_database WHERE id = :id")
     fun getWeatherById(id: Long): Flow<WeatherEntity>

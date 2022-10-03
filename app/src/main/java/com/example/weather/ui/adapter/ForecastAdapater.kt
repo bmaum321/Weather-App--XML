@@ -1,5 +1,6 @@
 package com.example.weather.ui.adapter
 
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -64,5 +65,4 @@ data class ForecastItemViewData(val day: Day) {
     val high: String = day.day.maxtemp_f.toInt().toString()
 
     val low: String = day.day.mintemp_f.toInt().toString()
-
 }

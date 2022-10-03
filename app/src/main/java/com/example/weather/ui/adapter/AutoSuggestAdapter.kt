@@ -1,67 +1,61 @@
-/*
 package com.example.weather.ui.adapter
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.R
-import com.example.weather.databinding.DailyForecastListItemBinding
-import com.example.weather.domain.ForecastDomainObject
-import com.example.weather.model.Day
-import com.example.weather.ui.viewmodel.SearchViewData
+import android.content.Context
+import android.widget.ArrayAdapter
+import android.widget.Filter
+import android.widget.Filterable
+import androidx.annotation.Nullable
 
-/**
- * ListAdapter for the list of days in the forecast, retrieved from the Repository
- */
-class AutoSuggestAdapter(
-    private val clickListener: (SearchViewData) -> Unit
-) : ListAdapter<SearchViewData, AutoSuggestAdapter.AutoSuggestViewHolder>(DiffCallback) {
 
-    class AutoSuggestViewHolder(
-        private var binding: DailyForecastListItemBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+class AutoSuggestAdapter(context: Context, resource: Int) :
+    ArrayAdapter<String>(context, resource), Filterable {
+    private val searchData: MutableList<String>
 
-        fun bind(search: SearchViewData) {
-            binding.forecast = search
-            binding.executePendingBindings()
-        }
+    init {
+        searchData = ArrayList()
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<SearchViewData>() {
-        override fun areItemsTheSame(oldItem: SearchViewData, newItem: SearchViewData): Boolean {
-            return oldItem == newItem //TODO
-        }
-
-        override fun areContentsTheSame(oldItem:SearchViewData, newItem: SearchViewData): Boolean {
-            return oldItem == newItem
-        }
-
+    fun setData(list: List<String>?) {
+        searchData.clear()
+        searchData.addAll(list!!)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AutoSuggestViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return AutoSuggestViewHolder(
-            DailyForecastListItemBinding.inflate(layoutInflater, parent, false)
-        )
+    override fun getCount(): Int {
+        return searchData.size
     }
 
-    override fun onBindViewHolder(holder: AutoSuggestViewHolder, position: Int) {
-        // TODO holder.binding.forecast
-        val forecast = getItem(position)
-        holder.itemView.setOnClickListener {
-            clickListener(forecast)
+    override fun getItem(position: Int): String {
+        return searchData[position]
+    }
+
+    /**
+     * Used to Return the full object directly from adapter.
+     *
+     * @param position
+     * @return
+     */
+    fun getObject(position: Int): String {
+        return searchData[position]
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val filterResults = FilterResults()
+                if (constraint != null) {
+                    filterResults.values = searchData
+                    filterResults.count = searchData.size
+                }
+                return filterResults
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                if (results != null && results.count > 0) {
+                    notifyDataSetChanged()
+                } else {
+                    notifyDataSetInvalidated()
+                }
+            }
         }
-        holder.bind(forecast)
     }
 }
-
-/**
- * Converting the data types before they are presented to the UI in order to convert the double from
- * the API into a string
- */
-
-
-
- */

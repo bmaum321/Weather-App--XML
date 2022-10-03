@@ -1,6 +1,7 @@
 package com.example.weather.ui
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.BaseApplication
@@ -137,7 +139,7 @@ class WeatherListFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getAllWeatherWithErrorHandling(resources).collect {
+            viewModel.getAllWeatherWithErrorHandling(resources, PreferenceManager.getDefaultSharedPreferences(context)).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is WeatherViewDataList.Done -> {

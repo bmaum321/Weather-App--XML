@@ -1,6 +1,7 @@
 package com.example.weather.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
@@ -15,9 +16,9 @@ import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+
 import kotlinx.coroutines.launch
-import okio.IOException
-import retrofit2.Response
+
 
 
 sealed class WeatherViewDataList() {
@@ -61,8 +62,8 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
     }
 
     //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
-    private fun getZipCodesFromDatabase(): List<String> {
-        return weatherDao.getZipcodes()
+    private fun getZipCodesFromDatabase(): Flow<List<String>> {
+        return weatherDao.getZipcodesFlow()
         //TODO might just be able to pass this directly into the below function, but how do
         // correlate the weather response with each list item
     }
@@ -74,26 +75,31 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      *     objects from the repository
      */
 
-    fun getAllWeatherWithErrorHandling(resources: Resources): Flow<WeatherViewDataList> {
+    fun getAllWeatherWithErrorHandling(
+        resources: Resources,
+        sharedPreferences: SharedPreferences)
+    : Flow<WeatherViewDataList> {
         return refreshFlow
             .flatMapLatest {
-                flow {
-                    val zipcodes = getZipCodesFromDatabase()
-                    if (zipcodes.isNotEmpty()) {
-                        emit(WeatherViewDataList.Loading()) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
-                        when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
-                            is ApiResponse.Success -> emit(
-                                WeatherViewDataList.Done(
-                                    weatherRepository.getWeatherListForZipCodes(zipcodes, resources)
-                                )
-                            )
-                            is ApiResponse.Failure -> emit(WeatherViewDataList.Error())
-                            is ApiResponse.Exception -> emit(WeatherViewDataList.Error())
+                getZipCodesFromDatabase()
+                    .flatMapLatest { zipcodes ->
+                        flow {
+                            if (zipcodes.isNotEmpty()) {
+                                emit(WeatherViewDataList.Loading()) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
+                                when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
+                                    is ApiResponse.Success -> emit(
+                                        WeatherViewDataList.Done(
+                                            weatherRepository.getWeatherListForZipCodes(zipcodes, resources, sharedPreferences)
+                                        )
+                                    )
+                                    is ApiResponse.Failure -> emit(WeatherViewDataList.Error())
+                                    is ApiResponse.Exception -> emit(WeatherViewDataList.Error())
+                                }
+                            }
                         }
-                    }
-                }
-            }
 
+                    }
+            }
     }
 
 

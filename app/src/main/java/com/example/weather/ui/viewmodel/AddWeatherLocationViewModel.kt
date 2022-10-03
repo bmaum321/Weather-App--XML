@@ -50,12 +50,16 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
 
     suspend fun getSearchResults(location: String): Flow<SearchViewData> {
+        val searchUrlList = mutableListOf<String>()
         return refreshFlow
             .flatMapLatest {
                 flow {
                     when (val response = weatherRepository.getSearchResults(location)) {
                         is ApiResponse.Success -> {
-                            emit(SearchViewData.Done(response.data))
+                            response.data.forEach { search ->
+                                searchUrlList.add(search.url) // Grab only the urls from the API and emit if success
+                            }
+                            emit(SearchViewData.Done(searchUrlList))
                         }
                         is ApiResponse.Failure -> {
                             emit(SearchViewData.Error(code = response.code, message = response.message))
@@ -67,6 +71,13 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
                 }
             }
     }
+
+    /*
+    suspend fun getAutoCompleteResults(): Flow<List<String>> {
+
+    }
+
+     */
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
         var networkError = false
@@ -150,6 +161,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 sealed class SearchViewData() {
     class Loading() : SearchViewData()
     class Error(val code: Int, val message: String?) : SearchViewData()
-    class Done(val searchDomainObject: List<Search>) : SearchViewData() // TODO this is a response directly from the API, need to copy into
+    class Done(val searchDomainObject: List<String>) : SearchViewData() // TODO this is a response directly from the API, need to copy into domain data class
 }
 

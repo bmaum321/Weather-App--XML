@@ -106,19 +106,39 @@ class AddWeatherFragment : Fragment() {
         }
 
 
-        //TODO likely need to create a custom adapter for this,
-        // Somehow call api as characters are added to input text and then submit that list to the adapter continously
-        // Start new autocomplete code
-        val x = listOf<Pair<String,String>>(Pair("Weather", "Weald"), Pair("Wealth", "Error"))
-        val adapter = context?.let {
-            ArrayAdapter(
-                it,
-                android.R.layout.simple_dropdown_item_1line, x //
-            )
-        }
-        binding.autoCompleteTextView.setAdapter(adapter)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect { searchResults ->
+                //   withContext(Dispatchers.Main){
+                when (searchResults) {
+                    is SearchViewData.Done -> {
+                        withContext(Dispatchers.Main) {
+                            val adapter = context?.let {
+                                ArrayAdapter(
+                                    it,
+                                    android.R.layout.simple_dropdown_item_1line,
+                                    searchResults.searchDomainObject //
+                                )
+                            }
+                            binding.autoCompleteTextView.setAdapter(adapter)
+                        }
+                    }
 
+                    is SearchViewData.Error -> {
+                        Log.d("API", "${searchResults.message}")
+                    }
+                    is SearchViewData.Loading -> {
+                        Log.d("API", "$searchResults")
+                    }
+                }
+                //     }
+            }
+        }
     }
+
+
+
+
+
 
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
@@ -142,16 +162,16 @@ class AddWeatherFragment : Fragment() {
         }
     }
 
-    private fun addWeatherFromSearch(): List<String>{
-        val searchResultsAsList = mutableListOf<String>()
+    private fun addWeatherFromSearch() {
+
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getSearchResults("81005").collect { searchResults ->
-             //   withContext(Dispatchers.Main){
-                    when(searchResults) {
-                        is SearchViewData.Done -> {
-                            searchResultsAsList.add(searchResults.searchDomainObject.forEach { result ->
-                                result.url }.toString())
-                        }
+                //   withContext(Dispatchers.Main){
+                when (searchResults) {
+                    is SearchViewData.Done -> {
+
+                    }
+
                         is SearchViewData.Error -> {
                             Log.d("API", "${searchResults.message}")
                         }
@@ -159,11 +179,11 @@ class AddWeatherFragment : Fragment() {
                             Log.d("API", "$searchResults")
                         }
                     }
-           //     }
+                    //     }
+                }
             }
         }
-        return searchResultsAsList
-    }
+
 
     private fun showToast(text: String?) {
         val duration = Toast.LENGTH_LONG
@@ -210,24 +230,6 @@ class AddWeatherFragment : Fragment() {
     }
 }
 
-class CountriesActivity : Activity() {
-    override fun onCreate(icicle: Bundle?) {
-        super.onCreate(icicle)
-        setContentView(R.layout.fragment_add_weather_location)
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line, COUNTRIES
-        )
-        val textView = findViewById<View>(R.id.autoCompleteTextView) as AutoCompleteTextView
-        textView.setAdapter(adapter)
-    }
-
-    companion object {
-        val COUNTRIES = arrayOf(
-            "Belgium", "France", "Italy", "Germany", "Spain"
-        )
-    }
-}
 
 
 
