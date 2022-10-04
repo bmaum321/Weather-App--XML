@@ -141,7 +141,7 @@ class WeatherListFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getAllWeatherWithErrorHandling(resources, PreferenceManager.getDefaultSharedPreferences(context)).collect {
+            viewModel.getAllWeatherWithErrorHandling(resources, PreferenceManager.getDefaultSharedPreferences(requireContext())).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is WeatherViewDataList.Done -> {

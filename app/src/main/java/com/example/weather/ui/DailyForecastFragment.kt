@@ -95,14 +95,14 @@ class DailyForecastFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getForecastForZipcode(zipcode,
-                PreferenceManager.getDefaultSharedPreferences(context),
+                PreferenceManager.getDefaultSharedPreferences(requireContext()),
                 resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is ForecastViewData.Done -> {
                             adapter.submitList(
                                 it.forecastDomainObject.days.map {  // take items in list and submit as new list
-                                    ForecastItemViewData(it).withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(context),
+                                    ForecastItemViewData(it).withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(requireContext()),
                                         resources)
                                 }
                             )

@@ -90,7 +90,7 @@ class HourlyForecastFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getForecastForZipcode(zipcode,
-                PreferenceManager.getDefaultSharedPreferences(context),
+                PreferenceManager.getDefaultSharedPreferences(requireContext()),
                 resources).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
@@ -101,7 +101,7 @@ class HourlyForecastFragment : Fragment() {
                              */
                             adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour.map {
                                 HourlyForecastItemViewData(it)
-                                    .withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(context),
+                                    .withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(requireContext()),
                                         resources)
                             })
                             mainViewModel.updateActionBarTitle(it.forecastDomainObject.days.first { it.date == date }.date) // Update title bar with day of week
