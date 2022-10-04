@@ -105,7 +105,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
 
     class WeatherViewModelFactory(private val weatherDao: WeatherDao, val app: Application) :
         ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(WeatherListViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return WeatherListViewModel(weatherDao, app) as T

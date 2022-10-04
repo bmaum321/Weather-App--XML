@@ -145,7 +145,6 @@ fun WeatherContainer.asDomainModel(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun ForecastContainer.asDomainModel(
     sharedPreferences: SharedPreferences,
     resources: Resources

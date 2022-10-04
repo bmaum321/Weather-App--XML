@@ -79,7 +79,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         val app: Application
     ) :
         ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HourlyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return HourlyForecastViewModel(weatherDao, app) as T
