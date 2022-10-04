@@ -59,6 +59,9 @@
         <action
             android:id="@+id/action_weatherLocationDetailFragment_to_hourlyForecastFragment"
             app:destination="@id/hourlyForecastFragment" />
+        <action
+            android:id="@+id/action_weatherLocationDetailFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
     </fragment>
     <fragment
         android:id="@+id/hourlyForecastFragment"
@@ -96,5 +99,13 @@
         android:id="@+id/interfaceSettingsFragment"
         android:name="com.example.weather.ui.settings.InterfaceSettingsFragment"
         android:label="Interface Settings" />
+    <fragment
+        android:id="@+id/alertFragment"
+        android:name="com.example.weather.ui.AlertFragment"
+        android:label="AlertFragment" >
+        <argument
+            android:name="zipcode"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

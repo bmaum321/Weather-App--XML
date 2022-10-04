@@ -6,8 +6,8 @@
 
     <data>
         <variable
-            name="weather"
-            type="com.example.weather.domain.WeatherDomainObject" />
+            name="alert"
+            type="com.example.weather.ui.adapter.AlertItemViewData" />
         <variable
             name="viewModel"
             type="com.example.weather.ui.viewmodel.WeatherListViewModel" />
@@ -17,7 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
-        android:background="@{context.getDrawable(weather.backgroundColor)}"
         app:cardCornerRadius="4dp"
         app:cardElevation="2dp"
         app:cardMaxElevation="4dp"
@@ -40,87 +39,51 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
 
-                <!--TODO This is still pulling from the database, should pull from the repo-->
                 <TextView
                     android:id="@+id/headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@{weather.location}"
+                    android:text="@{alert.alert.headline}"
                     android:textAppearance="?attr/textAppearanceHeadline6"
-                    android:textColor="@{context.getColor(weather.textColor)}"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
+                    android:paddingBottom="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Name" />
+                    tools:text="NWS Buffalo (Western New York)" />
 
                 <TextView
                     android:id="@+id/event"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{weather.country}"
-                    android:textColor="@{context.getColor(weather.textColor)}"
+                    android:text="@{alert.alert.event}"
+                    android:paddingBottom="4dp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/headline"
-                    tools:text="USA" />
+                    tools:text="Frost Advisory" />
 
                 <TextView
                     android:id="@+id/description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{weather.conditionText}"
+                    android:text="@{alert.alert.desc}"
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="@{context.getColor(weather.textColor)}"
                     android:textSize="16sp"
+                    android:paddingBottom="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/event"
-                    tools:text="Condition" />
+                    tools:text="FROST ADVISORY REMAINS IN EFFECT UNTIL 8 AM EDT TUESDAY...\n*
+                    WHAT...Temperatures in the low to mid 30s will result in frost\nformation.\n*
+                     WHERE...Jefferson and Lewis counties.\n* WHEN...Until 8 AM EDT Tuesday.\n*
+                     IMPACTS...Frost could kill sensitive outdoor vegetation if\nleft uncovered.&quot;" />
 
-
-                <ImageView
-                    android:id="@+id/conditionIcon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="@string/weather_condition_icon_content_description"
-                    app:imageUrl="@{weather.imgSrcUrl}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.432" />
-
-                <TextView
-                    android:id="@+id/tempF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:text="@{@string/Temp(weather.temp.toString())}"
-                    android:textColor="@{context.getColor(weather.textColor)}"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@+id/local_time"
-                    app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Temp" />
-
-                <TextView
-                    android:id="@+id/local_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@{weather.time}"
-                    android:textColor="@{context.getColor(weather.textColor)}"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
-                    tools:text="12:30" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

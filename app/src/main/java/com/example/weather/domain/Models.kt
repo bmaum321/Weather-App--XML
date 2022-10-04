@@ -3,14 +3,10 @@ package com.example.weather.domain
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.weather.R
 import com.example.weather.model.*
 import com.example.weather.network.WeatherContainer
-import com.example.weather.ui.adapter.ForecastItemViewData
 import com.example.weather.ui.settings.GetSettings
-import com.example.weather.ui.viewmodel.ForecastViewData
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -76,14 +72,14 @@ fun WeatherContainer.asDomainModel(
      * otherwise, the background is transparent
      */
 
-    var backgroudColor = R.color.transparent
-    var textColor: Int = R.color.white
+    var backgroundColor: Int = R.color.transparent
+    var textColor: Int = R.color.material_dynamic_neutral_variant70
     if (sharedPreferences.getBoolean(
             resources.getString(R.string.show_current_condition_color),
             true
         )
     ) {
-        backgroudColor = when (current.condition.code) {
+        backgroundColor = when (current.condition.code) {
             1000 -> {
                 if (current.condition.text == resources.getString(R.string.Sunny)) {
                     R.drawable.sungradient// sunny
@@ -103,7 +99,10 @@ fun WeatherContainer.asDomainModel(
         }
 
         // Change text color to black for certain gradients for easier reading
-        if (backgroudColor == R.color.white || backgroudColor == R.drawable.sungradient) {
+        if (backgroundColor == R.color.white ||
+            backgroundColor == R.drawable.sungradient ||
+            backgroundColor == R.drawable.day_partly_cloudy_gradient
+        ) {
             textColor = R.color.light_black
         }
     }
@@ -130,11 +129,15 @@ fun WeatherContainer.asDomainModel(
         } else current.temp_c.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windSpeed = if (GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
+        windSpeed = if (GetSettings().getWindSpeedFormatFromPreferences(
+                sharedPreferences,
+                resources
+            )
+        ) {
             current.wind_mph
         } else current.wind_kph,
         windDirection = current.wind_dir,
-        backgroundColor = backgroudColor,
+        backgroundColor = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
         country = location.country,
@@ -191,8 +194,7 @@ fun ForecastContainer.asDomainModel(
                         .format(
                             DateTimeFormatter
                                 .ofPattern(
-                                    GetSettings().
-                                    getTimeFormatFromPreferences(
+                                    GetSettings().getTimeFormatFromPreferences(
                                         sharedPreferences,
                                         resources
                                     )

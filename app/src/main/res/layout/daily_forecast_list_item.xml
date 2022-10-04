@@ -57,7 +57,7 @@
                     tools:text="Date" />
 
                 <TextView
-                    android:id="@+id/weather_for_day"
+                    android:id="@+id/description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{forecast.day.day.condition.text}"
@@ -73,7 +73,7 @@
                     android:layout_marginTop="16dp"
                     android:background="?attr/dividerHorizontal"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/weather_for_day" />
+                    app:layout_constraintTop_toBottomOf="@id/description" />
 
 
                 <ImageView

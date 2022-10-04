@@ -27,19 +27,15 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
 import com.example.weather.BaseApplication
 import com.example.weather.R
-import com.example.weather.databinding.FragmentWeatherDetailBinding
+import com.example.weather.databinding.FragmentAlertListBinding
 import com.example.weather.model.WeatherEntity
-import com.example.weather.ui.adapter.ForecastAdapter
-import com.example.weather.ui.adapter.ForecastItemViewData
-import com.example.weather.ui.adapter.withPreferenceConversion
+import com.example.weather.ui.adapter.*
 import com.example.weather.ui.viewmodel.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -47,15 +43,15 @@ import kotlinx.coroutines.withContext
  * A fragment to display the details of a [WeatherEntity] currently stored in the database.
  * The [AddWeatherFragment] can be launched from this fragment to edit the [WeatherEntity]
  */
-class DailyForecastFragment : Fragment() {
+class AlertFragment : Fragment() {
 
-    private val navigationArgs: DailyForecastFragmentArgs by navArgs()
+    private val navigationArgs: AlertFragmentArgs by navArgs()
 
     // view model to take an instance of
     //  WeatherViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: WeatherDetailViewModel by activityViewModels {
-        WeatherDetailViewModel.WeatherDetailViewModelFactory(
+    private val viewModel: AlertViewModel by activityViewModels {
+        AlertViewModel.AlertViewModelFactory(
             (activity?.application as BaseApplication).database.weatherDao(),
             Application()  //TODO passing application now
         )
@@ -65,37 +61,28 @@ class DailyForecastFragment : Fragment() {
 
     private lateinit var weatherEntity: WeatherEntity
 
-    private var _binding: FragmentWeatherDetailBinding? = null
+    private var _binding: FragmentAlertListBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentWeatherDetailBinding.inflate(inflater, container, false)
+        _binding = FragmentAlertListBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.alertFab.visibility = View.GONE
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val zipcode = navigationArgs.zipcode
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
             weatherEntity = selectedWeather
         }
-        val adapter = ForecastAdapter { viewData ->
-            val action = DailyForecastFragmentDirections
-                .actionWeatherLocationDetailFragmentToHourlyForecastFragment(
-                    zipcode,
-                    viewData.day.date
-                ) //TODO how do we pass the date from the clicked option...
-            findNavController().navigate(action)
-        }
-
-
+        val adapter = AlertAdapter()
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getForecastForZipcode(
                 zipcode,
@@ -106,35 +93,14 @@ class DailyForecastFragment : Fragment() {
                     when (it) {
                         is ForecastViewData.Done -> {
                             adapter.submitList(
-                                it.forecastDomainObject.days.map {  // take items in list and submit as new list
-                                    ForecastItemViewData(it).withPreferenceConversion(
-                                        PreferenceManager.getDefaultSharedPreferences(requireContext()),
-                                        resources
-                                    )
+                                it.forecastDomainObject.alerts.map {  // take items in list and submit as new list
+                                    AlertItemViewData(it)
                                 }
                             )
-                            mainViewModel.updateActionBarTitle(weatherEntity.cityName)
+                            mainViewModel.updateActionBarTitle("${weatherEntity.cityName} Alerts")
                             binding.apply {
 
                                 recyclerView.adapter = adapter
-                                // If alerts list is not empty, and show alerts settings is checked show the FAB
-                                if(it.forecastDomainObject.alerts.isNotEmpty() &&
-                                    PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("alerts", true)) {
-                                    alertFab.visibility = View.VISIBLE
-                                }
-                                alertFab.setOnClickListener {
-                                    val action = DailyForecastFragmentDirections
-                                        .actionWeatherLocationDetailFragmentToAlertFragment(zipcode)
-                                    findNavController().navigate(action)
-                                }
-                                editWeatherFab.show()
-                                editWeatherFab.setOnClickListener {
-                                    val action = DailyForecastFragmentDirections
-                                        .actionWeatherLocationDetailFragmentToAddWeatherLocationFragment(
-                                            weatherEntity.id
-                                        )
-                                    findNavController().navigate(action)
-                                }
                                 swipeRefresh.setOnRefreshListener {
                                     refreshScreen()
                                     binding.swipeRefresh.isRefreshing = false
@@ -149,8 +115,6 @@ class DailyForecastFragment : Fragment() {
                                 Log.e("API", "${it.code}")
                                 adapter.submitList(emptyList())
                                 recyclerView.adapter = adapter
-                                editWeatherFab.hide()
-                                alertFab.hide()
                                 swipeRefresh.setOnRefreshListener {
                                     refreshScreen()
                                     binding.swipeRefresh.isRefreshing = false
@@ -167,21 +131,6 @@ class DailyForecastFragment : Fragment() {
                 }
             }
         }
-
-        /*
-    private fun launchMap(weatherDomainObject: WeatherDomainObject) {
-        val address = weatherDomainObject.zipcode.let {
-            it.replace(", ", ",")
-            it.replace(". ", " ")
-            it.replace(" ", "+")
-        }
-        val gmmIntentUri = Uri.parse("geo:0,0?q=$address")
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        startActivity(mapIntent)
-    }
-
-            */
 
     }
 
