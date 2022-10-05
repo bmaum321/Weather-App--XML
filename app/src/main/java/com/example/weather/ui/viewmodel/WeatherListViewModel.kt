@@ -93,6 +93,22 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         refreshFlow.tryEmit(Unit)
     }
 
+    fun updateWeather(
+        id: Long,
+        name: String,
+        zipcode: String,
+    ) {
+        val weatherEntity = WeatherEntity(
+            id = id,
+            cityName = name,
+            zipCode = zipcode,
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            // call the DAO method to update a weather object to the database here
+            weatherDao.update(weatherEntity)
+        }
+    }
+
     fun deleteWeather(weatherEntity: WeatherEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to delete a weather object to the database here

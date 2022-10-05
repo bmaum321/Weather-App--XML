@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             supportActionBar?.title = it
         }
 
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

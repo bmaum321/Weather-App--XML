@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +18,6 @@ import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
 import com.example.weather.model.WeatherEntity
-import com.example.weather.ui.adapter.ItemTouchHelperAdapter
 import com.example.weather.ui.adapter.WeatherListAdapter
 import com.example.weather.ui.viewmodel.WeatherListViewModel
 import com.example.weather.ui.viewmodel.WeatherViewDataList
@@ -76,18 +76,13 @@ class WeatherListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-
         val adapter = WeatherListAdapter { weather ->
             val action = WeatherListFragmentDirections
                 .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
             findNavController().navigate(action)
         }
 
-        /**
-         * Testing a swipe to delete from main page. Need to somehow pull an id that
-         * correlates to the entity from the position
-         */
-        class ReorderHelperCallback(val adapter : WeatherListAdapter) : ItemTouchHelper.Callback() {
+        class ReorderHelperCallback(val adapter: WeatherListAdapter) : ItemTouchHelper.Callback() {
 
 
             override fun getMovementFlags(
@@ -96,7 +91,7 @@ class WeatherListFragment : Fragment() {
             ): Int {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
                 val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-                return makeMovementFlags( dragFlags, swipeFlags )
+                return makeMovementFlags(dragFlags, swipeFlags)
             }
 
 
@@ -107,13 +102,23 @@ class WeatherListFragment : Fragment() {
             ): Boolean {
                 val fromPosition = source.adapterPosition
                 val toPosition = target.adapterPosition
-                adapter.onItemMove(fromPosition, toPosition)
-                recyclerView.adapter?.notifyItemMoved(fromPosition, toPosition);
-                return true
-
                 /**
                  * The positions in the database need to be swapped for this to work properly
                  */
+                val fromItemZipcode = adapter.currentList[fromPosition].zipcode
+                val toItemZipcode = adapter.currentList[toPosition].zipcode
+
+                adapter.onItemMove(fromPosition, toPosition)
+                /*
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val weatherEntityFrom = viewModel.getWeatherByZipcode(fromItemZipcode)
+                    val weatherEntityTo = viewModel.getWeatherByZipcode(toItemZipcode)
+                    viewModel.updateWeather(weatherEntityFrom.id, weatherEntityTo.cityName, toItemZipcode)
+                    viewModel.updateWeather(weatherEntityTo.id, weatherEntityFrom.cityName, fromItemZipcode)
+                }
+
+                 */
+                return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
@@ -125,7 +130,11 @@ class WeatherListFragment : Fragment() {
                     weatherEntity = viewModel.getWeatherByZipcode(itemLocation)
                     deleteWeather(weatherEntity)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "${weatherEntity.cityName} deleted", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "${weatherEntity.zipCode} deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 
@@ -150,7 +159,10 @@ class WeatherListFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getAllWeatherWithErrorHandling(resources, PreferenceManager.getDefaultSharedPreferences(requireContext())).collect {
+            viewModel.getAllWeatherWithErrorHandling(
+                resources,
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
+            ).collect {
                 withContext(Dispatchers.Main) { //Data binding always done on main thread
                     when (it) {
                         is WeatherViewDataList.Done -> {

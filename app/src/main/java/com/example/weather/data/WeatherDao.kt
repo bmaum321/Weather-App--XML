@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WeatherDao {
 
-
-
     //method to retrieve all Weather object statically
     @Query("SELECT zipCode FROM weather_database")
     fun getZipcodesFlow(): Flow<List<String>>
@@ -39,4 +37,7 @@ interface WeatherDao {
     // method to delete a Weather from the database.
     @Delete
     suspend fun delete(weatherEntity: WeatherEntity)
+
+    // method to swap values from one row to another row for the item touch helper
+
 }

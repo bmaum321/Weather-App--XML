@@ -72,8 +72,8 @@ fun WeatherContainer.asDomainModel(
      * otherwise, the background is transparent
      */
 
-    var backgroundColor: Int = R.color.transparent
-    var textColor: Int = R.color.material_dynamic_neutral_variant70
+    var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
+    var textColor: Int = R.color.material_dynamic_neutral_variant80
     if (sharedPreferences.getBoolean(
             resources.getString(R.string.show_current_condition_color),
             true

@@ -61,7 +61,6 @@
     </LinearLayout>
 
 
-
     <AutoCompleteTextView
         android:id="@+id/autoCompleteTextView"
         android:layout_width="match_parent"
