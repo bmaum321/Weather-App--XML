@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ListItemWeatherBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import java.util.*
 
 /**
  * ListAdapter for the list of [WeatherDomainObject]s retrieved from the repository
@@ -20,7 +21,8 @@ class WeatherListAdapter(
 ) : ListAdapter<WeatherDomainObject, WeatherListAdapter.WeatherViewHolder>(DiffCallback) {
 
     class WeatherViewHolder(
-        private var binding: ListItemWeatherBinding
+        private var binding: ListItemWeatherBinding,
+        val dragStartListener : OnStartDragListener? = null
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(weatherDomainObject: WeatherDomainObject) {
@@ -47,6 +49,12 @@ class WeatherListAdapter(
         )
     }
 
+    fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        Collections.swap(currentList.toMutableList(), fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
+        return true
+    }
+
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
         val weather = getItem(position)
         holder.itemView.setOnClickListener {
@@ -55,3 +63,15 @@ class WeatherListAdapter(
         holder.bind(weather)
     }
 }
+
+interface OnStartDragListener {
+
+    /**
+     * Called when a view is requesting a start of a drag.
+     *
+     * @param viewHolder The holder of the view to drag.
+     */
+    fun onStartDrag(viewHolder: RecyclerView.ViewHolder?)
+
+}
+

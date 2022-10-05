@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 sealed class WeatherViewDataList() {
     class Loading() : WeatherViewDataList()
     class Error() : WeatherViewDataList()
-    class Done(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherViewDataList()
+    class Done(val weatherDomainObjects: MutableList<WeatherDomainObject>) : WeatherViewDataList()
 }
 
 /**
@@ -76,7 +76,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
                                 when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
                                     is ApiResponse.Success -> emit(
                                         WeatherViewDataList.Done(
-                                            weatherRepository.getWeatherListForZipCodes(zipcodes, resources, sharedPreferences)
+                                            weatherRepository.getWeatherListForZipCodes(zipcodes, resources, sharedPreferences).toMutableList()
                                         )
                                     )
                                     is ApiResponse.Failure -> emit(WeatherViewDataList.Error())

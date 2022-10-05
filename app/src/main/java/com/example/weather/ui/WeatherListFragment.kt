@@ -1,11 +1,7 @@
 package com.example.weather.ui
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Looper
-import android.util.Log
-import android.util.Log.DEBUG
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,15 +16,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherListBinding
-import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.adapter.ItemTouchHelperAdapter
 import com.example.weather.ui.adapter.WeatherListAdapter
-import com.example.weather.ui.settings.GetSettings
 import com.example.weather.ui.viewmodel.WeatherListViewModel
 import com.example.weather.ui.viewmodel.WeatherViewDataList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -93,21 +87,33 @@ class WeatherListFragment : Fragment() {
          * Testing a swipe to delete from main page. Need to somehow pull an id that
          * correlates to the entity from the position
          */
-        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT //or ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            ) {
+        class ReorderHelperCallback(val adapter : WeatherListAdapter) : ItemTouchHelper.Callback() {
+
+
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
+                return makeMovementFlags( dragFlags, swipeFlags )
+            }
+
+
             override fun onMove(
                 recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
+                source: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                val fromPosition = viewHolder.adapterPosition
+                val fromPosition = source.adapterPosition
                 val toPosition = target.adapterPosition
+                adapter.onItemMove(fromPosition, toPosition)
                 recyclerView.adapter?.notifyItemMoved(fromPosition, toPosition);
-                Toast.makeText(context, "on Move", Toast.LENGTH_SHORT).show()
-                return false
+                return true
+
+                /**
+                 * The positions in the database need to be swapped for this to work properly
+                 */
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
@@ -124,10 +130,13 @@ class WeatherListFragment : Fragment() {
                 }
 
             }
+
+
         }
 
+
         // Attach the touch helper to the recycler view
-        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(binding.recyclerView)
+        ItemTouchHelper(ReorderHelperCallback(adapter)).attachToRecyclerView(binding.recyclerView)
 
         /**
          * Need to have an initial listener set here if the database is empty because none of
