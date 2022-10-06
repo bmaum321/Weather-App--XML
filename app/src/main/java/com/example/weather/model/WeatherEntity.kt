@@ -16,6 +16,6 @@ data class WeatherEntity(
     val id: Long = 0,
     val cityName: String,
     val zipCode: String,
-   // val sortOrder: Int
+    val sortOrder: Int
 )
 

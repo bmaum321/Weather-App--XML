@@ -179,6 +179,8 @@ class AddWeatherFragment : Fragment() {
                 id = navigationArgs.id,
                 name = weatherEntity.cityName,
                 zipcode = binding.zipcodeInput.text.toString(),
+                sortOrder = weatherEntity.sortOrder
+
             )
             findNavController().navigate(
                 R.id.action_addWeatherFragment_to_WeatherListFragment

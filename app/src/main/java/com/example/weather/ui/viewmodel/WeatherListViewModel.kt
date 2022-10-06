@@ -48,11 +48,21 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         return weatherDao.getWeatherByLocation(location)
     }
 
-    //TODO need a method to collect all the zipcodes from the database and then pass to getAllWeather
+    //TODO need a method to collect all the zipcodes with sorting from the database and then pass to getAllWeather
     private fun getZipCodesFromDatabase(): Flow<List<String>> {
         return weatherDao.getZipcodesFlow()
-        //TODO might just be able to pass this directly into the below function, but how do
-        // correlate the weather response with each list item
+    }
+
+    fun getAllWeatherEntities(): List<WeatherEntity> {
+        return weatherDao.getAllWeatherEntities()
+    }
+
+    suspend fun insertAllWeatherEntities(weatherEntities: List<WeatherEntity>) {
+        weatherDao.insertAll(weatherEntities)
+    }
+
+    suspend fun deleteAll() {
+        weatherDao.deleteAll()
     }
 
 
@@ -97,11 +107,13 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         id: Long,
         name: String,
         zipcode: String,
+        sortOrder: Int
     ) {
         val weatherEntity = WeatherEntity(
             id = id,
             cityName = name,
             zipCode = zipcode,
+            sortOrder = sortOrder
         )
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to update a weather object to the database here

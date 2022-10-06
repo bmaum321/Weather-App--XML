@@ -44,5 +44,17 @@ class GetSettings() {
         return windSpeedFormat
     }
 
+    fun getMeasurementFormatFromPreferences(
+        sharedPreferences: SharedPreferences,
+        resources: Resources
+    ): Boolean {
+        var measurementFormat = true
+        val measurementFormatPreference = sharedPreferences.getString("precipitation", "")
+        if (measurementFormatPreference == "mm") {
+            measurementFormat = false
+        }
+        return measurementFormat
+    }
+
 }
 

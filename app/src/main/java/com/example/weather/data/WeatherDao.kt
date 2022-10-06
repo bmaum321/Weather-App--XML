@@ -10,9 +10,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WeatherDao {
 
-    //method to retrieve all Weather object statically
-    @Query("SELECT zipCode FROM weather_database")
+    // method to retrieve all zipcodes from database and order them by sort order ascending
+    @Query("SELECT zipCode FROM weather_database ORDER BY sortOrder ASC")
     fun getZipcodesFlow(): Flow<List<String>>
+
+    // method to retrieve all weather entities from database
+    @Query("SELECT * FROM weather_database ORDER BY sortOrder ASC")
+    fun getAllWeatherEntities(): List<WeatherEntity>
 
     // method to retrieve a Weather from the database by id
     @Query("SELECT * FROM weather_database WHERE id = :id")
@@ -38,6 +42,19 @@ interface WeatherDao {
     @Delete
     suspend fun delete(weatherEntity: WeatherEntity)
 
-    // method to swap values from one row to another row for the item touch helper
+    // method to retrieve last entry in the table
+    @Query("SELECT * FROM weather_database ORDER BY ID DESC LIMIT 1")
+    fun selectLastEntry(): WeatherEntity
 
+    //Delete all table entries
+    @Query("DELETE FROM weather_database")
+    suspend fun deleteAll()
+
+    //Insert all objects into database
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(weatherEntityList: List<WeatherEntity>)
+
+    // Check if database is empty
+    @Query("SELECT (SELECT COUNT(*) FROM weather_database) == 0")
+    fun isEmpty(): Boolean
 }

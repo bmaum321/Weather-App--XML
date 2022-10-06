@@ -4,13 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
-import com.example.weather.domain.SearchDomainObject
-import com.example.weather.domain.WeatherDomainObject
-import com.example.weather.domain.asDomainModel
-import com.example.weather.model.Search
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.ApiResponse
-import com.example.weather.network.WeatherContainer
 import com.example.weather.network.asDatabaseModel
 import com.example.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +29,20 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         .apply {
             tryEmit(Unit)
         }
+
+    // sort counter for database entries
+
+    /**
+     * If database is empty, initial sort value is 1
+     * If not empty, find last entry in database, increment sort value by 1
+     */
+    private fun getLastEntrySortValue(): Int {
+        var dbSortOrderValue = 1
+        if (!weatherDao.isEmpty()) {
+            dbSortOrderValue = weatherDao.selectLastEntry().sortOrder + 1
+        }
+        return dbSortOrderValue
+    }
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository(getDatabase(application))
@@ -85,7 +94,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
         networkError = when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
             is ApiResponse.Success -> {
-                weatherDao.insert(response.data.asDatabaseModel(zipcode))
+                weatherDao.insert(response.data.asDatabaseModel(zipcode, getLastEntrySortValue()))
                 true
             }
             is ApiResponse.Failure -> false
@@ -100,11 +109,13 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         id: Long,
         name: String,
         zipcode: String,
+        sortOrder: Int
     ) {
         val weatherEntity = WeatherEntity(
             id = id,
             cityName = name,
             zipCode = zipcode,
+            sortOrder = sortOrder
         )
         viewModelScope.launch(Dispatchers.IO) {
             // call the DAO method to update a weather object to the database here

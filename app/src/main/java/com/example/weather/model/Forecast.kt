@@ -65,5 +65,16 @@ data class Hours(
     var wind_mph: Double,
     val wind_kph: Double,
     val wind_dir: String,
-    val chance_of_rain: Int
+    val chance_of_rain: Int,
+    val pressure_mb: Double,
+    var pressure_in: Double,
+    val will_it_rain: Int,
+    val chance_of_snow: Double,
+    val will_it_snow: Int,
+    val precip_mm: Double,
+    var precip_in: Double,
+    val feelslike_c: Double,
+    var feelslike_f: Double,
+    val windchill_c: Double,
+    var windchill_f: Double
 )

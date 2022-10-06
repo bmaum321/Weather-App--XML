@@ -75,16 +75,25 @@ class WeatherListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Get initial flags for ItemTouchHelper
         var targetPositionFinal: Int = -1
         var fromPosition: Int = -1
+        val initialSortOrderList = mutableListOf<Int>()
+        lifecycleScope.launch(Dispatchers.IO) {
+           viewModel.getAllWeatherEntities().forEach { weatherEntity ->
+                initialSortOrderList.add(weatherEntity.sortOrder)
+            }
+        }
 
-
+        // create the List adapter
         val adapter = WeatherListAdapter { weather ->
             val action = WeatherListFragmentDirections
                 .actionWeatherListFragmentToWeatherDetailFragment(weather.zipcode)
             findNavController().navigate(action)
         }
 
+
+        // Create the Item touch helper to handle swipe to delete and drag and drop tp rearrange
         class ReorderHelperCallback() : ItemTouchHelper.Callback() {
             override fun getMovementFlags(
                 recyclerView: RecyclerView,
@@ -102,57 +111,72 @@ class WeatherListFragment : Fragment() {
                 target: RecyclerView.ViewHolder
             ): Boolean {
 
-
                 fromPosition = source.adapterPosition
                 targetPositionFinal = target.adapterPosition
+
                 /**
-                 * The positions in the database need to be swapped for this to work properly
+                 * This doesnt work after an object is added, it doesnt update the recycler view
                  */
-                //  val fromItemZipcode = adapter.currentList[fromPosition].zipcode
-                //  val toItemZipcode = adapter.currentList[targetPositionFinal].zipcode
-
-              //  adapter.onItemMove(fromPosition, targetPositionFinal)
-
-
-                //    lifecycleScope.launch(Dispatchers.IO) {
-                //       val weatherEntityFrom = viewModel.getWeatherByZipcode(fromItemZipcode)
-                //       val weatherEntityTo = viewModel.getWeatherByZipcode(toItemZipcode)
-                //        viewModel.updateWeather(weatherEntityFrom.id, weatherEntityTo.cityName, toItemZipcode)
-                //       viewModel.updateWeather(weatherEntityTo.id, weatherEntityFrom.cityName, fromItemZipcode)
-                //   }
+                adapter.onItemMove(fromPosition, targetPositionFinal)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    println("INTITAL SORT LIST: $initialSortOrderList")
+                    Collections.swap(initialSortOrderList, fromPosition, targetPositionFinal)
+                    println(initialSortOrderList)
+                }
 
                 return true
             }
 
             /**
-             * Add sort order column to database, auto incrment it when new items are added
+             * Add sort order column to database, auto increment it when new items are added
              * Get all zipcodes and entities
              * Swap the entities sort order
              * return weather list by sort order ascending and display to screen
              */
+
+
             override fun clearView(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder
             ) {
                 super.clearView(recyclerView, viewHolder)
 
-                val fromItemZipcode = adapter.currentList[fromPosition].zipcode
-                val toItemZipcode = adapter.currentList[targetPositionFinal].zipcode
+                val newlySortedWeatherEntities = mutableListOf<WeatherEntity>()
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val weatherEntityFrom = viewModel.getWeatherByZipcode(fromItemZipcode)
-                    val weatherEntityTo = viewModel.getWeatherByZipcode(toItemZipcode)
-                    viewModel.updateWeather(
-                        weatherEntityFrom.id,
-                        weatherEntityTo.cityName,
-                        toItemZipcode
-                    )
-                    viewModel.updateWeather(
-                        weatherEntityTo.id,
-                        weatherEntityFrom.cityName,
-                        fromItemZipcode
-                    )
+                    val allWeathers = viewModel.getAllWeatherEntities()
+                    initialSortOrderList.forEach { orderNumber ->
+                        allWeathers.forEach { weatherEntity ->
+                            if (weatherEntity.sortOrder == orderNumber) {
+                                newlySortedWeatherEntities.add(weatherEntity)
+                            }
+                        }
+                    }
+                    println(newlySortedWeatherEntities) //DEBUG
+
+                    /**
+                     * Update the newly sorted weather entity list with new sort order numbers
+                     * starting from 1
+                     */
+                    var sortOrder = 1
+                    newlySortedWeatherEntities.forEach { weatherEntity ->
+                        viewModel.updateWeather(
+                            weatherEntity.id,
+                            weatherEntity.cityName,
+                            weatherEntity.zipCode,
+                            sortOrder
+                        )
+                        sortOrder++
+                    }
+                    /**
+                     * Need to resort list after the db changes are made, so any future drag to moves
+                     * can be properly calculated
+                     */
+                    initialSortOrderList.sort()
+
                 }
+
             }
+
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
 
@@ -170,6 +194,7 @@ class WeatherListFragment : Fragment() {
                         ).show()
                     }
                 }
+                initialSortOrderList.dropLast(1) // need to remove 1 entry from the sort list when deleting an object
             }
         }
 
