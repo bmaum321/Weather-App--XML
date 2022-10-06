@@ -1,5 +1,6 @@
 package com.example.weather.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.weather.domain.WeatherDomainObject
@@ -15,5 +16,6 @@ data class WeatherEntity(
     val id: Long = 0,
     val cityName: String,
     val zipCode: String,
+   // val sortOrder: Int
 )
 

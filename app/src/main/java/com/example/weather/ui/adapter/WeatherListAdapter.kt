@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.databinding.ListItemWeatherBinding
 import com.example.weather.domain.WeatherDomainObject
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.WeatherListFragment
 import java.util.*
 
 /**
@@ -21,8 +22,7 @@ class WeatherListAdapter(
 ) : ListAdapter<WeatherDomainObject, WeatherListAdapter.WeatherViewHolder>(DiffCallback) {
 
     class WeatherViewHolder(
-        private var binding: ListItemWeatherBinding,
-        val dragStartListener : OnStartDragListener? = null
+        private var binding: ListItemWeatherBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(weatherDomainObject: WeatherDomainObject) {
@@ -64,14 +64,4 @@ class WeatherListAdapter(
     }
 }
 
-interface OnStartDragListener {
-
-    /**
-     * Called when a view is requesting a start of a drag.
-     *
-     * @param viewHolder The holder of the view to drag.
-     */
-    fun onStartDrag(viewHolder: RecyclerView.ViewHolder?)
-
-}
 

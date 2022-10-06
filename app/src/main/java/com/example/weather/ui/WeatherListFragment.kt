@@ -75,6 +75,9 @@ class WeatherListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var targetPositionFinal: Int = -1
+        var fromPosition: Int = -1
+
 
         val adapter = WeatherListAdapter { weather ->
             val action = WeatherListFragmentDirections
@@ -82,9 +85,7 @@ class WeatherListFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        class ReorderHelperCallback(val adapter: WeatherListAdapter) : ItemTouchHelper.Callback() {
-
-
+        class ReorderHelperCallback() : ItemTouchHelper.Callback() {
             override fun getMovementFlags(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder
@@ -100,25 +101,57 @@ class WeatherListFragment : Fragment() {
                 source: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                val fromPosition = source.adapterPosition
-                val toPosition = target.adapterPosition
+
+
+                fromPosition = source.adapterPosition
+                targetPositionFinal = target.adapterPosition
                 /**
                  * The positions in the database need to be swapped for this to work properly
                  */
-                val fromItemZipcode = adapter.currentList[fromPosition].zipcode
-                val toItemZipcode = adapter.currentList[toPosition].zipcode
+                //  val fromItemZipcode = adapter.currentList[fromPosition].zipcode
+                //  val toItemZipcode = adapter.currentList[targetPositionFinal].zipcode
 
-                adapter.onItemMove(fromPosition, toPosition)
-                /*
+              //  adapter.onItemMove(fromPosition, targetPositionFinal)
+
+
+                //    lifecycleScope.launch(Dispatchers.IO) {
+                //       val weatherEntityFrom = viewModel.getWeatherByZipcode(fromItemZipcode)
+                //       val weatherEntityTo = viewModel.getWeatherByZipcode(toItemZipcode)
+                //        viewModel.updateWeather(weatherEntityFrom.id, weatherEntityTo.cityName, toItemZipcode)
+                //       viewModel.updateWeather(weatherEntityTo.id, weatherEntityFrom.cityName, fromItemZipcode)
+                //   }
+
+                return true
+            }
+
+            /**
+             * Add sort order column to database, auto incrment it when new items are added
+             * Get all zipcodes and entities
+             * Swap the entities sort order
+             * return weather list by sort order ascending and display to screen
+             */
+            override fun clearView(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ) {
+                super.clearView(recyclerView, viewHolder)
+
+                val fromItemZipcode = adapter.currentList[fromPosition].zipcode
+                val toItemZipcode = adapter.currentList[targetPositionFinal].zipcode
                 lifecycleScope.launch(Dispatchers.IO) {
                     val weatherEntityFrom = viewModel.getWeatherByZipcode(fromItemZipcode)
                     val weatherEntityTo = viewModel.getWeatherByZipcode(toItemZipcode)
-                    viewModel.updateWeather(weatherEntityFrom.id, weatherEntityTo.cityName, toItemZipcode)
-                    viewModel.updateWeather(weatherEntityTo.id, weatherEntityFrom.cityName, fromItemZipcode)
+                    viewModel.updateWeather(
+                        weatherEntityFrom.id,
+                        weatherEntityTo.cityName,
+                        toItemZipcode
+                    )
+                    viewModel.updateWeather(
+                        weatherEntityTo.id,
+                        weatherEntityFrom.cityName,
+                        fromItemZipcode
+                    )
                 }
-
-                 */
-                return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
@@ -137,15 +170,11 @@ class WeatherListFragment : Fragment() {
                         ).show()
                     }
                 }
-
             }
-
-
         }
 
-
         // Attach the touch helper to the recycler view
-        ItemTouchHelper(ReorderHelperCallback(adapter)).attachToRecyclerView(binding.recyclerView)
+        ItemTouchHelper(ReorderHelperCallback()).attachToRecyclerView(binding.recyclerView)
 
         /**
          * Need to have an initial listener set here if the database is empty because none of
@@ -214,4 +243,5 @@ class WeatherListFragment : Fragment() {
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
     }
+
 }

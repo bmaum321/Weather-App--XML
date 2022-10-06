@@ -2,13 +2,17 @@ package com.example.weather.ui.adapter
 
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weather.R
 import com.example.weather.databinding.HourlyForecastListItemBinding
+import com.example.weather.databinding.HourlyForecastListItemNewBinding
 import com.example.weather.model.Condition
 import com.example.weather.model.Day
 import com.example.weather.model.Hours
@@ -24,17 +28,28 @@ class HourlyForecastAdapter(
 ) {
 
     class HourlyForecastViewHolder(
-        private var binding: HourlyForecastListItemBinding
+        private var binding: HourlyForecastListItemNewBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(hour: HourlyForecastItemViewData) {
             /**
              * If no chance of rain, hide the view
              */
-            if (hour.hour.chance_of_rain == 0) {
-                binding.rainChance.visibility = View.GONE
-            } else binding.rainChance.visibility =
-                View.VISIBLE //this seems to be needed for some reason
+          //  if (hour.hour.chance_of_rain == 0) {
+          //      binding.rainChance.visibility = View.GONE
+         //   } else binding.rainChance.visibility =
+          //      View.VISIBLE //this seems to be needed for some reason
+            binding.arrowButton.setOnClickListener {
+                if(binding.hiddenView.visibility == View.VISIBLE) {
+                    TransitionManager.beginDelayedTransition(binding.baseCardview, AutoTransition())
+                    binding.hiddenView.visibility = View.GONE
+                    binding.arrowButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
+                } else {
+                    TransitionManager.beginDelayedTransition(binding.baseCardview, AutoTransition())
+                    binding.hiddenView.visibility = View.VISIBLE
+                    binding.arrowButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
+                }
+            }
             binding.forecast = hour
             binding.executePendingBindings()
         }
@@ -63,11 +78,11 @@ class HourlyForecastAdapter(
     ): HourlyForecastAdapter.HourlyForecastViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return HourlyForecastAdapter.HourlyForecastViewHolder(
-            HourlyForecastListItemBinding.inflate(layoutInflater, parent, false)
+            HourlyForecastListItemNewBinding.inflate(layoutInflater, parent, false)
         )
     }
 
-    override fun onBindViewHolder(holder: HourlyForecastViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: HourlyForecastAdapter.HourlyForecastViewHolder, position: Int) {
         val forecast = getItem(position)
         // holder.itemView.setOnClickListener { // Disabling click listener on hour list
         //     clickListener(forecast)
@@ -78,6 +93,7 @@ class HourlyForecastAdapter(
 
 data class HourlyForecastItemViewData(val hour: Hours) {
     val temp = hour.temp_f.toInt().toString()
+    val wind = hour.wind_mph.toString()
 
 }
 
