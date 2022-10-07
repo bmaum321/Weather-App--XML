@@ -45,11 +45,13 @@
                 android:paddingEnd="8dp">
 
                 <!--TODO This is still pulling from the database, should pull from the repo-->
+
                 <TextView
                     android:id="@+id/headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
                     android:text="@{weather.location}"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textColor="@{context.getColor(weather.textColor)}"
@@ -63,16 +65,19 @@
                     android:id="@+id/event"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:text="@{weather.country}"
                     android:textColor="@{context.getColor(weather.textColor)}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/headline"
                     tools:text="USA" />
 
+
                 <TextView
                     android:id="@+id/description"
-                    android:layout_width="wrap_content"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:text="@{weather.conditionText}"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="@{context.getColor(weather.textColor)}"
@@ -80,7 +85,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/event"
                     tools:text="Condition" />
-
 
                 <ImageView
                     android:id="@+id/conditionIcon"

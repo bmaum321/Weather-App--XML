@@ -97,6 +97,9 @@ data class HourlyForecastItemViewData(val hour: Hours) {
     val feelsliketemp = hour.feelslike_f.toString()
     val precip = hour.precip_in.toString()
     val pressure = hour.pressure_in.toString()
+    var precipUnit: String = "IN"
+    var pressureUnit: String = "IN"
+    var windUnit: String = "MPH"
 
 }
 
@@ -116,11 +119,14 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
 
     if (!GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
         hour.wind_mph = hour.wind_kph
+        windUnit = "KPH"
     }
 
     if (!GetSettings().getMeasurementFormatFromPreferences(sharedPreferences, resources)) {
         hour.precip_in = hour.precip_mm
         hour.pressure_in = hour.pressure_mb
+        precipUnit = "MM"
+        pressureUnit = "MB"
     }
 
 

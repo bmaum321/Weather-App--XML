@@ -88,13 +88,12 @@
                         android:id="@+id/conditionIcon"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:layout_marginEnd="60dp"
+                        android:layout_marginEnd="52dp"
                         android:contentDescription="@string/weather_condition_icon_content_description"
                         app:imageUrl="@{forecast.hour.condition.icon}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.442" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/temp"
@@ -103,11 +102,11 @@
                         android:layout_marginEnd="40dp"
                         android:layout_marginBottom="28dp"
                         android:text="@{@string/Temp(forecast.temp)}"
-                        android:textSize="18sp"
+                        android:textSize="24sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
-                        app:layout_constraintHorizontal_bias="0.876"
+                        app:layout_constraintHorizontal_bias="1.0"
                         app:layout_constraintStart_toEndOf="@+id/description"
                         tools:text="Temp" />
 
@@ -116,11 +115,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{@string/rain_percentage(String.valueOf(forecast.hour.chance_of_rain))}"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toTopOf="@+id/temp"
                         app:layout_constraintEnd_toStartOf="@+id/conditionIcon"
-                        app:layout_constraintHorizontal_bias="0.699"
+                        app:layout_constraintHorizontal_bias="0.794"
                         app:layout_constraintStart_toEndOf="@+id/date"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.666"
@@ -133,7 +132,7 @@
                         android:src="@drawable/ic_baseline_expand_more_24"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.955"
+                        app:layout_constraintHorizontal_bias="0.983"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -159,22 +158,23 @@
                             android:id="@+id/wind"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="32dp"
+                            android:layout_marginStart="16dp"
                             android:text="@{forecast.wind}"
                             android:textSize="14sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/ic_wind"
-                            app:layout_constraintVertical_bias="0.512"
+                            app:layout_constraintVertical_bias="0.515"
                             tools:text="15.3" />
 
                         <ImageView
                             android:id="@+id/ic_wind"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:layout_marginStart="36dp"
+
+                            android:layout_marginStart="48dp"
                             android:layout_marginTop="24dp"
-                            android:src="@drawable/ic_wind"
+                            android:src="@drawable/ic_wind_sock"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -184,7 +184,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="24dp"
                             app:layout_constraintEnd_toStartOf="@+id/ic_dew_point"
-                            app:layout_constraintHorizontal_bias="0.485"
+                            app:layout_constraintHorizontal_bias="0.529"
                             app:layout_constraintStart_toEndOf="@+id/ic_wind"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/ic_temperature" />
@@ -194,10 +194,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="24dp"
-                            android:layout_marginEnd="156dp"
+                            android:layout_marginEnd="120dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_dew" />
+                            app:srcCompat="@drawable/barometer_svgrepo_com" />
 
                         <ImageView
                             android:id="@+id/ic_precip"
@@ -205,7 +205,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="24dp"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.555"
+                            app:layout_constraintHorizontal_bias="0.629"
                             app:layout_constraintStart_toEndOf="@+id/ic_dew_point"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/ic_rain_svgrepo_com" />
@@ -217,8 +217,8 @@
                             android:text="@{forecast.feelsliketemp}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@+id/textView4"
-                            app:layout_constraintHorizontal_bias="0.456"
-                            app:layout_constraintStart_toEndOf="@+id/wind"
+                            app:layout_constraintHorizontal_bias="0.212"
+                            app:layout_constraintStart_toEndOf="@+id/feelslike_label"
                             app:layout_constraintTop_toBottomOf="@+id/ic_feels_like_temp"
                             app:layout_constraintVertical_bias="0.515"
                             tools:text="54" />
@@ -227,7 +227,7 @@
                             android:id="@+id/textView4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="156dp"
+                            android:layout_marginEnd="120dp"
                             android:text="@{forecast.pressure}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -242,11 +242,71 @@
                             android:text="@{forecast.precip}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.585"
+                            app:layout_constraintHorizontal_bias="0.616"
                             app:layout_constraintStart_toEndOf="@+id/textView4"
                             app:layout_constraintTop_toBottomOf="@+id/ic_precip"
                             app:layout_constraintVertical_bias="0.515"
                             tools:text="40" />
+
+                        <TextView
+                            android:id="@+id/wind_direction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="40dp"
+                            android:layout_marginBottom="16dp"
+                            android:text="@{forecast.hour.wind_dir}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/wind"
+                            tools:text="WNW" />
+
+                        <TextView
+                            android:id="@+id/precip_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="24dp"
+                            android:text="@{forecast.precipUnit}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.802"
+                            tools:text="in" />
+
+                        <TextView
+                            android:id="@+id/pressure_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@{forecast.pressureUnit}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/textView4"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.802"
+                            tools:text="in" />
+
+                        <TextView
+                            android:id="@+id/feelslike_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:text="Feels Like"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/textView4"
+                            app:layout_constraintHorizontal_bias="0.073"
+                            app:layout_constraintStart_toEndOf="@+id/wind_direction"
+                            app:layout_constraintTop_toBottomOf="@+id/ic_feels_like_temp"
+                            tools:text="Feels Like" />
+
+                        <TextView
+                            android:id="@+id/wind_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="@{forecast.windUnit}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/wind"
+                            app:layout_constraintTop_toBottomOf="@+id/ic_wind"
+                            app:layout_constraintVertical_bias="0.515"
+                            tools:text="MPH" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
