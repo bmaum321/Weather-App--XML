@@ -141,10 +141,6 @@ class AddWeatherFragment : Fragment() {
     }
 
 
-
-
-
-
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
         findNavController().navigate(
@@ -161,7 +157,12 @@ class AddWeatherFragment : Fragment() {
                    }
                }
                 withContext(Dispatchers.Main) { //Navigtion must be run on main thread
-                    findNavController().popBackStack()
+                   // findNavController().popBackStack()
+                    /**
+                     * IF we pop the back stack, the item touch helper does not get notified of the new object being
+                     * added to the list
+                     */
+                    findNavController().navigate(R.id.action_addWeatherFragment_to_WeatherListFragment)
                 }
             }
         }

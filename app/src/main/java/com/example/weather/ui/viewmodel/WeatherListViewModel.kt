@@ -57,15 +57,6 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
         return weatherDao.getAllWeatherEntities()
     }
 
-    suspend fun insertAllWeatherEntities(weatherEntities: List<WeatherEntity>) {
-        weatherDao.insertAll(weatherEntities)
-    }
-
-    suspend fun deleteAll() {
-        weatherDao.deleteAll()
-    }
-
-
 
     /**
      *     Method that takes a list of zipcodes as a parameter and retrieve a list of weathera

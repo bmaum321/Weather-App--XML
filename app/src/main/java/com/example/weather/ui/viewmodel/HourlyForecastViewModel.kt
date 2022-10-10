@@ -8,9 +8,12 @@ import com.example.weather.data.WeatherDao
 import com.example.weather.data.WeatherDatabase.Companion.getDatabase
 import com.example.weather.domain.ForecastDomainObject
 import com.example.weather.domain.asDomainModel
+import com.example.weather.model.Hours
 import com.example.weather.model.WeatherEntity
 import com.example.weather.network.ApiResponse
 import com.example.weather.repository.WeatherRepository
+import com.example.weather.ui.adapter.HourlyForecastItemViewData
+import com.example.weather.ui.settings.GetSettings
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -88,5 +91,61 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         }
     }
 }
+
+/**
+ * Use the Celsius temp for display if the setting is checked
+ */
+
+fun HourlyForecastItemViewData.withPreferenceConversion(
+    sharedPreferences: SharedPreferences,
+    resources: Resources
+): HourlyForecastItemViewData {
+    if (!GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
+        hour.temp_f = hour.temp_c
+        hour.feelslike_f = hour.feelslike_c
+        hour.windchill_f = hour.windchill_c
+    }
+
+    if (!GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
+        hour.wind_mph = hour.wind_kph
+        windUnit = "KPH"
+    }
+
+    if (!GetSettings().getMeasurementFormatFromPreferences(sharedPreferences, resources)) {
+        hour.precip_in = hour.precip_mm
+        hour.pressure_in = hour.pressure_mb
+        precipUnit = "MM"
+        pressureUnit = "MB"
+    }
+
+
+    return HourlyForecastItemViewData(
+        hour = Hours(
+            time_epoch = hour.time_epoch,
+            time = hour.time,
+            temp_f = hour.temp_f,
+            temp_c = hour.temp_c,
+            is_day = hour.is_day,
+            condition = hour.condition,
+            wind_mph = hour.wind_mph,
+            wind_kph = hour.wind_kph,
+            wind_dir = hour.wind_dir,
+            chance_of_rain = hour.chance_of_rain,
+            chance_of_snow = hour.chance_of_snow,
+            feelslike_c = hour.feelslike_c,
+            feelslike_f = hour.feelslike_f,
+            precip_in = hour.precip_in,
+            precip_mm = hour.precip_mm,
+            pressure_in = hour.pressure_in,
+            pressure_mb = hour.pressure_mb,
+            will_it_rain = hour.will_it_rain,
+            will_it_snow = hour.will_it_snow,
+            windchill_c = hour.windchill_c,
+            windchill_f = hour.windchill_f
+
+        )
+    )
+}
+
 
 

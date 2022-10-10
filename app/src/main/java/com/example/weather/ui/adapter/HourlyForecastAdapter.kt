@@ -91,69 +91,22 @@ class HourlyForecastAdapter(
     }
 }
 
-data class HourlyForecastItemViewData(val hour: Hours) {
+/**
+ * TODO pass in units to primary constructor to modify the unit values
+ */
+
+data class HourlyForecastItemViewData(
+    val hour: Hours,
+    var precipUnit: String = "IN"
+) {
     val temp = hour.temp_f.toInt().toString()
     val wind = hour.wind_mph.toString()
     val feelsliketemp = hour.feelslike_f.toString()
     val precip = hour.precip_in.toString()
     val pressure = hour.pressure_in.toString()
-    var precipUnit: String = "IN"
+   // var precipUnit: String = "IN"
     var pressureUnit: String = "IN"
     var windUnit: String = "MPH"
 
 }
 
-/**
- * Use the Celsius temp for display if the setting is checked
- */
-
-fun HourlyForecastItemViewData.withPreferenceConversion(
-    sharedPreferences: SharedPreferences,
-    resources: Resources
-): HourlyForecastItemViewData {
-    if (!GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
-        hour.temp_f = hour.temp_c
-        hour.feelslike_f = hour.feelslike_c
-        hour.windchill_f = hour.windchill_c
-    }
-
-    if (!GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
-        hour.wind_mph = hour.wind_kph
-        windUnit = "KPH"
-    }
-
-    if (!GetSettings().getMeasurementFormatFromPreferences(sharedPreferences, resources)) {
-        hour.precip_in = hour.precip_mm
-        hour.pressure_in = hour.pressure_mb
-        precipUnit = "MM"
-        pressureUnit = "MB"
-    }
-
-
-    return HourlyForecastItemViewData(
-            hour = Hours(
-                time_epoch = hour.time_epoch,
-                time = hour.time,
-                temp_f = hour.temp_f,
-                temp_c = hour.temp_c,
-                is_day = hour.is_day,
-                condition = hour.condition,
-                wind_mph = hour.wind_mph,
-                wind_kph = hour.wind_kph,
-                wind_dir = hour.wind_dir,
-                chance_of_rain = hour.chance_of_rain,
-                chance_of_snow = hour.chance_of_snow,
-                feelslike_c = hour.feelslike_c,
-                feelslike_f = hour.feelslike_f,
-                precip_in = hour.precip_in,
-                precip_mm = hour.precip_mm,
-                pressure_in = hour.pressure_in,
-                pressure_mb = hour.pressure_mb,
-                will_it_rain = hour.will_it_rain,
-                will_it_snow = hour.will_it_snow,
-                windchill_c = hour.windchill_c,
-                windchill_f = hour.windchill_f
-
-            )
-        )
-}
