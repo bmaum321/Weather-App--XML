@@ -15,19 +15,20 @@
  */
 package com.example.weather.ui
 
-import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
+import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -37,8 +38,10 @@ import com.example.weather.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
 import com.example.weather.model.WeatherEntity
+import com.example.weather.ui.adapter.AutoSuggestAdapter
 import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
 import com.example.weather.ui.viewmodel.SearchViewData
+import com.example.weather.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -67,7 +70,7 @@ class AddWeatherFragment : Fragment() {
     //  from BaseApplication
     private val viewModel: AddWeatherLocationViewModel by activityViewModels{
         AddWeatherLocationViewModel.AddWeatherLocationViewModelFactory(
-            (activity?.application as BaseApplication).database.weatherDao(), Application()  //TODO passing application now
+            (activity?.application as BaseApplication).database.weatherDao(), Application()
         )
     }
 
@@ -84,6 +87,7 @@ class AddWeatherFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        var handler: Handler? = null
         val id = navigationArgs.id
         if (id > 0) {
 
@@ -111,21 +115,50 @@ class AddWeatherFragment : Fragment() {
          *
          */
 
-
+        val adapter = context?.let { AutoSuggestAdapter(it, R.layout.support_simple_spinner_dropdown_item) }
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect { searchResults ->
 
                 when (searchResults) {
                     is SearchViewData.Done -> {
                         withContext(Dispatchers.Main) {
-                            val adapter = context?.let {
-                                ArrayAdapter(
-                                    it,
-                                    android.R.layout.simple_dropdown_item_1line,
-                                    searchResults.searchDomainObject //
-                                )
-                            }
                             binding.autoCompleteTextView.setAdapter(adapter)
+                            binding.autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                                override fun beforeTextChanged(
+                                    s: CharSequence,
+                                    start: Int,
+                                    count: Int,
+                                    after: Int
+                                ) {
+                                }
+
+                                override fun onTextChanged(
+                                    s: CharSequence, start: Int, before: Int,
+                                    count: Int
+                                ) {
+                                    handler?.removeMessages(Constants.TRIGGER_AUTO_COMPLETE)
+                                    handler?.sendEmptyMessageDelayed(
+                                        Constants.TRIGGER_AUTO_COMPLETE,
+                                        Constants.AUTO_COMPLETE_DELAY
+                                    )
+                                }
+
+                                override fun afterTextChanged(s: Editable) {}
+                            })
+
+                            handler = Handler { msg ->
+                                if (msg.what == Constants.TRIGGER_AUTO_COMPLETE) {
+                                    if (!TextUtils.isEmpty(binding.autoCompleteTextView.text)) {
+                                        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                                            viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect()
+                                            val x = listOf<String>("This, That, Time, Table, Apple, timber, timblwe, timple")
+                                            adapter?.setData(x)
+                                            adapter?.notifyDataSetChanged()
+                                        }
+                                    }
+                                }
+                                false
+                            }
                         }
                     }
 
@@ -156,7 +189,7 @@ class AddWeatherFragment : Fragment() {
                        showToast(ERRORTEXT)
                    }
                }
-                withContext(Dispatchers.Main) { //Navigtion must be run on main thread
+                withContext(Dispatchers.Main) { //Navigation must be run on main thread
                    // findNavController().popBackStack()
                     /**
                      * IF we pop the back stack, the item touch helper does not get notified of the new object being

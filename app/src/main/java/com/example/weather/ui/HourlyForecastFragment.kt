@@ -76,7 +76,7 @@ class HourlyForecastFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val date = navigationArgs.date //TODO testing here
+        val date = navigationArgs.date
         val zipcode =
             navigationArgs.zipcode
         viewModel.getWeatherByZipcode(zipcode).observe(this.viewLifecycleOwner) { selectedWeather ->
