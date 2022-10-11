@@ -1,4 +1,4 @@
-package com.brian.weather.data
+package com.brian.weather
 
 import android.os.Bundle
 import android.view.Menu

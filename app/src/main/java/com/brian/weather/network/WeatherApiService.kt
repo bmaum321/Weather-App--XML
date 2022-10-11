@@ -2,6 +2,7 @@ package com.brian.weather.network
 
 import com.brian.weather.model.ForecastContainer
 import com.brian.weather.model.Search
+import com.brian.weather.util.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
@@ -15,11 +16,10 @@ import retrofit2.http.Query
  * A retrofit service to fetch the weather data from the API
  */
 
-private const val APIKEY = "759618142cff4efb89d192409221909"
 private const val BASE_URL = "https://api.weatherapi.com/v1/"
-private const val CURRENT = "current.json?key=$APIKEY"
-private const val FORECAST = "forecast.json?key=$APIKEY"
-private const val SEARCH = "search.json?key=$APIKEY"
+private const val CURRENT = "current.json?key=${Constants.APIKEY}"
+private const val FORECAST = "forecast.json?key=${Constants.APIKEY}"
+private const val SEARCH = "search.json?key=${Constants.APIKEY}"
 
 
 
@@ -56,7 +56,7 @@ interface WeatherApiService {
     @GET(FORECAST)
     suspend fun getForecast(
         @Query("q") zipcode: String,
-        @Query("days") days: Int = 3, // Maximum forecast days for free API is 3 days
+        @Query("days") days: Int = 7, // Maximum forecast days for free API is 3 days, have paid plan with 7 days
         @Query("alerts") alerts: String = "yes"
     ): Response<ForecastContainer>
 }
