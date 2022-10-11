@@ -1,24 +1,9 @@
-/*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.weather.ui
 
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.os.Message
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -26,9 +11,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -43,7 +29,6 @@ import com.example.weather.ui.viewmodel.AddWeatherLocationViewModel
 import com.example.weather.ui.viewmodel.SearchViewData
 import com.example.weather.util.Constants
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -72,6 +57,11 @@ class AddWeatherFragment : Fragment() {
         AddWeatherLocationViewModel.AddWeatherLocationViewModelFactory(
             (activity?.application as BaseApplication).database.weatherDao(), Application()
         )
+    }
+
+    fun View.hideKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(windowToken, 0)
     }
 
     override fun onCreateView(
@@ -116,12 +106,6 @@ class AddWeatherFragment : Fragment() {
          */
 
         val adapter = context?.let { AutoSuggestAdapter(it, R.layout.support_simple_spinner_dropdown_item) }
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect { searchResults ->
-
-                when (searchResults) {
-                    is SearchViewData.Done -> {
-                        withContext(Dispatchers.Main) {
                             binding.autoCompleteTextView.setAdapter(adapter)
                             binding.autoCompleteTextView.addTextChangedListener(object : TextWatcher {
                                 override fun beforeTextChanged(
@@ -150,28 +134,39 @@ class AddWeatherFragment : Fragment() {
                                 if (msg.what == Constants.TRIGGER_AUTO_COMPLETE) {
                                     if (!TextUtils.isEmpty(binding.autoCompleteTextView.text)) {
                                         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                                            viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect()
-                                            val x = listOf<String>("This, That, Time, Table, Apple, timber, timblwe, timple")
-                                            adapter?.setData(x)
-                                            adapter?.notifyDataSetChanged()
+                                            viewModel.getSearchResults(binding.autoCompleteTextView.text.toString()).collect{
+                                                    searchResults ->
+
+                                                        when (searchResults) {
+                                                            is SearchViewData.Done -> {
+                                                                withContext(Dispatchers.Main) {
+                                                                    adapter?.setData(searchResults.searchDomainObject)
+                                                                    adapter?.notifyDataSetChanged()
+                                                                    binding.autoCompleteTextView.setOnItemClickListener { _, view, _, _ ->
+                                                                        this@AddWeatherFragment.view?.hideKeyboard()
+                                                                    }
+
+
+
+
+                                                                }
+                                                            }
+                                                            is SearchViewData.Error -> {
+                                                                Log.d("API", "${searchResults.message}")
+                                                            }
+                                                            is SearchViewData.Loading -> {
+                                                                Log.d("API", "$searchResults")
+                                                            }
+                                                    }
+                                            }
                                         }
                                     }
                                 }
                                 false
                             }
-                        }
-                    }
 
-                    is SearchViewData.Error -> {
-                        Log.d("API", "${searchResults.message}")
-                    }
-                    is SearchViewData.Loading -> {
-                        Log.d("API", "$searchResults")
-                    }
-                }
-            }
-        }
     }
+
 
 
     private fun deleteWeather(weather: WeatherEntity) {
@@ -182,9 +177,10 @@ class AddWeatherFragment : Fragment() {
     }
 
     private fun addWeather() {
-        if (isValidEntry()) {
+       // if (isValidEntry()) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-               if( !viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString())) {
+              // if( !viewModel.storeNetworkDataInDatabase(binding.zipcodeInput.text.toString())) {
+                if( !viewModel.storeNetworkDataInDatabase(binding.autoCompleteTextView.text.toString())) {
                    withContext(Dispatchers.Main) { //Lets you launch a new coroutine on a different thread within an existing coroutine
                        showToast(ERRORTEXT)
                    }
@@ -198,7 +194,7 @@ class AddWeatherFragment : Fragment() {
                     findNavController().navigate(R.id.action_addWeatherFragment_to_WeatherListFragment)
                 }
             }
-        }
+      //  }
     }
 
     private fun showToast(text: String?) {
@@ -212,7 +208,8 @@ class AddWeatherFragment : Fragment() {
             viewModel.updateWeather(
                 id = navigationArgs.id,
                 name = weatherEntity.cityName,
-                zipcode = binding.zipcodeInput.text.toString(),
+               // zipcode = binding.zipcodeInput.text.toString(),
+                zipcode = binding.autoCompleteTextView.text.toString(),
                 sortOrder = weatherEntity.sortOrder
 
             )
@@ -224,7 +221,8 @@ class AddWeatherFragment : Fragment() {
 
     private fun bindWeather(weatherEntity: WeatherEntity) {
         binding.apply{
-            zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
+         //   zipcodeInput.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
+            autoCompleteTextView.setText(weatherEntity.zipCode, TextView.BufferType.SPANNABLE)
             saveBtn.setOnClickListener {
                 updateWeather()
             }
@@ -233,7 +231,8 @@ class AddWeatherFragment : Fragment() {
     }
 
     private fun isValidEntry() = viewModel.isValidEntry(
-        binding.zipcodeInput.text.toString()
+       // binding.zipcodeInput.text.toString()
+    binding.autoCompleteTextView.text.toString()
     )
 
     override fun onDestroyView() {
