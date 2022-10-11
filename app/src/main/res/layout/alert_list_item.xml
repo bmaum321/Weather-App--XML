@@ -7,10 +7,10 @@
     <data>
         <variable
             name="alert"
-            type="com.example.weather.ui.adapter.AlertItemViewData" />
+            type="com.brian.weather.ui.adapter.AlertItemViewData" />
         <variable
             name="viewModel"
-            type="com.example.weather.ui.viewmodel.WeatherListViewModel" />
+            type="com.brian.weather.ui.viewmodel.WeatherListViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView

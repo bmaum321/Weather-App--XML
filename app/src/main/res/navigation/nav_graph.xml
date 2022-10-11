@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/weatherListFragment"
-        android:name="com.example.weather.ui.WeatherListFragment"
+        android:name="com.brian.weather.ui.WeatherListFragment"
         android:label="Places">
         <action
             android:id="@+id/action_weatherLocationListFragment_to_addWeatherLocationFragment"
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/addWeatherLocationFragment"
-        android:name="com.example.weather.ui.AddWeatherFragment"
+        android:name="com.brian.weather.ui.AddWeatherFragment"
         android:label="Add/Edit Location"
         tools:layout="@layout/fragment_add_weather_location">
         <action
@@ -47,7 +47,7 @@
     </fragment>
     <fragment
         android:id="@+id/weatherLocationDetailFragment"
-        android:name="com.example.weather.ui.DailyForecastFragment"
+        android:name="com.brian.weather.ui.DailyForecastFragment"
         android:label="Weather Details"
         tools:layout="@layout/fragment_weather_detail">
         <action
@@ -65,7 +65,7 @@
     </fragment>
     <fragment
         android:id="@+id/hourlyForecastFragment"
-        android:name="com.example.weather.ui.HourlyForecastFragment"
+        android:name="com.brian.weather.ui.HourlyForecastFragment"
         android:label="Hourly Forecast">
         <argument
             android:name="zipcode"
@@ -78,7 +78,7 @@
     <!--Settings fragment-->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.weather.ui.settings.SettingsFragment"
+        android:name="com.brian.weather.ui.settings.SettingsFragment"
         android:label="Settings" >
         <action
             android:id="@+id/action_settingsFragment_to_unitSettingsFragment"
@@ -93,15 +93,15 @@
         app:destination="@id/settingsFragment"/>
     <fragment
         android:id="@+id/unitSettingsFragment"
-        android:name="com.example.weather.ui.settings.UnitSettingsFragment"
+        android:name="com.brian.weather.ui.settings.UnitSettingsFragment"
         android:label="Unit Settings" />
     <fragment
         android:id="@+id/interfaceSettingsFragment"
-        android:name="com.example.weather.ui.settings.InterfaceSettingsFragment"
+        android:name="com.brian.weather.ui.settings.InterfaceSettingsFragment"
         android:label="Interface Settings" />
     <fragment
         android:id="@+id/alertFragment"
-        android:name="com.example.weather.ui.AlertFragment"
+        android:name="com.brian.weather.ui.AlertFragment"
         android:label="AlertFragment" >
         <argument
             android:name="zipcode"

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp"
     android:padding="16dp"
-    tools:context=".ui.AddWeatherFragment">
+    tools:context="com.brian.weather.ui.AddWeatherFragment">
 
 
     <LinearLayout

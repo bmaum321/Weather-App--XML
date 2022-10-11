@@ -7,11 +7,11 @@
 
         <variable
             name="forecast"
-            type="com.example.weather.ui.adapter.HourlyForecastItemViewData" />
+            type="com.brian.weather.ui.adapter.HourlyForecastItemViewData" />
 
         <variable
             name="viewModel"
-            type="com.example.weather.ui.viewmodel.WeatherListViewModel" />
+            type="com.brian.weather.ui.viewmodel.WeatherListViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView
