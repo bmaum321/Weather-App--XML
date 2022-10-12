@@ -1,8 +1,12 @@
 package com.brian.weather.ui.viewmodel
 
 import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Resources
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.brian.weather.data.WeatherDao
 import com.brian.weather.data.WeatherDatabase.Companion.getDatabase
@@ -14,6 +18,7 @@ import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.ui.adapter.HourlyForecastItemViewData
 import com.brian.weather.ui.settings.GetSettings
+import com.brian.weather.util.cancelNotifications
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,7 +36,7 @@ sealed class HourlyForecastViewData() {
  * [ViewModel] to provide data to the [WeatherLocationDetailFragment]
  */
 
-// Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
+// Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
@@ -50,9 +55,11 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
     }
 
-    fun getForecastForZipcode(zipcode: String,
-                              sharedPreferences: SharedPreferences,
-                              resources: Resources): Flow<HourlyForecastViewData> {
+    fun getForecastForZipcode(
+        zipcode: String,
+        sharedPreferences: SharedPreferences,
+        resources: Resources
+    ): Flow<HourlyForecastViewData> {
         return refreshFlow
             .flatMapLatest {
                 flow {

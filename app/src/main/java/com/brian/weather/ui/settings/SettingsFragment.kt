@@ -44,6 +44,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             findNavController().navigate(R.id.action_settingsFragment_to_interfaceSettingsFragment)
             true
         }
+        findPreference<Preference>("notifications")?.setOnPreferenceClickListener {
+            findNavController().navigate(R.id.action_settingsFragment_to_notificationSettingsFragment)
+            true
+        }
         findPreference<Preference>("about")?.setOnPreferenceClickListener {
             showAboutDialog()
             true

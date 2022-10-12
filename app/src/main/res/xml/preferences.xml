@@ -18,6 +18,14 @@
             app:allowDividerAbove="true"/>
 
         <Preference
+            app:icon="@drawable/ic_baseline_notifications_24"
+            app:key="notifications"
+            app:title="Notifications"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"
+            />
+
+        <Preference
             app:icon="@drawable/ic_baseline_help_24"
             app:key="about"
             app:title="About"

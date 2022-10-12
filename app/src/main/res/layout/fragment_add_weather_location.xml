@@ -43,7 +43,7 @@
         android:id="@+id/autoCompleteTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:completionThreshold="3"
+        android:completionThreshold="5"
         android:hint="@string/search_for_places"
         android:minHeight="48dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"

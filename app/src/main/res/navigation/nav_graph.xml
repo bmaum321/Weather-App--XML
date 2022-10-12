@@ -86,6 +86,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_interfaceSettingsFragment"
             app:destination="@id/interfaceSettingsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_notificationSettingsFragment"
+            app:destination="@id/notificationSettingsFragment" />
     </fragment>
 
     <!--Global action-->
@@ -107,5 +110,9 @@
             android:name="zipcode"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/notificationSettingsFragment"
+        android:name="com.brian.weather.ui.settings.NotificationSettingsFragment"
+        android:label="Notifications" />
 
 </navigation>

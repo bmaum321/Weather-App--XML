@@ -1,25 +1,18 @@
-/*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.brian.weather.ui
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +29,7 @@ import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.ui.viewmodel.withPreferenceConversion
 import com.brian.weather.ui.adapter.HourlyForecastAdapter
 import com.brian.weather.ui.adapter.HourlyForecastItemViewData
+import com.brian.weather.util.sendNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,6 +54,8 @@ class HourlyForecastFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by activityViewModels()
 
+
+
     private lateinit var weatherEntity: WeatherEntity
 
     private var _binding: FragmentHourlyForecastBinding? = null
@@ -72,6 +68,14 @@ class HourlyForecastFragment : Fragment() {
         _binding = FragmentHourlyForecastBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
         binding.lifecycleOwner = viewLifecycleOwner
+
+        // Create channel for precipitation notifications
+        createChannel(
+            getString(R.string.precipitation_notification_channel_id),
+            getString(R.string.precipitation_notification_channel_name)
+        )
+
+
         return binding.root
     }
 
@@ -101,12 +105,14 @@ class HourlyForecastFragment : Fragment() {
                              * and submit to the list adapter for display
                              */
 
-                            adapter.submitList(it.forecastDomainObject.days.first { it.date == date }.hour.map {
+                            adapter.submitList(it.forecastDomainObject.days
+                                .first { it.date == date }.hour.map {
                                 HourlyForecastItemViewData(it)
                                     .withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(requireContext()),
                                         resources)
                             })
-                            mainViewModel.updateActionBarTitle(it.forecastDomainObject.days.first { it.date == date }.date) // Update title bar with day of week
+                            mainViewModel.updateActionBarTitle(it.forecastDomainObject.days
+                                .first { it.date == date }.date) // Update title bar with day of week
                             binding.apply {
                                 recyclerView.adapter = adapter
                                 swipeRefresh.setOnRefreshListener {
@@ -114,6 +120,22 @@ class HourlyForecastFragment : Fragment() {
                                     binding.swipeRefresh.isRefreshing = false
                                 }
                                 statusImage.visibility = View.GONE
+                                addWeatherFab.setOnClickListener {
+                                    sendNotification(requireContext(), context?.getText(R.string.precipitation_notification)
+                                        .toString())
+                                }
+                            }
+
+                            // Send notification for when rain will start TODO need to tie this to a local setting
+                            // This needs to be moved to main activity? so it can be sent without the fragment being accessed or the main weatherlist
+                            val willItRainToday = mutableListOf<Int>()
+                            it.forecastDomainObject.days.first { it.date == date }.hour.forEach { hour ->
+                                willItRainToday.add(hour.will_it_rain)
+                            }
+
+                            if (willItRainToday.contains(1)) {
+                                val timeOfRain = it.forecastDomainObject.days.first { it.date == date }.hour.first { it.will_it_rain == 1 }.time
+                                sendNotification(requireContext(), "Expect Rain Around $timeOfRain")
                             }
                         }
                         is HourlyForecastViewData.Error -> {
@@ -142,5 +164,47 @@ class HourlyForecastFragment : Fragment() {
     private fun refreshScreen() {
         viewModel.refresh()
     }
+
+    private fun sendNotification(context: Context, text: String) {
+
+        // New instance of notification manager
+        val notificationManager = context.let {
+            ContextCompat.getSystemService(
+                it,
+                NotificationManager::class.java
+            )
+        } as NotificationManager
+
+        if (activity?.let { checkSelfPermission(it, android.Manifest.permission.POST_NOTIFICATIONS) } == PackageManager.PERMISSION_GRANTED) {
+          notificationManager.sendNotification(text, context)
+        }
+    }
+
+    private fun createChannel(channelId: String, channelName: String) {
+        // TODO: Step 1.6 START create a channel
+        val notificationChannel = NotificationChannel(
+            channelId,
+            channelName,
+            // TODO: Step 2.4 change importance
+            NotificationManager.IMPORTANCE_HIGH
+        )// TODO: Step 2.6 disable badges for this channel
+            .apply {
+                setShowBadge(false)
+            }
+
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.RED
+        notificationChannel.enableVibration(true)
+        notificationChannel.description = getString(R.string.precipitation_notification_channel_description)
+
+        val notificationManager = requireActivity().getSystemService(
+            NotificationManager::class.java
+        )
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+
+
 }
+
+
 
