@@ -88,5 +88,8 @@ dependencies {
     //Preferences
     implementation "androidx.preference:preference-ktx:1.2.0"
 
+    // WorkManager dependency
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
 
 }
