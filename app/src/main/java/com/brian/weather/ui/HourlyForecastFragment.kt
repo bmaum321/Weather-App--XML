@@ -181,13 +181,13 @@ class HourlyForecastFragment : Fragment() {
     }
 
     private fun createChannel(channelId: String, channelName: String) {
-        // TODO: Step 1.6 START create a channel
+        //  create a channel
         val notificationChannel = NotificationChannel(
             channelId,
             channelName,
-            // TODO: Step 2.4 change importance
+            //  change importance
             NotificationManager.IMPORTANCE_HIGH
-        )// TODO: Step 2.6 disable badges for this channel
+        )// disable badges for this channel
             .apply {
                 setShowBadge(false)
             }

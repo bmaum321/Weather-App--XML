@@ -36,12 +36,12 @@ fun NotificationManager.sendNotification(messageBody: String, applicationContext
     )
 
     // TODO: Step 2.0 add style
-    val eggImage = BitmapFactory.decodeResource(
+    val rainImage = BitmapFactory.decodeResource(
         applicationContext.resources,
         R.drawable.ic_rain_svgrepo_com
     )
     val bigPicStyle = NotificationCompat.BigPictureStyle()
-        .bigPicture(eggImage)
+        .bigPicture(rainImage)
         .bigLargeIcon(null)
 
     // TODO: Step 1.2 get an instance of NotificationCompat.Builder
@@ -65,7 +65,7 @@ fun NotificationManager.sendNotification(messageBody: String, applicationContext
 
         // TODO: Step 2.1 add style to builder
         .setStyle(bigPicStyle)
-        .setLargeIcon(eggImage)
+        .setLargeIcon(rainImage)
 
         // TODO: Step 2.5 set priority
         .setPriority(NotificationCompat.PRIORITY_HIGH)

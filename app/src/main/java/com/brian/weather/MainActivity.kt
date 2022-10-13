@@ -1,14 +1,12 @@
 package com.brian.weather
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +15,18 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.example.weather.databinding.ActivityMainBinding
 import com.brian.weather.ui.viewmodel.MainViewModel
+import com.brian.weather.util.Constants.TAG_OUTPUT
+import com.brian.weather.workers.DailyWorker
 import com.example.weather.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * A Main activity that hosts all [Fragment]s for this application and hosts the nav controller.
@@ -30,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
+
+    // Request for notifications permission upon launch
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             hasNotificationPermissionGranted = isGranted
@@ -46,8 +54,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSettingDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Notification Permission")
-            .setMessage("Notification permission is required, Please allow notification permission from settings")
+            .setTitle(getString(R.string.notification_permission_dialog_title))
+            .setMessage(getString(R.string.notification_permission_required))
             .setPositiveButton("Ok") { _, _ ->
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = Uri.parse("package:$packageName")
@@ -61,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Alert")
-            .setMessage("Notification permission is required, to show notifications")
+            .setMessage(getString(R.string.notification_permission_dialog))
             .setPositiveButton("Ok") { _, _ ->
                 if (Build.VERSION.SDK_INT >= 33) {
                     notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -71,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    var hasNotificationPermissionGranted = false
+    private var hasNotificationPermissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +112,29 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.title.observe(this) {
             supportActionBar?.title = it
         }
+
+
+        // Run daily worker job
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val currentDate = Calendar.getInstance()
+        val dueDate = Calendar.getInstance()
+        // Set Execution around 05:00:00 AM
+        dueDate.set(Calendar.HOUR_OF_DAY, 5)
+        dueDate.set(Calendar.MINUTE, 0)
+        dueDate.set(Calendar.SECOND, 0)
+        if (dueDate.before(currentDate)) {
+            dueDate.add(Calendar.HOUR_OF_DAY, 24)
+        }
+        val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+        val request = OneTimeWorkRequest.Builder(DailyWorker::class.java)
+            .setConstraints(constraints)
+            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+            .addTag(TAG_OUTPUT)
+            .build()
+        WorkManager.getInstance().enqueue(request)
 
 
     }

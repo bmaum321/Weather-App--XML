@@ -7,5 +7,6 @@ package com.brian.weather.util
         const val ERRORTEXT = "Cannot add location, check network connection or zipcode"
         const val TRIGGER_AUTO_COMPLETE = 100
         const val AUTO_COMPLETE_DELAY: Long = 300
+        const val TAG_OUTPUT = "Daily worker ran"
 
     }
