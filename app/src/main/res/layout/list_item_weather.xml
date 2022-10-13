@@ -40,7 +40,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="115dp"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp">
 

@@ -2,13 +2,26 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <CheckBoxPreference
-        app:icon="@drawable/ic_rain_svgrepo_com"
         app:allowDividerAbove="true"
         app:allowDividerBelow="true"
         app:defaultValue="true"
         app:enabled="true"
         app:key="@string/show_precipitation_notifications"
-        app:title="Show Precipitation Notifications?" />
+        app:title="Show Precipitation Notifications?"
+       />
+
+    <com.brian.weather.ui.settings.LocationListPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:dialogTitle="Locations"
+        app:defaultValue="@array/empty_array"
+        app:key="locations"
+        app:title="Notification Locations"
+        app:summary="Choose which locations to show notifications"
+        app:dependency="@string/show_precipitation_notifications"/>
+
+
+
 
 
 </PreferenceScreen>

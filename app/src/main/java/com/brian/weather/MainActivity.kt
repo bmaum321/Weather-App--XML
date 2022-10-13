@@ -15,10 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import com.example.weather.databinding.ActivityMainBinding
 import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.util.Constants.TAG_OUTPUT
@@ -37,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
 
-    // Request for notifications permission upon launch
+    // Request for notifications permission upon runtime
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             hasNotificationPermissionGranted = isGranted
@@ -134,7 +131,14 @@ class MainActivity : AppCompatActivity() {
             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .addTag(TAG_OUTPUT)
             .build()
-        WorkManager.getInstance().enqueue(request)
+        WorkManager.getInstance().enqueueUniqueWork(
+            "dailyApiCall",
+            ExistingWorkPolicy.KEEP,
+            request)
+
+
+
+
 
 
     }

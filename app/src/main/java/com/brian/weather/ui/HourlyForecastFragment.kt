@@ -120,10 +120,13 @@ class HourlyForecastFragment : Fragment() {
                                     binding.swipeRefresh.isRefreshing = false
                                 }
                                 statusImage.visibility = View.GONE
+                                /*
                                 addWeatherFab.setOnClickListener {
                                     sendNotification(requireContext(), context?.getText(R.string.precipitation_notification)
                                         .toString())
                                 }
+
+                                 */
                             }
 
                             // Send notification for when rain will start TODO need to tie this to a local setting

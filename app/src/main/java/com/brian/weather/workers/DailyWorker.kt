@@ -1,6 +1,7 @@
 package com.brian.weather.workers
 
 import android.Manifest
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -9,9 +10,16 @@ import android.graphics.Color
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.preference.PreferenceManager
 import androidx.work.*
+import com.brian.weather.data.WeatherDao
+import com.brian.weather.data.WeatherDatabase
+import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.util.sendNotification
 import com.example.weather.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -31,6 +39,7 @@ class DailyWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
                 NotificationManager::class.java
             )
         } as NotificationManager
+
 
         if (applicationContext.let {
                 PermissionChecker.checkSelfPermission(
@@ -67,14 +76,32 @@ class DailyWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
 
     override fun doWork(): Result {
 
+        //Jobs will fail if I pass wewather dao in worker primary constructor, so not sure how I can
+        //make API calls here without restructuring or moving  this into one of the view models
         // Do some work
-        createChannel("WorkManager Channel", "WorkManager")
-        sendNotification(applicationContext, "From Work Manager: Expect Rain Around 7:00PM")
+        if (PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                .getBoolean(
+                    applicationContext.getString(R.string.show_precipitation_notifications),
+                    true
+                )
+        ) {
+            val weatherRepository = WeatherRepository(WeatherDatabase.getDatabase(Application()))
+            createChannel("WorkManager Channel", "WorkManager")
+            sendNotification(applicationContext, "From Work Manager: Expect Rain Around 7:00PM")
+
+            CoroutineScope(Dispatchers.IO).launch {
+              //  val locations = weatherDao.getZipcodesStatic()
+                val response = weatherRepository.getForecast("13088") //TODO test
+            }
+
+
+
+        }
+
 
 
         // The worker will enqueue the next execution of this work when we complete successfully
         // This is more time accurate than a periodic work request?
-        // Dont know if I need to worry about unique work requests because this is a one time work request
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
         // Set Execution around 05:00:00 AM
@@ -97,7 +124,10 @@ class DailyWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
             .addTag(TAGOUTPUT)
             .build()
         WorkManager.getInstance(applicationContext)
-            .enqueue(dailyWorkRequest)
+            .enqueueUniqueWork(
+                "nestedDailyApiCall",
+                ExistingWorkPolicy.KEEP,
+                dailyWorkRequest)
         return Result.success()
     }
 }
