@@ -1,7 +1,10 @@
 package com.brian.weather.repository
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.brian.weather.data.WeatherDatabase
 import com.brian.weather.domain.WeatherDomainObject
 import com.brian.weather.domain.asDomainModel
@@ -44,5 +47,19 @@ class WeatherRepository(private val database: WeatherDatabase) {
         }
         return weatherDomainObjects
     }
+
+    /*
+    class TestWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+
+        override suspend fun doWork(): Result {
+            val userId = inputData.getInt("USER_ID")
+            val userName = inputData.getString("USER_NAME")
+            val userLastname = inputData.getString("USER_LAST_NAME")
+            Appdatabase.getInstance().userDao.updateUser(userId, userName, userLastname)
+            return Result.success()
+        }
+    }
+
+     */
 
 }

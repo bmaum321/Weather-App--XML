@@ -5,7 +5,9 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Color
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
@@ -76,8 +78,10 @@ class DailyWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
 
     override fun doWork(): Result {
 
-        //Jobs will fail if I pass wewather dao in worker primary constructor, so not sure how I can
-        //make API calls here without restructuring or moving  this into one of the view models
+        // Should this be a coroutine worker instead?
+        // Should this live in a viewmodel? I want this to get intansiated at runtime (mainviewmodel?)
+
+
         // Do some work
         if (PreferenceManager.getDefaultSharedPreferences(applicationContext)
                 .getBoolean(
@@ -90,8 +94,12 @@ class DailyWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
             sendNotification(applicationContext, "From Work Manager: Expect Rain Around 7:00PM")
 
             CoroutineScope(Dispatchers.IO).launch {
-              //  val locations = weatherDao.getZipcodesStatic()
-                val response = weatherRepository.getForecast("13088") //TODO test
+                val locations = WeatherDatabase.getDatabase(applicationContext).weatherDao().getZipcodesStatic()
+                val response = weatherRepository.getWeatherListForZipCodes(
+                    locations,
+                    Resources.getSystem(),
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                )
             }
 
 

@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
         val request = OneTimeWorkRequest.Builder(DailyWorker::class.java)
             .setConstraints(constraints)
-            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+           // .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .addTag(TAG_OUTPUT)
             .build()
         WorkManager.getInstance().enqueueUniqueWork(
