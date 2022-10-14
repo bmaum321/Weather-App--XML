@@ -50,7 +50,6 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
             .asLiveData()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun getForecastForZipcode(zipcode: String,
                               sharedPreferences: SharedPreferences,
                               resources: Resources)

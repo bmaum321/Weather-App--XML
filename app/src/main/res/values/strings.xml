@@ -42,6 +42,7 @@
     <string name="show_current_condition_color">Show Condition Colors</string>
     <string name="show_precipitation_notifications">Show Precipitation Notifications?</string>
     <string name="USA2">USA United States of America</string>
+    <string name="default_notification_channel_id">Weather Default Channel</string>
     <string name="precipitation_notification">Expect rain soon</string>
     <string name="precipitation_notification_channel_id" translatable="false">precipitation_channel</string>
     <string name="precipitation_notification_channel_name" translatable="true">Precipitation</string>

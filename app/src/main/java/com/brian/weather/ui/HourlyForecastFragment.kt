@@ -53,11 +53,7 @@ class HourlyForecastFragment : Fragment() {
     }
 
     private val mainViewModel: MainViewModel by activityViewModels()
-
-
-
     private lateinit var weatherEntity: WeatherEntity
-
     private var _binding: FragmentHourlyForecastBinding? = null
     private val binding get() = _binding!!
 
@@ -68,13 +64,6 @@ class HourlyForecastFragment : Fragment() {
         _binding = FragmentHourlyForecastBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
         binding.lifecycleOwner = viewLifecycleOwner
-
-        // Create channel for precipitation notifications
-        createChannel(
-            getString(R.string.precipitation_notification_channel_id),
-            getString(R.string.precipitation_notification_channel_name)
-        )
-
 
         return binding.root
     }
@@ -120,26 +109,8 @@ class HourlyForecastFragment : Fragment() {
                                     binding.swipeRefresh.isRefreshing = false
                                 }
                                 statusImage.visibility = View.GONE
-                                /*
-                                addWeatherFab.setOnClickListener {
-                                    sendNotification(requireContext(), context?.getText(R.string.precipitation_notification)
-                                        .toString())
-                                }
-
-                                 */
                             }
 
-                            // Send notification for when rain will start TODO need to tie this to a local setting
-                            // This needs to be moved to main activity? so it can be sent without the fragment being accessed or the main weatherlist
-                            val willItRainToday = mutableListOf<Int>()
-                            it.forecastDomainObject.days.first { it.date == date }.hour.forEach { hour ->
-                                willItRainToday.add(hour.will_it_rain)
-                            }
-
-                            if (willItRainToday.contains(1)) {
-                                val timeOfRain = it.forecastDomainObject.days.first { it.date == date }.hour.first { it.will_it_rain == 1 }.time
-                                sendNotification(requireContext(), "Expect Rain Around $timeOfRain")
-                            }
                         }
                         is HourlyForecastViewData.Error -> {
                             binding.apply {
@@ -167,46 +138,6 @@ class HourlyForecastFragment : Fragment() {
     private fun refreshScreen() {
         viewModel.refresh()
     }
-
-    private fun sendNotification(context: Context, text: String) {
-
-        // New instance of notification manager
-        val notificationManager = context.let {
-            ContextCompat.getSystemService(
-                it,
-                NotificationManager::class.java
-            )
-        } as NotificationManager
-
-        if (activity?.let { checkSelfPermission(it, android.Manifest.permission.POST_NOTIFICATIONS) } == PackageManager.PERMISSION_GRANTED) {
-          notificationManager.sendNotification(text, context)
-        }
-    }
-
-    private fun createChannel(channelId: String, channelName: String) {
-        //  create a channel
-        val notificationChannel = NotificationChannel(
-            channelId,
-            channelName,
-            //  change importance
-            NotificationManager.IMPORTANCE_HIGH
-        )// disable badges for this channel
-            .apply {
-                setShowBadge(false)
-            }
-
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.RED
-        notificationChannel.enableVibration(true)
-        notificationChannel.description = getString(R.string.precipitation_notification_channel_description)
-
-        val notificationManager = requireActivity().getSystemService(
-            NotificationManager::class.java
-        )
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
-
-
 }
 
 
