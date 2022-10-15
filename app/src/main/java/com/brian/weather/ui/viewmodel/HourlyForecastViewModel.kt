@@ -1,12 +1,8 @@
 package com.brian.weather.ui.viewmodel
 
 import android.app.Application
-import android.app.NotificationManager
-import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.content.res.Resources
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.brian.weather.data.WeatherDao
 import com.brian.weather.data.WeatherDatabase.Companion.getDatabase
@@ -18,7 +14,6 @@ import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.ui.adapter.HourlyForecastItemViewData
 import com.brian.weather.ui.settings.GetSettings
-import com.brian.weather.util.cancelNotifications
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -107,6 +102,7 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
     sharedPreferences: SharedPreferences,
     resources: Resources
 ): HourlyForecastItemViewData {
+    val isFahrenheit = GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)
     if (!GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
         hour.temp_f = hour.temp_c
         hour.feelslike_f = hour.feelslike_c
@@ -150,9 +146,21 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
             windchill_c = hour.windchill_c,
             windchill_f = hour.windchill_f
 
-        )
+        ),
+        //TODO
+        //hoursViewData = HoursViewData( //
+        //    temperature = if(isFahrenheit) {
+       //        "${hour.temp_f}"
+        //    } else "${hour.temp_c}"
+    //    )
     )
 }
+
+data class HoursViewData(
+    val temperature: String = ""
+)
+
+
 
 
 

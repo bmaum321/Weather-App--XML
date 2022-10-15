@@ -23,6 +23,7 @@ import com.brian.weather.workers.DailyPrecipitationWorker
 import com.example.weather.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * A Main activity that hosts all [Fragment]s for this application and hosts the nav controller.
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
         val request = OneTimeWorkRequest.Builder(DailyPrecipitationWorker::class.java)
             .setConstraints(constraints)
-           // .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .addTag(TAG_OUTPUT)
             .build()
         WorkManager.getInstance().enqueueUniqueWork(

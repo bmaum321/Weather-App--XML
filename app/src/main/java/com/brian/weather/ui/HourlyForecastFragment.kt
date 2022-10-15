@@ -23,12 +23,9 @@ import com.brian.weather.data.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentHourlyForecastBinding
 import com.brian.weather.model.WeatherEntity
-import com.brian.weather.ui.viewmodel.HourlyForecastViewData
-import com.brian.weather.ui.viewmodel.HourlyForecastViewModel
-import com.brian.weather.ui.viewmodel.MainViewModel
-import com.brian.weather.ui.viewmodel.withPreferenceConversion
 import com.brian.weather.ui.adapter.HourlyForecastAdapter
 import com.brian.weather.ui.adapter.HourlyForecastItemViewData
+import com.brian.weather.ui.viewmodel.*
 import com.brian.weather.util.sendNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,7 +90,6 @@ class HourlyForecastFragment : Fragment() {
                              * Find hour list matching the date passed from the previous fragment
                              * and submit to the list adapter for display
                              */
-
                             adapter.submitList(it.forecastDomainObject.days
                                 .first { it.date == date }.hour.map {
                                 HourlyForecastItemViewData(it)

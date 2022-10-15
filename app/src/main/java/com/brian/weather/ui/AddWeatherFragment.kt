@@ -111,7 +111,7 @@ class AddWeatherFragment : Fragment() {
                 count: Int
             ) {
                 handler?.removeMessages(Constants.TRIGGER_AUTO_COMPLETE)
-                handler?.sendEmptyMessageDelayed(
+                handler?.sendEmptyMessageDelayed( //TODO can use a mutable state flow here
                     Constants.TRIGGER_AUTO_COMPLETE,
                     Constants.AUTO_COMPLETE_DELAY
                 )

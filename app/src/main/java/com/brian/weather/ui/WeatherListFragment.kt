@@ -177,6 +177,7 @@ class WeatherListFragment : Fragment() {
             }
 
 
+            //TODO try to delete the item from the preferences here? and on delete button as well
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
 
                 //Remove swiped item from list and notify the RecyclerView

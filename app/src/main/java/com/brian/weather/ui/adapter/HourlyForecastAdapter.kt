@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.R
 import com.example.weather.databinding.HourlyForecastListItemNewBinding
 import com.brian.weather.model.Hours
+import com.brian.weather.ui.viewmodel.HoursViewData
 
 /**
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
@@ -86,12 +87,13 @@ class HourlyForecastAdapter(
 }
 
 /**
- * TODO pass in units to primary constructor to modify the unit values
+ * TODO pass in a new data class that contains final view data to primary constructor to modify the unit values
  */
 
 data class HourlyForecastItemViewData(
     val hour: Hours,
-    var precipUnit: String = "IN"
+    var precipUnit: String = "IN",
+   // val hoursViewData: HoursViewData
 ) {
     val temp = hour.temp_f.toInt().toString()
     val wind = hour.wind_mph.toString()

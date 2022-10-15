@@ -18,8 +18,8 @@ import com.brian.weather.util.sendNotification
 import com.example.weather.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.security.AccessController.getContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,7 +32,6 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
      */
 
     override fun doWork(): Result {
-        createChannel("Precipitation Notifications", "Precipitation Notifications")
         var workerResult = Result.success() // worker result is success by default
 
         // Should this be a coroutine worker instead?
@@ -47,13 +46,33 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                     true
                 )
         ) {
+            // Make copy of preferences
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            val editor = sharedPref.edit()
             // Get list of selected locations to track from preferences
-            val selectedLocations =
+            val setFromSharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(applicationContext).getStringSet(
                     "locations",
                     null
-                )?.toList()
-                    ?.drop(2) // the getstringset adds 2 numbers to the beginning of the collection?
+                )
+            val copyOfSet = setFromSharedPreferences?.toMutableSet()
+            val selectedLocations =
+                setFromSharedPreferences//?.toList()?.drop(2) // the getstringset adds 2 numbers to the beginning of the collection? now it isnt?
+
+            //TODO there is a bug here, becasue it can add locations that arent checked in preferences. The main issue
+            // here seems to be when a location is deleted from the database, it isn't deleted from the preferences
+            // Put copy back in preferences
+            val newLocationsFromDB = WeatherDatabase.getDatabase(applicationContext).weatherDao().getZipcodesStatic().toMutableSet()
+            editor.putStringSet("locations", newLocationsFromDB)
+            editor.commit()
+
+
+            /**
+             * seems like I cant modify collection without creating issues. I need to make a copy of it
+             * Issue documented here:
+             * http://developer.android.com/reference/android/content/SharedPreferences.html#getStringSet%28java.lang.String,%20java.util.Set%3Cjava.lang.String%3E%29
+             */
+
             val weatherRepository =
                 WeatherRepository(WeatherDatabase.getDatabase(applicationContext))
 
@@ -69,6 +88,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                 // Check if database is empty
                 if (selectedLocations != null) {
                     if (selectedLocations.isNotEmpty()) {
+                        selectedLocations.forEach { println(it) }
                         selectedLocations.forEach { location -> // for each selected notification send a precipitation notification
                             when (val response =
                                 weatherRepository.getForecast(location)) {
@@ -118,8 +138,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                 }
 
                 if (notificationBuilder.isNotEmpty()) {
-                   // createChannel("Precipitation Notifications", "Precipitation Notifications")
-                   // delay(3000) //trying delay here
+                    createChannel(applicationContext.getString(R.string.precipitation_notification_channel_id), "Precipitation Notifications")
                     sendNotification(
                         applicationContext,
                         notificationBuilder
