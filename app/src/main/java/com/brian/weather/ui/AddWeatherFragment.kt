@@ -18,6 +18,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import com.brian.weather.data.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentAddWeatherLocationBinding
@@ -161,6 +162,22 @@ class AddWeatherFragment : Fragment() {
 
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
+        // Delete the location from the shared preferences set
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val editor = sharedPref.edit()
+        val location = weather.zipCode
+        val setFromSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringSet(
+                "locations",
+                null
+            )
+        // get a copy of shared preferences
+        val copyOfSet = setFromSharedPreferences?.toMutableSet()
+        // remove the location from shared preferences
+        copyOfSet?.remove(location)
+        // commit back to preferences
+        editor.putStringSet("locations", copyOfSet)
+        editor.apply()
         findNavController().navigate(
             R.id.action_addWeatherFragment_to_WeatherListFragment
         )

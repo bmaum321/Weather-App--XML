@@ -1,26 +1,36 @@
 package com.brian.weather
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.work.*
-import com.example.weather.databinding.ActivityMainBinding
 import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.util.Constants.TAG_OUTPUT
 import com.brian.weather.workers.DailyPrecipitationWorker
 import com.example.weather.R
+import com.example.weather.databinding.ActivityMainBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -32,6 +42,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // The request code used in ActivityCompat.requestPermissions()
+// and returned in the Activity's onRequestPermissionsResult()
+
 
 
     // Request for notifications permission upon runtime
@@ -78,6 +93,9 @@ class MainActivity : AppCompatActivity() {
 
     private var hasNotificationPermissionGranted = false
 
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -88,9 +106,12 @@ class MainActivity : AppCompatActivity() {
         // Display dialog to allow permissions on launch
         if (Build.VERSION.SDK_INT >= 33) {
             notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            requestLocationPermissions()
         } else {
             hasNotificationPermissionGranted = true
         }
+
+
 
 
 
@@ -110,8 +131,15 @@ class MainActivity : AppCompatActivity() {
             supportActionBar?.title = it
         }
 
+        /**
+         * Daily worker for local weather forecast notifications
+         */
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            getCurrentLocation()
 
-        // Run daily worker job
+        /**
+         * Daily worker for precipitation notifications
+         */
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -134,9 +162,101 @@ class MainActivity : AppCompatActivity() {
         WorkManager.getInstance().enqueueUniqueWork(
             "dailyApiCall",
             ExistingWorkPolicy.KEEP,
-            request)
+            request
+        )
 
     }
+
+    private fun getCurrentLocation(): Location? {
+        var location: Location? = null
+        if (checkLocationPermissions()) {
+            if (isLocationEnabled()) {
+                // final latitude and longitude values retrieved here
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestLocationPermissions()
+                }
+                fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
+                    location = task.result
+                    if(location==null) {
+                        Toast.makeText(this, "Null Received", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Location Retrieved", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            } else {
+                // settings open here
+                Toast.makeText(this, "Turn on location", Toast.LENGTH_SHORT).show()
+                val intent= Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            }
+
+        } else {
+            // request location permission here if not granted
+            requestLocationPermissions()
+        }
+        return location
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    private fun requestLocationPermissions() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION),
+            PERMISSION_REQUEST_ACCESS_LOCATION
+        )
+    }
+
+    companion object {
+        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
+    }
+
+    private fun checkLocationPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+/*
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(applicationContext, "Granted", Toast.LENGTH_SHORT).show()
+                getCurrentLocation() //TODO
+            }
+            else {
+                Toast.makeText(applicationContext, "Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+ */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

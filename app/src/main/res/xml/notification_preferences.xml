@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+    <CheckBoxPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="true"
+        app:enabled="true"
+        app:key="@string/show_local_forecast"
+        app:title="Show Local Forecast?"
+        app:summary="Get daily notifications for local forecast"
+        />
+
     <CheckBoxPreference
         app:allowDividerAbove="true"
         app:allowDividerBelow="true"

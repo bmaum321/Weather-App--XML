@@ -41,6 +41,7 @@
     <string name="UK_Acronym">UK</string>
     <string name="show_current_condition_color">Show Condition Colors</string>
     <string name="show_precipitation_notifications">Show Precipitation Notifications?</string>
+    <string name="show_local_forecast">Show Local Forecast Notifications?</string>
     <string name="USA2">USA United States of America</string>
     <string name="default_notification_channel_id">Weather Default Channel</string>
     <string name="precipitation_notification">Expect rain soon</string>
@@ -49,6 +50,7 @@
     <string name="breakfast_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="breakfast_notification_channel_name" translatable="true">Breakfast</string>
     <string name="precipitation_notification_channel_description">Precipitation Notification</string>
+    <string name="local_notification_channel_description">Local Forecast Notification</string>
     <string name="snooze">Snooze</string>
     <string name="notification_title">Precipitation Alert</string>
     <string name="notification_text">Expect Rain Soon</string>

@@ -267,6 +267,22 @@ class WeatherListFragment : Fragment() {
 
     private fun deleteWeather(weather: WeatherEntity) {
         viewModel.deleteWeather(weather)
+        // Delete the location from the shared preferences set
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val editor = sharedPref.edit()
+        val location = weather.zipCode
+        val setFromSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringSet(
+                "locations",
+                null
+            )
+        // get a copy of shared preferences
+        val copyOfSet = setFromSharedPreferences?.toMutableSet()
+        // remove the location from shared preferences
+        copyOfSet?.remove(location)
+        // commit back to preferences
+        editor.putStringSet("locations", copyOfSet)
+        editor.apply()
     }
 
 }
