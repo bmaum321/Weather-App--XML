@@ -32,17 +32,16 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
 
     override fun doWork(): Result {
         var workerResult = Result.success() // worker result is success by default
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val resources = applicationContext.resources
 
         // Do some work
         // Only execute and schedule next job if show notifications is checked in preferences
-        if (PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                .getBoolean(
-                    applicationContext.getString(R.string.show_precipitation_notifications),
-                    true
-                )
+        if (preferences.getBoolean("show_notifications", true) &&
+            preferences.getBoolean(applicationContext.getString(R.string.show_precipitation_notifications), true)
         ) {
             val setFromSharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(applicationContext).getStringSet(
+                preferences.getStringSet(
                     "locations",
                     null
                 )
@@ -67,10 +66,8 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                                 weatherRepository.getForecast(location)) {
                                 is ApiResponse.Success -> {
                                     val forecastDomainObject = response.data.asDomainModel(
-                                        PreferenceManager.getDefaultSharedPreferences(
-                                            applicationContext
-                                        ),
-                                        applicationContext.resources
+                                        preferences,
+                                        resources
                                     )
                                     val willItRainToday = mutableListOf<Int>()
                                     forecastDomainObject.days.first().hour.forEach { hour ->
@@ -122,7 +119,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                 }
             }
 
-
+/*
             // The worker will enqueue the next execution of this work when we complete successfully
             // This is more time accurate than a periodic work request?
             val currentDate = Calendar.getInstance()
@@ -152,6 +149,8 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                     ExistingWorkPolicy.KEEP,
                     dailyWorkRequest
                 )
+
+ */
 
         }
         return workerResult // can be success or failure depending on API call

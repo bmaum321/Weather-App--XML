@@ -2,6 +2,16 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
+
+    <CheckBoxPreference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:defaultValue="true"
+        app:enabled="true"
+        app:key="show_notifications"
+        app:title="Show Notifications?"
+        />
+
     <CheckBoxPreference
         app:allowDividerAbove="true"
         app:allowDividerBelow="true"
@@ -10,6 +20,7 @@
         app:key="@string/show_local_forecast"
         app:title="Show Local Forecast?"
         app:summary="Get daily notifications for local forecast"
+        app:dependency="show_notifications"
         />
 
     <CheckBoxPreference
@@ -19,6 +30,7 @@
         app:enabled="true"
         app:key="@string/show_precipitation_notifications"
         app:title="Show Precipitation Notifications?"
+        app:dependency="show_notifications"
        />
 
     <com.brian.weather.ui.settings.LocationListPreference

@@ -14,6 +14,7 @@ import com.brian.weather.data.WeatherDatabase
 import com.brian.weather.domain.asDomainModel
 import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
+import com.brian.weather.ui.settings.GetSettings
 import com.brian.weather.util.sendForecastNotification
 import com.brian.weather.util.sendPrecipitationNotification
 import com.example.weather.R
@@ -32,47 +33,60 @@ class DailyLocalWeatherWorker(ctx: Context, params: WorkerParameters) : Worker(c
         var workerResult = Result.success() // worker result is success by default
         var city = ""
         var imgUrl = ""
+        var notificationBuilder = ""
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val resources = applicationContext.resources
 
         // Do some work
         // Only execute and schedule next job if checked in preferences
-        if (PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                .getBoolean(
-                    applicationContext.getString(R.string.show_local_forecast),
-                    true
-                )
+        if (preferences.getBoolean("show_notifications", true) && preferences
+                .getBoolean(applicationContext.getString(R.string.show_local_forecast), true)
         ) {
             val location = inputData.getDoubleArray("location")
 
             // Only do work if location returned is not null
             if (location != null) {
+                // API can take latitude and longitude values separated by comma
                 val coordinates = location[0].toString() + "," + location[1].toString()
-
 
                 val weatherRepository =
                     WeatherRepository(WeatherDatabase.getDatabase(applicationContext))
-
-                var notificationBuilder = ""
 
                 CoroutineScope(Dispatchers.IO).launch {
                     when (val response =
                         weatherRepository.getForecast(coordinates)) {
                         is ApiResponse.Success -> {
                             val forecastDomainObject = response.data.asDomainModel(
-                                PreferenceManager.getDefaultSharedPreferences(
-                                    applicationContext
-                                ),
-                                applicationContext.resources
+                                preferences,
+                                resources
                             )
-                             city = weatherRepository.getWeather(
+                            city = weatherRepository.getWeather(
                                 coordinates,
-                                applicationContext.resources,
-                                PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                                resources,
+                                preferences
                             ).location
-                            val maxTemp = forecastDomainObject.days[0].day.maxtemp_f.toInt().toString()
-                            val minTemp = forecastDomainObject.days[0].day.mintemp_f.toInt().toString()
-                            val conditon = forecastDomainObject.days[0].day.condition.text.toString()
+                            //TODO need to check unit settings here
+                            var maxTemp = ""
+                            var minTemp = ""
+                            if (GetSettings().getTemperatureFormatFromPreferences
+                                    (
+                                    preferences,
+                                    resources
+                                )
+                            ) {
+                                maxTemp =
+                                    forecastDomainObject.days[0].day.maxtemp_f.toInt().toString()
+                                minTemp =
+                                    forecastDomainObject.days[0].day.mintemp_f.toInt().toString()
+                            } else {
+                                maxTemp =
+                                    forecastDomainObject.days[0].day.maxtemp_c.toInt().toString()
+                                minTemp =
+                                    forecastDomainObject.days[0].day.mintemp_c.toInt().toString()
+                            }
+                            val condition = forecastDomainObject.days[0].day.condition.text
                             imgUrl = forecastDomainObject.days[0].day.condition.icon
-                            notificationBuilder += "$minTemp\u00B0 / $maxTemp\u00B0 - $conditon"
+                            notificationBuilder += "$minTemp\u00B0 / $maxTemp\u00B0 - $condition"
 
 
                         }
@@ -85,7 +99,7 @@ class DailyLocalWeatherWorker(ctx: Context, params: WorkerParameters) : Worker(c
                     if (notificationBuilder.isNotEmpty()) {
                         createChannel(
                             applicationContext.getString(R.string.forecast_notification_channel_id),
-                            "Local Forecast Notifications"
+                            applicationContext.getString(R.string.forecast_notification_channel_name)
                         )
                         sendNotification(
                             applicationContext,

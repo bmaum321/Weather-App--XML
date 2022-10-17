@@ -3,26 +3,26 @@ package com.brian.weather
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.location.LocationManagerCompat
-import androidx.core.location.LocationManagerCompat.getCurrentLocation
-import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.util.Constants.TAG_OUTPUT
@@ -32,6 +32,7 @@ import com.example.weather.R
 import com.example.weather.databinding.ActivityMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -45,54 +46,87 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private var hasNotificationPermissionGranted = false
+    private var hasLocationPermissionCoarseGranted = false
+    private var hasLocationPermissionFineGranted = false
 
-/*
+
+    val permissions =  arrayOf(
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION)
+
 
     // Request for notifications permission upon runtime
     private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            hasNotificationPermissionGranted = isGranted
-            if (!isGranted) {
-                if (Build.VERSION.SDK_INT >= 33) {
-                    if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
-                        showNotificationPermissionRationale()
-                    } else {
-                        showSettingDialog()
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
+            isGranted.forEach { entry ->
+             //   hasNotificationPermissionGranted = isGranted
+                if (!entry.value) {
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        if (shouldShowRequestPermissionRationale(entry.key)) {
+                            showNotificationPermissionRationale(entry.key)
+                        } else {
+                            showSettingDialog(entry.key)
+                        }
                     }
                 }
             }
+
         }
 
-    private fun showSettingDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.notification_permission_dialog_title))
-            .setMessage(getString(R.string.notification_permission_required))
-            .setPositiveButton("Ok") { _, _ ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showNotificationPermissionRationale() {
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Alert")
-            .setMessage(getString(R.string.notification_permission_dialog))
-            .setPositiveButton("Ok") { _, _ ->
-                if (Build.VERSION.SDK_INT >= 33) {
-                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    private fun showSettingDialog(permission: String) {
+        if(permission.contains("POST_NOTIFICATIONS")) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.notification_permission_dialog_title))
+                .setMessage(getString(R.string.notification_permission_required))
+                .setPositiveButton("Ok") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.data = Uri.parse("package:$packageName")
+                    startActivity(intent)
                 }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+                .setNegativeButton("Cancel", null)
+                .show()
+        } else {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.location_permission_dialog_title))
+                .setMessage(getString(R.string.location_permission_required))
+                .setPositiveButton("Ok") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.data = Uri.parse("package:$packageName")
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
     }
 
-    private var hasNotificationPermissionGranted = false
-
- */
+    private fun showNotificationPermissionRationale(permission:String) {
+        if(permission.contains("POST_NOTIFICATIONS")) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Alert")
+                .setMessage(getString(R.string.notification_permission_dialog))
+                .setPositiveButton("Ok") { _, _ ->
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        notificationPermissionLauncher.launch(permissions)
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        } else {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Alert")
+                .setMessage(getString(R.string.location_permission_dialog))
+                .setPositiveButton("Ok") { _, _ ->
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        notificationPermissionLauncher.launch(permissions) // this may not be needed
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,13 +137,30 @@ class MainActivity : AppCompatActivity() {
 
 
         // Display dialog to allow permissions on launch
+
+
+
         //  if (Build.VERSION.SDK_INT >= 33) {
-        //    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-        //  } else {
+        if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("show_notifications", true)) {
+            notificationPermissionLauncher.launch(permissions)
+        }
+         // } else {
         //      hasNotificationPermissionGranted = true
+        //      hasLocationPermissionCoarseGranted = true
+        //      hasLocationPermissionFineGranted = true
         //   }
 
-        requestLocationPermissions()
+
+        // Check location services
+        if(!isLocationEnabled()) {
+            // settings open here
+            Toast.makeText(this, "Turn on location", Toast.LENGTH_SHORT).show()
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            startActivity(intent)
+        }
+
+
+
 
         setSupportActionBar(binding.toolbar)
 
@@ -129,34 +180,36 @@ class MainActivity : AppCompatActivity() {
         /**
          * Daily worker for precipitation notifications
          */
+        //TODO check for prefrences here instead of in the worker itself
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
-        // Set Execution around 05:00:00 AM
-        dueDate.set(Calendar.HOUR_OF_DAY, 5)
+        // Set Execution around 06:00:00 AM
+        dueDate.set(Calendar.HOUR_OF_DAY, 6)
         dueDate.set(Calendar.MINUTE, 0)
         dueDate.set(Calendar.SECOND, 0)
         if (dueDate.before(currentDate)) {
             dueDate.add(Calendar.HOUR_OF_DAY, 24)
         }
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-        val request = OneTimeWorkRequest.Builder(DailyPrecipitationWorker::class.java)
+        val precipitationRequest = PeriodicWorkRequest.Builder(DailyPrecipitationWorker::class.java, 12, TimeUnit.HOURS)
             .setConstraints(constraints)
-            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+          //  .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .addTag(TAG_OUTPUT)
             .build()
-        WorkManager.getInstance().enqueueUniqueWork(
+        WorkManager.getInstance().enqueueUniquePeriodicWork(
             "dailyApiCall",
-            ExistingWorkPolicy.KEEP,
-            request
+            ExistingPeriodicWorkPolicy.REPLACE,
+            precipitationRequest
         )
 
         /**
          * Daily worker for local weather forecast notifications
          */
+        //TODO check for prefrences here instead of in the worker itself
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -169,32 +222,32 @@ class MainActivity : AppCompatActivity() {
             requestLocationPermissions()
             return
         }
+        // Get phones location coordinates and pass to the worker as input data
         fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
             val location = task.result
             val data = Data.Builder()
             data.putDoubleArray("location", doubleArrayOf(location?.latitude ?: 0.0, location?.longitude ?: 0.0))
-            // Set Execution around 05:00:00 AM
-            dueDate.set(Calendar.HOUR_OF_DAY, 5)
-            dueDate.set(Calendar.MINUTE, 0)
-            dueDate.set(Calendar.SECOND, 0)
-            if (dueDate.before(currentDate)) {
-                dueDate.add(Calendar.HOUR_OF_DAY, 24)
+            // Set Execution around 06:00:00 AM
+            val forecastDueDate = Calendar.getInstance()
+            forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
+            forecastDueDate.set(Calendar.MINUTE, 0)
+            forecastDueDate.set(Calendar.SECOND, 0)
+            if (forecastDueDate.before(currentDate)) {
+                forecastDueDate.add(Calendar.HOUR_OF_DAY, 24)
             }
+            val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
             val forecastRequest = PeriodicWorkRequest.Builder(DailyLocalWeatherWorker::class.java, 24, TimeUnit.HOURS)
                 .setConstraints(constraints)
-                //  .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                //  .setInitialDelay(timeDiffForecast, TimeUnit.MILLISECONDS)
                 .addTag(TAG_OUTPUT)
                 .setInputData(data.build())
                 .build()
             WorkManager.getInstance().enqueueUniquePeriodicWork(
                 "dailyForecast",
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.REPLACE,
                 forecastRequest
             )
         }
-
-
-
 
     }
 

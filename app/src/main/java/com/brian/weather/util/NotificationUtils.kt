@@ -140,6 +140,8 @@ fun NotificationManager.sendForecastNotification(
 
 }
 
+// Function to load image from URL and apply as notification icon
+
 fun applyImageUrl(
     builder: NotificationCompat.Builder,
     imageUrl: String
