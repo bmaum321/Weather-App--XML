@@ -14,12 +14,11 @@ import com.brian.weather.data.WeatherDatabase
 import com.brian.weather.domain.asDomainModel
 import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
-import com.brian.weather.util.sendNotification
+import com.brian.weather.util.sendPrecipitationNotification
 import com.example.weather.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.security.AccessController.getContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -174,7 +173,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                     Manifest.permission.POST_NOTIFICATIONS
                 )
             } == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.sendNotification(text, context)
+            notificationManager.sendPrecipitationNotification(text, context)
         }
 
     }

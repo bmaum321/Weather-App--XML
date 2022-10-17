@@ -46,6 +46,7 @@
     <string name="default_notification_channel_id">Weather Default Channel</string>
     <string name="precipitation_notification">Expect rain soon</string>
     <string name="precipitation_notification_channel_id" translatable="false">precipitation_channel</string>
+    <string name="forecast_notification_channel_id" translatable="false">forecast_channel</string>
     <string name="precipitation_notification_channel_name" translatable="true">Precipitation</string>
     <string name="breakfast_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="breakfast_notification_channel_name" translatable="true">Breakfast</string>
@@ -53,6 +54,7 @@
     <string name="local_notification_channel_description">Local Forecast Notification</string>
     <string name="snooze">Snooze</string>
     <string name="notification_title">Precipitation Alert</string>
+    <string name="forecast_title">Local Forecast</string>
     <string name="notification_text">Expect Rain Soon</string>
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

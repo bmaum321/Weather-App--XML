@@ -1,18 +1,10 @@
 package com.brian.weather.ui
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +18,6 @@ import com.brian.weather.model.WeatherEntity
 import com.brian.weather.ui.adapter.HourlyForecastAdapter
 import com.brian.weather.ui.adapter.HourlyForecastItemViewData
 import com.brian.weather.ui.viewmodel.*
-import com.brian.weather.util.sendNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
