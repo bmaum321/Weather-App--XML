@@ -60,9 +60,18 @@
     <string name="notification_permission_dialog">Notification permission is required to show notifications</string>
     <string name="notification_permission_dialog_title">Notification Permission</string>
     <string name="location_permission_required">Location permission is required, Please allow location permission from settings</string>
-    <string name="background_location_permission_required">Background location permission is required, Please allow background location permission from settings</string>
+    <string name="background_location_permission_required">Weather Tracker collects location data to enable local forecast notifications,
+        even when the app is closed or not in use. Please allow background location in settings.</string>
     <string name="location_permission_dialog">Location permission is required to show notifications</string>
     <string name="location_permission_dialog_title">Location Permission</string>
+    <string name="background_location_permission_dialog_title">Background Location Permission</string>
     <string name="forecast_notification_channel_name">Local Forecast Notifications</string>
+    <string name="location_services_required_dialog_title">Location Services Required</string>
+    <string name="location_services_required_dialog">Please enable location services in settings</string>
     <string name="show_notifications">show_notifications</string>
+    <string name="precipitation_notification_locations">Precipitation Notification Locations</string>
+    <string name="choose_precip_locations">Choose which locations to show precipitation notifications</string>
+    <string name="get_local_forecast">Get daily notifications for local forecast</string>
+    <string name="show_local_forecast_title">Show Local Forecast?</string>
+    <string name="show_precip_title">Show Precipitation Notifications?</string>
 </resources>

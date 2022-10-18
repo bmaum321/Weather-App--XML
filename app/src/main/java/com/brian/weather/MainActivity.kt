@@ -28,6 +28,7 @@ import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.util.Constants.TAG_OUTPUT
 import com.brian.weather.workers.DailyLocalWeatherWorker
 import com.brian.weather.workers.DailyPrecipitationWorker
+import com.brian.weather.workers.JobScheduler
 import com.example.weather.R
 import com.example.weather.databinding.ActivityMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -39,48 +40,23 @@ import java.util.concurrent.TimeUnit
 
 /**
  * A Main activity that hosts all [Fragment]s for this application and hosts the nav controller.
+ * Prompts for permissions at runtime
+ * Schedules work manager jobs if settings are enabled
+ * Adds listeners to shared preferences to prompt for background location
  */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private var hasNotificationPermissionGranted = false
-    private var hasLocationPermissionCoarseGranted = false
-    private var hasLocationPermissionFineGranted = false
-
-    /**
-     * Ask for background location if user checks show local forecast setting, registered in on resume
-     * and un registered in on pause. This is to avoid multiple instances getting created everytime the
-     * activity is restarted. SharedPreferences keeps listeners in a WeakHashMap.
-     * This means that you cannot use an anonymous inner class as a listener, as it will become the
-     * target of garbage collection as soon as you leave the current scope.
-     */
-    //
-    val listener =
-        OnSharedPreferenceChangeListener { prefs, key ->
-            if (key == this.getString(R.string.show_local_forecast)) {
-                if (!checkBackgroundLocationPermissions()) {
-                    if(prefs.getBoolean(this.getString(R.string.show_local_forecast), false)) {
-                        showAlertDialog(
-                            getString(R.string.location_permission_dialog_title)
-                            ,getString(R.string.background_location_permission_required)
-                        )
-                    }
-                }
-            }
-        }
-
-
     val permissions =  arrayOf(
         Manifest.permission.POST_NOTIFICATIONS,
-        Manifest.permission.ACCESS_FINE_LOCATION,
+       // Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION)
 
 
     // Request for notifications permission upon runtime
-    private val notificationPermissionLauncher =
+    private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
             isGranted.forEach { entry ->
              //   hasNotificationPermissionGranted = isGranted
@@ -96,6 +72,56 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+    /**
+     * Ask for background location if user checks show local forecast setting, registered in on resume
+     * and un registered in on pause. This is to avoid multiple instances getting created everytime the
+     * activity is restarted. SharedPreferences keeps listeners in a WeakHashMap.
+     * This means that you cannot use an anonymous inner class as a listener, as it will become the
+     * target of garbage collection as soon as you leave the current scope.
+     */
+    //
+    private val localForecastPreferenceListener =
+        OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == this.getString(R.string.show_local_forecast)) {
+                if (!checkBackgroundLocationPermissions()) {
+                    if(prefs.getBoolean(this.getString(R.string.show_local_forecast), false)) {
+                        showAlertDialog(
+                            getString(R.string.background_location_permission_dialog_title)
+                            ,getString(R.string.background_location_permission_required)
+                        )
+                    }
+                } else if (!isLocationEnabled()) {
+                    showAlertDialog(
+                        getString(R.string.location_services_required_dialog_title)
+                        ,getString(R.string.location_services_required_dialog)
+                    )
+                }
+            }
+        }
+
+    // If build >= API 33, check to see if notifications enabled when setting checked
+    private val notificationPreferenceListener =
+        OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == this.getString(R.string.show_notifications)) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    if (!checkNotificationPermissions()) {
+                        if (prefs.getBoolean(this.getString(R.string.show_notifications), false)) {
+                            permissionLauncher.launch(permissions)
+                        }
+                    }
+                }
+            }
+        }
+
+    // Schedule new precipitation notification job if new locations added from preferences
+    private val precipitationPreferenceListener =
+        OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == "locations") {
+                JobScheduler().schedulePrecipitationJob()
+            }
+        }
+
 
     private fun showSettingDialog(permission: String) {
         if(permission.contains("POST_NOTIFICATIONS")) {
@@ -118,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.notification_permission_dialog))
                 .setPositiveButton("Ok") { _, _ ->
                     if (Build.VERSION.SDK_INT >= 33) {
-                        notificationPermissionLauncher.launch(permissions)
+                        permissionLauncher.launch(permissions)
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -129,7 +155,7 @@ class MainActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.location_permission_dialog))
                 .setPositiveButton("Ok") { _, _ ->
                     if (Build.VERSION.SDK_INT >= 33) {
-                        notificationPermissionLauncher.launch(permissions) // this may not be needed
+                        permissionLauncher.launch(permissions) // this may not be needed
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -148,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         // Display dialog to allow permissions on launch
         //  if (Build.VERSION.SDK_INT >= 33) {
         if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("show_notifications", true)) {
-            notificationPermissionLauncher.launch(permissions)
+            permissionLauncher.launch(permissions)
         }
          // } else {
         //      hasNotificationPermissionGranted = true
@@ -179,10 +205,13 @@ class MainActivity : AppCompatActivity() {
         //TODO need to enque a new worker if preference is changed
 
         // Only execute and schedule next job if show notifications is checked in preferences
+
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         if (preferences.getBoolean(this.getString(R.string.show_notifications), true) &&
             preferences.getBoolean(this.getString(R.string.show_precipitation_notifications), true)
         ) {
+            JobScheduler().schedulePrecipitationJob()
+            /*
             val constraints = Constraints.Builder()
                 .setRequiresBatteryNotLow(true)
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -206,11 +235,13 @@ class MainActivity : AppCompatActivity() {
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                 .addTag(TAG_OUTPUT)
                 .build()
-            WorkManager.getInstance().enqueueUniquePeriodicWork(
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "dailyApiCall",
                 ExistingPeriodicWorkPolicy.REPLACE,
                 precipitationRequest
             )
+
+             */
 
             /**
              * Daily worker for local weather forecast notifications
@@ -237,13 +268,14 @@ class MainActivity : AppCompatActivity() {
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    requestLocationPermissions()
+                    permissionLauncher.launch(permissions)
                     return
                 }
                 // Get phones location coordinates and pass to the worker as input data
                 fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
                     val location = task.result
-
+                    //TODO the lat and lon passed to the API return very obscure towns, need
+                    // to find a way to get closest major village/city
                     val data = Data.Builder()
                     data.putDoubleArray(
                         "location",
@@ -251,6 +283,11 @@ class MainActivity : AppCompatActivity() {
                     )
                     // Set Execution around 06:00:00 AM
                     val forecastDueDate = Calendar.getInstance()
+                    val currentDate = Calendar.getInstance()
+                    val constraints = Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
                     forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
                     forecastDueDate.set(Calendar.MINUTE, 0)
                     forecastDueDate.set(Calendar.SECOND, 0)
@@ -268,7 +305,7 @@ class MainActivity : AppCompatActivity() {
                         .addTag(TAG_OUTPUT)
                         .setInputData(data.build())
                         .build()
-                    WorkManager.getInstance().enqueueUniquePeriodicWork(
+                    WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                         "dailyForecast",
                         ExistingPeriodicWorkPolicy.REPLACE,
                         forecastRequest
@@ -285,27 +322,23 @@ class MainActivity : AppCompatActivity() {
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    private fun requestLocationPermissions() {
-        ActivityCompat.requestPermissions(
-            this, arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.POST_NOTIFICATIONS
-            ),
-
-            PERMISSION_REQUEST_ACCESS_LOCATION
-        )
-    }
-
-    companion object {
-        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
-    }
-
     // Check if background location is enabled for forecast alerts
     private fun checkBackgroundLocationPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED)  {
+            return true
+        }
+        return false
+    }
+
+    // Check if notifications is enabled for notifications setting
+    private fun checkNotificationPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
             )
             == PackageManager.PERMISSION_GRANTED)  {
             return true
@@ -360,12 +393,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(localForecastPreferenceListener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(notificationPreferenceListener)
     }
 
     override fun onPause() {
         super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(localForecastPreferenceListener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(notificationPreferenceListener)
     }
 }
 

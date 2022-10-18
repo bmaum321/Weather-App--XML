@@ -18,8 +18,8 @@
         app:defaultValue="false"
         app:enabled="true"
         app:key="@string/show_local_forecast"
-        app:title="Show Local Forecast?"
-        app:summary="Get daily notifications for local forecast"
+        app:title="@string/show_local_forecast_title"
+        app:summary="@string/get_local_forecast"
         app:dependency="show_notifications"
         />
 
@@ -29,7 +29,7 @@
         app:defaultValue="true"
         app:enabled="true"
         app:key="@string/show_precipitation_notifications"
-        app:title="Show Precipitation Notifications?"
+        app:title="@string/show_precip_title"
         app:dependency="show_notifications"
        />
 
@@ -39,8 +39,8 @@
         app:dialogTitle="Locations"
         app:defaultValue="@array/empty_array"
         app:key="locations"
-        app:title="Notification Locations"
-        app:summary="Choose which locations to show notifications"
+        app:title="@string/precipitation_notification_locations"
+        app:summary="@string/choose_precip_locations"
         app:dependency="@string/show_precipitation_notifications"/>
 
 
