@@ -3,8 +3,8 @@ package com.brian.weather
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -50,6 +50,28 @@ class MainActivity : AppCompatActivity() {
     private var hasLocationPermissionCoarseGranted = false
     private var hasLocationPermissionFineGranted = false
 
+    /**
+     * Ask for background location if user checks show local forecast setting, registered in on resume
+     * and un registered in on pause. This is to avoid multiple instances getting created everytime the
+     * activity is restarted. SharedPreferences keeps listeners in a WeakHashMap.
+     * This means that you cannot use an anonymous inner class as a listener, as it will become the
+     * target of garbage collection as soon as you leave the current scope.
+     */
+    //
+    val listener =
+        OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == this.getString(R.string.show_local_forecast)) {
+                if (!checkBackgroundLocationPermissions()) {
+                    if(prefs.getBoolean(this.getString(R.string.show_local_forecast), false)) {
+                        showAlertDialog(
+                            getString(R.string.location_permission_dialog_title)
+                            ,getString(R.string.background_location_permission_required)
+                        )
+                    }
+                }
+            }
+        }
+
 
     val permissions =  arrayOf(
         Manifest.permission.POST_NOTIFICATIONS,
@@ -77,29 +99,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSettingDialog(permission: String) {
         if(permission.contains("POST_NOTIFICATIONS")) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.notification_permission_dialog_title))
-                .setMessage(getString(R.string.notification_permission_required))
-                .setPositiveButton("Ok") { _, _ ->
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    intent.data = Uri.parse("package:$packageName")
-                    startActivity(intent)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        } else {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.location_permission_dialog_title))
-                .setMessage(getString(R.string.location_permission_required))
-                .setPositiveButton("Ok") { _, _ ->
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    intent.data = Uri.parse("package:$packageName")
-                    startActivity(intent)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
+            showAlertDialog(
+                getString(R.string.notification_permission_dialog_title),
+                (getString(R.string.notification_permission_required)))
 
+        } else {
+            showAlertDialog(
+                getString(R.string.location_permission_dialog_title),
+                getString(R.string.location_permission_required)
+            )
+        }
     }
 
     private fun showNotificationPermissionRationale(permission:String) {
@@ -137,9 +146,6 @@ class MainActivity : AppCompatActivity() {
 
 
         // Display dialog to allow permissions on launch
-
-
-
         //  if (Build.VERSION.SDK_INT >= 33) {
         if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("show_notifications", true)) {
             notificationPermissionLauncher.launch(permissions)
@@ -151,17 +157,7 @@ class MainActivity : AppCompatActivity() {
         //   }
 
 
-        // Check location services
-        if(!isLocationEnabled()) {
-            // settings open here
-            Toast.makeText(this, "Turn on location", Toast.LENGTH_SHORT).show()
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
-        }
-
-
-
-
+        // Setup action bar
         setSupportActionBar(binding.toolbar)
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -180,82 +176,59 @@ class MainActivity : AppCompatActivity() {
         /**
          * Daily worker for precipitation notifications
          */
-        //TODO check for prefrences here instead of in the worker itself
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        val currentDate = Calendar.getInstance()
-        val dueDate = Calendar.getInstance()
-        // Set Execution around 06:00:00 AM
-        dueDate.set(Calendar.HOUR_OF_DAY, 6)
-        dueDate.set(Calendar.MINUTE, 0)
-        dueDate.set(Calendar.SECOND, 0)
-        if (dueDate.before(currentDate)) {
-            dueDate.add(Calendar.HOUR_OF_DAY, 24)
-        }
-        val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-        val precipitationRequest = PeriodicWorkRequest.Builder(DailyPrecipitationWorker::class.java, 12, TimeUnit.HOURS)
-            .setConstraints(constraints)
-          //  .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-            .addTag(TAG_OUTPUT)
-            .build()
-        WorkManager.getInstance().enqueueUniquePeriodicWork(
-            "dailyApiCall",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            precipitationRequest
-        )
-
-        /**
-         * Daily worker for local weather forecast notifications
-         */
-        //TODO check for prefrences here instead of in the worker itself
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        //TODO need to enque a new worker if preference is changed
+        
+        // Only execute and schedule next job if show notifications is checked in preferences
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        if (preferences.getBoolean(this.getString(R.string.show_notifications), true) &&
+            preferences.getBoolean(this.getString(R.string.show_precipitation_notifications), true)
         ) {
-            requestLocationPermissions()
-            return
-        }
-        // Get phones location coordinates and pass to the worker as input data
-        fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
-            val location = task.result
-            val data = Data.Builder()
-            data.putDoubleArray("location", doubleArrayOf(location?.latitude ?: 0.0, location?.longitude ?: 0.0))
+            val constraints = Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            val currentDate = Calendar.getInstance()
+            val dueDate = Calendar.getInstance()
             // Set Execution around 06:00:00 AM
-            val forecastDueDate = Calendar.getInstance()
-            forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
-            forecastDueDate.set(Calendar.MINUTE, 0)
-            forecastDueDate.set(Calendar.SECOND, 0)
-            if (forecastDueDate.before(currentDate)) {
-                forecastDueDate.add(Calendar.HOUR_OF_DAY, 24)
+            dueDate.set(Calendar.HOUR_OF_DAY, 6)
+            dueDate.set(Calendar.MINUTE, 0)
+            dueDate.set(Calendar.SECOND, 0)
+            if (dueDate.before(currentDate)) {
+                dueDate.add(Calendar.HOUR_OF_DAY, 24)
             }
-            val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
-            val forecastRequest = PeriodicWorkRequest.Builder(DailyLocalWeatherWorker::class.java, 24, TimeUnit.HOURS)
+            val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+            val precipitationRequest = PeriodicWorkRequest.Builder(
+                DailyPrecipitationWorker::class.java,
+                12,
+                TimeUnit.HOURS
+            )
                 .setConstraints(constraints)
-                //  .setInitialDelay(timeDiffForecast, TimeUnit.MILLISECONDS)
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                 .addTag(TAG_OUTPUT)
-                .setInputData(data.build())
                 .build()
             WorkManager.getInstance().enqueueUniquePeriodicWork(
-                "dailyForecast",
+                "dailyApiCall",
                 ExistingPeriodicWorkPolicy.REPLACE,
-                forecastRequest
+                precipitationRequest
             )
-        }
 
-    }
+            /**
+             * Daily worker for local weather forecast notifications
+             */
+            //TODO there is a bug here in API 30, cant access location API
 
-    private fun getCurrentLocation(): Pair<Double, Double>? {
-        var location: Location? = null
-        if (checkLocationPermissions()) {
-            if (isLocationEnabled()) {
-                // final latitude and longitude values retrieved here
+            // Check location services
+            if (!isLocationEnabled()) {
+                // settings open here
+                Toast.makeText(
+                    this,
+                    "Turn on location for daily forecast notifications",
+                    Toast.LENGTH_SHORT
+                ).show()
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            } else {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
                 if (ActivityCompat.checkSelfPermission(
                         this,
                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -265,29 +238,44 @@ class MainActivity : AppCompatActivity() {
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
                     requestLocationPermissions()
+                    return
                 }
+                // Get phones location coordinates and pass to the worker as input data
                 fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
-                    location = task.result
-                    if (location == null) {
-                        Toast.makeText(this, "Null Received", Toast.LENGTH_SHORT).show()
-                    } else {
+                    val location = task.result
 
-                        Toast.makeText(this, "Location Retrieved", Toast.LENGTH_SHORT).show()
+                    val data = Data.Builder()
+                    data.putDoubleArray(
+                        "location",
+                        doubleArrayOf(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
+                    )
+                    // Set Execution around 06:00:00 AM
+                    val forecastDueDate = Calendar.getInstance()
+                    forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
+                    forecastDueDate.set(Calendar.MINUTE, 0)
+                    forecastDueDate.set(Calendar.SECOND, 0)
+                    if (forecastDueDate.before(currentDate)) {
+                        forecastDueDate.add(Calendar.HOUR_OF_DAY, 24)
                     }
+                    val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
+                    val forecastRequest = PeriodicWorkRequest.Builder(
+                        DailyLocalWeatherWorker::class.java,
+                        24,
+                        TimeUnit.HOURS
+                    )
+                        .setConstraints(constraints)
+                        .setInitialDelay(timeDiffForecast, TimeUnit.MILLISECONDS)
+                        .addTag(TAG_OUTPUT)
+                        .setInputData(data.build())
+                        .build()
+                    WorkManager.getInstance().enqueueUniquePeriodicWork(
+                        "dailyForecast",
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        forecastRequest
+                    )
                 }
-
-            } else {
-                // settings open here
-                Toast.makeText(this, "Turn on location", Toast.LENGTH_SHORT).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
             }
-
-        } else {
-            // request location permission here if not granted
-            requestLocationPermissions()
         }
-        return location?.let { Pair(it.latitude, it.longitude) }
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -296,7 +284,6 @@ class MainActivity : AppCompatActivity() {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
-
 
     private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(
@@ -314,41 +301,30 @@ class MainActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
     }
 
-    private fun checkLocationPermissions(): Boolean {
+    // Check if background location is enabled for forecast alerts
+    private fun checkBackgroundLocationPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
             )
-            == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
+            == PackageManager.PERMISSION_GRANTED)  {
             return true
         }
         return false
     }
 
-    /*
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
-            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(applicationContext, "Granted", Toast.LENGTH_SHORT).show()
+    private fun showAlertDialog(title: String, message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Ok") { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
             }
-            else {
-                Toast.makeText(applicationContext, "Denied", Toast.LENGTH_SHORT).show()
-            }
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
-
-     */
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -380,6 +356,16 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener)
     }
 }
 

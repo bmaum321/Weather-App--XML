@@ -14,6 +14,7 @@ import com.brian.weather.data.WeatherDatabase
 import com.brian.weather.domain.asDomainModel
 import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
+import com.brian.weather.util.Constants
 import com.brian.weather.util.sendPrecipitationNotification
 import com.example.weather.R
 import kotlinx.coroutines.CoroutineScope
@@ -34,12 +35,9 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
         var workerResult = Result.success() // worker result is success by default
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val resources = applicationContext.resources
+        var iconUrl = ""
 
         // Do some work
-        // Only execute and schedule next job if show notifications is checked in preferences
-        if (preferences.getBoolean("show_notifications", true) &&
-            preferences.getBoolean(applicationContext.getString(R.string.show_precipitation_notifications), true)
-        ) {
             val setFromSharedPreferences =
                 preferences.getStringSet(
                     "locations",
@@ -96,6 +94,9 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                                         } else {
                                             "Expect Snow for $location around $timeOfSnow\n"
                                         }
+                                        iconUrl = if((hoursWithRain > hoursWithSnow)){
+                                            Constants.rainIconUrl
+                                        } else Constants.snowIconUrl
                                     }
                                 }
                                 is ApiResponse.Failure -> workerResult =
@@ -110,53 +111,20 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                 if (notificationBuilder.isNotEmpty()) {
                     createChannel(
                         applicationContext.getString(R.string.precipitation_notification_channel_id),
-                        "Precipitation Notifications"
+                        applicationContext.getString(R.string.precipitation_notification_channel_description)
                     )
                     sendNotification(
                         applicationContext,
-                        notificationBuilder
+                        notificationBuilder,
+                        iconUrl
                     )
                 }
             }
 
-/*
-            // The worker will enqueue the next execution of this work when we complete successfully
-            // This is more time accurate than a periodic work request?
-            val currentDate = Calendar.getInstance()
-            val dueDate = Calendar.getInstance()
-            // Set Execution around 05:00:00 AM
-            dueDate.set(Calendar.HOUR_OF_DAY, 5)
-            dueDate.set(Calendar.MINUTE, 0)
-            dueDate.set(Calendar.SECOND, 0)
-            if (dueDate.before(currentDate)) {
-                dueDate.add(Calendar.HOUR_OF_DAY, 24)
-            }
-            val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-
-            val constraints = Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
-            val dailyWorkRequest = OneTimeWorkRequestBuilder<DailyPrecipitationWorker>()
-                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                .setConstraints(constraints)
-                .addTag(TAGOUTPUT)
-                .build()
-            WorkManager.getInstance(applicationContext)
-                .enqueueUniqueWork(
-                    "nestedDailyApiCall",
-                    ExistingWorkPolicy.KEEP,
-                    dailyWorkRequest
-                )
-
- */
-
-        }
         return workerResult // can be success or failure depending on API call
     }
 
-    private fun sendNotification(context: Context, text: String) {
+    private fun sendNotification(context: Context, text: String, iconUrl: String) {
         // New instance of notification manager
         val notificationManager = context.let {
             ContextCompat.getSystemService(
@@ -172,7 +140,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
                     Manifest.permission.POST_NOTIFICATIONS
                 )
             } == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.sendPrecipitationNotification(text, context)
+            notificationManager.sendPrecipitationNotification(text, context, iconUrl)
         }
 
     }

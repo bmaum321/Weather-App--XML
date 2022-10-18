@@ -1,12 +1,19 @@
 package com.brian.weather.ui.settings
 
 import android.app.AlertDialog
+import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.navigation.fragment.findNavController
+import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.weather.R
 import com.brian.weather.util.Constants
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -31,7 +38,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         alertDialog.show()
 
     }
-
 
     // Main preferences
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

@@ -32,7 +32,8 @@ private val FLAGS = 0
  */
 fun NotificationManager.sendPrecipitationNotification(
     messageBody: String,
-    applicationContext: Context
+    applicationContext: Context,
+    iconUrl: String
 ) {
     // Create the content intent for the notification, which launches
     // this activity
@@ -46,11 +47,6 @@ fun NotificationManager.sendPrecipitationNotification(
         PendingIntent.FLAG_IMMUTABLE
     )
 
-    // add style
-    val rainImage = BitmapFactory.decodeResource(
-        applicationContext.resources,
-        R.drawable.ic_rain_svgrepo_com
-    )
     val bigTextStyle = NotificationCompat.BigTextStyle()
 
     // get an instance of NotificationCompat.Builder
@@ -60,9 +56,8 @@ fun NotificationManager.sendPrecipitationNotification(
         applicationContext.getString(R.string.precipitation_notification_channel_id)
     )
 
-
         // set title, text and icon to builder
-        .setSmallIcon(R.drawable.ic_rain_svgrepo_com)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setContentTitle(
             applicationContext
                 .getString(R.string.notification_title)
@@ -75,10 +70,11 @@ fun NotificationManager.sendPrecipitationNotification(
 
         // add style to builder
         .setStyle(bigTextStyle)
-        .setLargeIcon(rainImage)
 
         // set priority
         .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+    applyImageUrl(builder, iconUrl)
     // call notify
     notify(NOTIFICATION_ID, builder.build())
 }
@@ -100,12 +96,6 @@ fun NotificationManager.sendForecastNotification(
         PendingIntent.FLAG_IMMUTABLE
     )
 
-    // add style
-    val rainImage = BitmapFactory.decodeResource(
-        applicationContext.resources,
-        R.mipmap.ic_launcher_round
-
-    )
 
     val bigTextStyle = NotificationCompat.BigTextStyle()
 
@@ -118,7 +108,7 @@ fun NotificationManager.sendForecastNotification(
 
 
         // set title, text and icon to builder
-        .setSmallIcon(R.drawable.ic_rain_svgrepo_com)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setContentTitle(title)
         .setContentText(messageBody)
 

@@ -39,9 +39,6 @@ class DailyLocalWeatherWorker(ctx: Context, params: WorkerParameters) : Worker(c
 
         // Do some work
         // Only execute and schedule next job if checked in preferences
-        if (preferences.getBoolean("show_notifications", true) && preferences
-                .getBoolean(applicationContext.getString(R.string.show_local_forecast), true)
-        ) {
             val location = inputData.getDoubleArray("location")
 
             // Only do work if location returned is not null
@@ -111,7 +108,7 @@ class DailyLocalWeatherWorker(ctx: Context, params: WorkerParameters) : Worker(c
                 }
 
             }
-        }
+
         return workerResult // can be success or failure depending on API call
     }
 

@@ -8,14 +8,14 @@
         app:allowDividerBelow="true"
         app:defaultValue="true"
         app:enabled="true"
-        app:key="show_notifications"
+        app:key="@string/show_notifications"
         app:title="Show Notifications?"
         />
 
     <CheckBoxPreference
         app:allowDividerAbove="true"
         app:allowDividerBelow="true"
-        app:defaultValue="true"
+        app:defaultValue="false"
         app:enabled="true"
         app:key="@string/show_local_forecast"
         app:title="Show Local Forecast?"

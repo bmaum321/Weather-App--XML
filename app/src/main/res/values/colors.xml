@@ -29,6 +29,7 @@
     <color name="light_black"> #2b2b2b</color>
     <color name="purple_night"> #472761CC</color>
     <color name="transparent"> #80000000</color>
+    <color name="primary_text_color"> #808080</color>
 
 
 </resources>

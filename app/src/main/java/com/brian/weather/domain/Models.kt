@@ -3,6 +3,7 @@ package com.brian.weather.domain
 
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.os.Build
 import com.example.weather.R
 import com.brian.weather.model.*
 import com.brian.weather.network.WeatherContainer
@@ -74,6 +75,12 @@ fun WeatherContainer.asDomainModel(
 
     var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
     var textColor: Int = R.color.material_dynamic_neutral_variant80
+
+    // Dynamic Material colors not supported on < API 31
+    if(Build.VERSION.SDK_INT <= 31) {
+        textColor = R.color.black
+        backgroundColor = R.color.transparent
+    }
     if (sharedPreferences.getBoolean(
             resources.getString(R.string.show_current_condition_color),
             true
