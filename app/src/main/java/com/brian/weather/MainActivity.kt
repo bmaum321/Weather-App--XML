@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
          * Daily worker for precipitation notifications
          */
         //TODO need to enque a new worker if preference is changed
-        
+
         // Only execute and schedule next job if show notifications is checked in preferences
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         if (preferences.getBoolean(this.getString(R.string.show_notifications), true) &&

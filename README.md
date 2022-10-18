@@ -6,15 +6,18 @@ Weather application in Kotlin for Android using Clean Architecture
 - Search for locations to track weather, the API will display results in an autocomplete textview
 - Select location to view daily and hourly forecasts
 - Add locations to a watch list. List has touch helper for swipe to delete and drag to rearrange 
-- Settings menu to manipulate UI components
+- Notifications for daily forecast based off device location
+- Notifications for precipitation for tracked locations
+- Settings menu to manipulate UI components and notification behavior
 
 ## Libraries
-This applications demonstrates the use of the following libraries
+This application uses the following libraries
 - Retrofit for web service calls
 - Moshi for parsing JSON
 - Room for database access
 - Coil for image loading from API
 - Preferences for settings menu
+- Workmanager for scheduling background API calls and sending notifications
 
 
 ## Clean Architecture
