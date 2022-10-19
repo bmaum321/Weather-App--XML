@@ -83,7 +83,7 @@ class DailyLocalWeatherWorker(ctx: Context, params: WorkerParameters) : Worker(c
                             }
                             val condition = forecastDomainObject.days[0].day.condition.text
                             imgUrl = forecastDomainObject.days[0].day.condition.icon
-                            notificationBuilder += "$minTemp\u00B0 / $maxTemp\u00B0 - $condition"
+                            notificationBuilder += "$minTemp\u00B0 / $maxTemp\u00B0 \u00B7 $condition"
 
 
                         }

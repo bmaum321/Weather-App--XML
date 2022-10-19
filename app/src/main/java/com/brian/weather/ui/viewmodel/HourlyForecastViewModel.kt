@@ -148,16 +148,23 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
 
         ),
         //TODO
-        //hoursViewData = HoursViewData( //
+       // hoursViewData = HoursViewData( //
         //    temperature = if(isFahrenheit) {
        //        "${hour.temp_f}"
         //    } else "${hour.temp_c}"
-    //    )
+      //  )
     )
 }
 
 data class HoursViewData(
-    val temperature: String = ""
+    val temperature: String = "",
+    val condition: String,
+    val icon: String,
+    val windspeed: Double,
+    val feelsLike: Double,
+    val pressure: Double,
+    val precipAmount: Double,
+    val time: String
 )
 
 

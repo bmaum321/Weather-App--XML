@@ -25,6 +25,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.brian.weather.ui.viewmodel.MainViewModel
+import com.brian.weather.util.Constants
 import com.brian.weather.util.Constants.TAG_OUTPUT
 import com.brian.weather.workers.DailyLocalWeatherWorker
 import com.brian.weather.workers.DailyPrecipitationWorker
@@ -51,15 +52,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     val permissions =  arrayOf(
         Manifest.permission.POST_NOTIFICATIONS,
-       // Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION)
 
 
     // Request for notifications permission upon runtime
-    private val permissionLauncher =
+     val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
             isGranted.forEach { entry ->
-             //   hasNotificationPermissionGranted = isGranted
                 if (!entry.value) {
                     if (Build.VERSION.SDK_INT >= 33) {
                         if (shouldShowRequestPermissionRationale(entry.key)) {
@@ -86,15 +85,16 @@ class MainActivity : AppCompatActivity() {
             if (key == this.getString(R.string.show_local_forecast)) {
                 if (!checkBackgroundLocationPermissions()) {
                     if(prefs.getBoolean(this.getString(R.string.show_local_forecast), false)) {
+                        JobScheduler().scheduleForecastJob(this)
                         showAlertDialog(
                             getString(R.string.background_location_permission_dialog_title)
-                            ,getString(R.string.background_location_permission_required)
+                            ,getString(R.string.background_location_permission_required),
                         )
                     }
                 } else if (!isLocationEnabled()) {
                     showAlertDialog(
                         getString(R.string.location_services_required_dialog_title)
-                        ,getString(R.string.location_services_required_dialog)
+                        ,getString(R.string.location_services_required_dialog),
                     )
                 }
             }
@@ -118,7 +118,8 @@ class MainActivity : AppCompatActivity() {
     private val precipitationPreferenceListener =
         OnSharedPreferenceChangeListener { prefs, key ->
             if (key == "locations") {
-                JobScheduler().schedulePrecipitationJob()
+             // schedulePrecipitationJob()
+                JobScheduler().schedulePrecipitationJob(this)
             }
         }
 
@@ -127,12 +128,13 @@ class MainActivity : AppCompatActivity() {
         if(permission.contains("POST_NOTIFICATIONS")) {
             showAlertDialog(
                 getString(R.string.notification_permission_dialog_title),
-                (getString(R.string.notification_permission_required)))
+                (getString(R.string.notification_permission_required))
+            )
 
         } else {
             showAlertDialog(
                 getString(R.string.location_permission_dialog_title),
-                getString(R.string.location_permission_required)
+                getString(R.string.location_permission_required),
             )
         }
     }
@@ -176,16 +178,12 @@ class MainActivity : AppCompatActivity() {
         if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("show_notifications", true)) {
             permissionLauncher.launch(permissions)
         }
-         // } else {
-        //      hasNotificationPermissionGranted = true
-        //      hasLocationPermissionCoarseGranted = true
-        //      hasLocationPermissionFineGranted = true
-        //   }
 
 
         // Setup action bar
         setSupportActionBar(binding.toolbar)
 
+        // Setup nav controller
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -202,117 +200,13 @@ class MainActivity : AppCompatActivity() {
         /**
          * Daily worker for precipitation notifications
          */
-        //TODO need to enque a new worker if preference is changed
+        JobScheduler().schedulePrecipitationJob(this)
 
-        // Only execute and schedule next job if show notifications is checked in preferences
+        /**
+         * Daily worker for forecast notifications
+         */
+        JobScheduler().scheduleForecastJob(this)
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        if (preferences.getBoolean(this.getString(R.string.show_notifications), true) &&
-            preferences.getBoolean(this.getString(R.string.show_precipitation_notifications), true)
-        ) {
-            JobScheduler().schedulePrecipitationJob()
-            /*
-            val constraints = Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val currentDate = Calendar.getInstance()
-            val dueDate = Calendar.getInstance()
-            // Set Execution around 06:00:00 AM
-            dueDate.set(Calendar.HOUR_OF_DAY, 6)
-            dueDate.set(Calendar.MINUTE, 0)
-            dueDate.set(Calendar.SECOND, 0)
-            if (dueDate.before(currentDate)) {
-                dueDate.add(Calendar.HOUR_OF_DAY, 24)
-            }
-            val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-            val precipitationRequest = PeriodicWorkRequest.Builder(
-                DailyPrecipitationWorker::class.java,
-                12,
-                TimeUnit.HOURS
-            )
-                .setConstraints(constraints)
-                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                .addTag(TAG_OUTPUT)
-                .build()
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "dailyApiCall",
-                ExistingPeriodicWorkPolicy.REPLACE,
-                precipitationRequest
-            )
-
-             */
-
-            /**
-             * Daily worker for local weather forecast notifications
-             */
-            //TODO there is a bug here in API 30, cant access location API
-
-            // Check location services
-            if (!isLocationEnabled()) {
-                // settings open here
-                Toast.makeText(
-                    this,
-                    "Turn on location for daily forecast notifications",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            } else {
-                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    permissionLauncher.launch(permissions)
-                    return
-                }
-                // Get phones location coordinates and pass to the worker as input data
-                fusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
-                    val location = task.result
-                    //TODO the lat and lon passed to the API return very obscure towns, need
-                    // to find a way to get closest major village/city
-                    val data = Data.Builder()
-                    data.putDoubleArray(
-                        "location",
-                        doubleArrayOf(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
-                    )
-                    // Set Execution around 06:00:00 AM
-                    val forecastDueDate = Calendar.getInstance()
-                    val currentDate = Calendar.getInstance()
-                    val constraints = Constraints.Builder()
-                        .setRequiresBatteryNotLow(true)
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                    forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
-                    forecastDueDate.set(Calendar.MINUTE, 0)
-                    forecastDueDate.set(Calendar.SECOND, 0)
-                    if (forecastDueDate.before(currentDate)) {
-                        forecastDueDate.add(Calendar.HOUR_OF_DAY, 24)
-                    }
-                    val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
-                    val forecastRequest = PeriodicWorkRequest.Builder(
-                        DailyLocalWeatherWorker::class.java,
-                        24,
-                        TimeUnit.HOURS
-                    )
-                        .setConstraints(constraints)
-                        .setInitialDelay(timeDiffForecast, TimeUnit.MILLISECONDS)
-                        .addTag(TAG_OUTPUT)
-                        .setInputData(data.build())
-                        .build()
-                    WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                        "dailyForecast",
-                        ExistingPeriodicWorkPolicy.REPLACE,
-                        forecastRequest
-                    )
-                }
-            }
-        }
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -346,7 +240,10 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun showAlertDialog(title: String, message: String) {
+    private fun showAlertDialog(
+        title: String,
+        message: String,
+        ) {
         MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(message)
@@ -397,6 +294,8 @@ class MainActivity : AppCompatActivity() {
             .registerOnSharedPreferenceChangeListener(localForecastPreferenceListener)
         PreferenceManager.getDefaultSharedPreferences(this)
             .registerOnSharedPreferenceChangeListener(notificationPreferenceListener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(precipitationPreferenceListener)
     }
 
     override fun onPause() {
@@ -405,6 +304,8 @@ class MainActivity : AppCompatActivity() {
             .registerOnSharedPreferenceChangeListener(localForecastPreferenceListener)
         PreferenceManager.getDefaultSharedPreferences(this)
             .registerOnSharedPreferenceChangeListener(notificationPreferenceListener)
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(precipitationPreferenceListener)
     }
 }
 

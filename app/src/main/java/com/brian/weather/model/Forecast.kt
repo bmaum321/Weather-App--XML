@@ -2,15 +2,9 @@ package com.brian.weather.model
 
 import com.squareup.moshi.JsonClass
 
-/*
-@JsonClass(generateAdapter = true)
-data class ForecastContainer(
-    val location: Location,
-    val current: CurrentWeatherData,
-    val forecast: Forecast)
 
- */
-
+//TODO everything in data class should be vals, need to clean this up and do formatting
+// at the last presentation layer
 
 @JsonClass(generateAdapter = true)
 data class ForecastContainer(val forecast: ForecastDay,
@@ -33,7 +27,7 @@ data class Alert(
     val event: String,
     val effective: String,
     val expires: String,
-    val desc: String
+    var desc: String
 )
 
 @JsonClass(generateAdapter = true)

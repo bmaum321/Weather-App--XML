@@ -72,17 +72,17 @@
                 <TextView
                     android:id="@+id/description"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@{alert.alert.desc}"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textSize="16sp"
                     android:paddingBottom="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/event"
-                    tools:text="FROST ADVISORY REMAINS IN EFFECT UNTIL 8 AM EDT TUESDAY...\n*
-                    WHAT...Temperatures in the low to mid 30s will result in frost\nformation.\n*
-                     WHERE...Jefferson and Lewis counties.\n* WHEN...Until 8 AM EDT Tuesday.\n*
-                     IMPACTS...Frost could kill sensitive outdoor vegetation if\nleft uncovered.&quot;" />
+                    tools:text="FROST ADVISORY REMAINS IN EFFECT UNTIL 8 AM EDT TUESDAY...
+                    WHAT...Temperatures in the low to mid 30s will result in frost formation.
+                     WHERE...Jefferson and Lewis counties. WHEN...Until 8 AM EDT Tuesday.
+                     IMPACTS...Frost could kill sensitive outdoor vegetation if left uncovered.&quot;" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

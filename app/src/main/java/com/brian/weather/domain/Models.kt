@@ -3,6 +3,7 @@ package com.brian.weather.domain
 
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.Build
 import com.example.weather.R
 import com.brian.weather.model.*
@@ -158,8 +159,7 @@ fun WeatherContainer.asDomainModel(
 fun ForecastContainer.asDomainModel(
     sharedPreferences: SharedPreferences,
     resources: Resources
-)
-        : ForecastDomainObject {
+): ForecastDomainObject {
 
     /**
      * Remove any hours that are in the past
@@ -210,6 +210,11 @@ fun ForecastContainer.asDomainModel(
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
         }
+
+    // Format the alert text from API
+    alerts.alert.forEach { alert ->
+        alert.desc = alert.desc.replace("\n", " ").replace("*", "\n**")
+    }
 
 
     return ForecastDomainObject(
