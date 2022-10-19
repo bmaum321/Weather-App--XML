@@ -13,6 +13,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.weather.R
 import com.brian.weather.util.Constants
+import com.example.weather.BuildConfig
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -27,7 +28,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         builder.setMessage("Thanks for trying my app! \n bmaum1@gmail.com" )
 
         // Set Alert Title
-        builder.setTitle(Constants.VERSION)
+        builder.setTitle(BuildConfig.VERSION_NAME)
 
         // Set Cancelable false for when the user clicks on the outside the Dialog Box then it will remain show
         builder.setCancelable(true)

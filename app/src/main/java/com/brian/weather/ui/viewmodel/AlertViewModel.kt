@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
-sealed class AlertViewData() {
-    class Loading() : AlertViewData()
+sealed class AlertViewData {
+    class Loading : AlertViewData()
     class Error(val code: Int, val message: String?) : AlertViewData()
     class Done(val forecastDomainObject: ForecastDomainObject) : AlertViewData()
 }

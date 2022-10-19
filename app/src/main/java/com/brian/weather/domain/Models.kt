@@ -3,7 +3,6 @@ package com.brian.weather.domain
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.Build
 import com.example.weather.R
 import com.brian.weather.model.*
@@ -21,8 +20,6 @@ import java.util.*
  * Domain objects are plain Kotlin data classes that represent the things in our app. These are the
  * objects that should be displayed on screen, or manipulated by the app.
  *
- * @see database for objects that are mapped to the database
- * @see network for objects that parse or prepare network calls
  */
 
 
@@ -45,10 +42,6 @@ data class WeatherDomainObject(
 data class ForecastDomainObject(
     val days: List<Day>,
     val alerts: List<Alert>,
-)
-
-data class SearchDomainObject(
-    val searchResults: List<String>
 )
 
 fun WeatherContainer.asDomainModel(

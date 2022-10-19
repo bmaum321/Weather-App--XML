@@ -3,8 +3,6 @@ package com.brian.weather.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import com.brian.weather.data.WeatherDao
 import com.brian.weather.data.WeatherDatabase.Companion.getDatabase
@@ -17,20 +15,21 @@ import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.ui.adapter.DaysViewData
 import com.brian.weather.ui.adapter.ForecastItemViewData
 import com.brian.weather.ui.settings.GetSettings
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
-sealed class ForecastViewData() {
-    class Loading() : ForecastViewData()
+sealed class ForecastViewData {
+    class Loading : ForecastViewData()
     class Error(val code: Int, val message: String?) : ForecastViewData()
     class Done(val forecastDomainObject: ForecastDomainObject) : ForecastViewData()
 }
 
 /**
- * [ViewModel] to provide data to the [WeatherLocationDetailFragment]
+ * [ViewModel] to provide data to the WeatherLocationDetailFragment
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
@@ -54,6 +53,7 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
             .asLiveData()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getForecastForZipcode(zipcode: String,
                               sharedPreferences: SharedPreferences,
                               resources: Resources)

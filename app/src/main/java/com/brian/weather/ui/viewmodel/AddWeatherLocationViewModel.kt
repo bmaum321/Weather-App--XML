@@ -9,6 +9,7 @@ import com.brian.weather.network.ApiResponse
 import com.brian.weather.network.asDatabaseModel
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -54,6 +55,7 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getSearchResults(location: String): Flow<SearchViewData> {
         val searchResults = mutableListOf<String>()
         return refreshFlow
@@ -88,14 +90,12 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
     }
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
-        var networkError = false
-
         /**
          * This runs on a background thread by default so any value modified within this scoupe cannot
          * be returned outside of the scope
          */
 
-        networkError = when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
+        val networkError: Boolean = when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
             is ApiResponse.Success -> {
                 weatherDao.insert(response.data.asDatabaseModel(zipcode, getLastEntrySortValue()))
                 true
@@ -106,7 +106,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         return networkError
 
     }
-
 
     fun updateWeather(
         id: Long,
@@ -156,8 +155,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
 }
 
-sealed class SearchViewData() {
-    class Loading() : SearchViewData()
+sealed class SearchViewData {
+    class Loading : SearchViewData()
     class Error(val code: Int, val message: String?) : SearchViewData()
     class Done(val searchDomainObject: List<String>) : SearchViewData() // TODO this is a response directly from the API, need to copy into domain data class
 }

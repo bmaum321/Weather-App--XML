@@ -11,16 +11,16 @@ import com.brian.weather.model.WeatherEntity
 import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-
 import kotlinx.coroutines.launch
 
 
 
-sealed class WeatherViewDataList() {
-    class Loading() : WeatherViewDataList()
-    class Error() : WeatherViewDataList()
+sealed class WeatherViewDataList {
+    class Loading : WeatherViewDataList()
+    class Error : WeatherViewDataList()
     class Done(val weatherDomainObjects: MutableList<WeatherDomainObject>) : WeatherViewDataList()
 }
 
@@ -60,6 +60,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
      *     objects from the repository
      */
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllWeatherWithErrorHandling(
         resources: Resources,
         sharedPreferences: SharedPreferences)

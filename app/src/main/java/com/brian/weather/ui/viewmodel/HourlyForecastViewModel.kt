@@ -21,10 +21,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 
-sealed class HourlyForecastViewData() {
+sealed class HourlyForecastViewData {
     class Done(val forecastDomainObject: ForecastDomainObject) : HourlyForecastViewData()
-    class Error() : HourlyForecastViewData()
-    class Loading() : HourlyForecastViewData()
+    class Error : HourlyForecastViewData()
+    class Loading : HourlyForecastViewData()
 }
 
 /**

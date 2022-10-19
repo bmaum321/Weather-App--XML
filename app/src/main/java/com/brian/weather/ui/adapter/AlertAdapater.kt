@@ -11,8 +11,7 @@ import com.brian.weather.model.Alert
 /**
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
-class AlertAdapter(
-) : ListAdapter<AlertItemViewData, AlertAdapter.AlertViewHolder>(DiffCallback) {
+class AlertAdapter : ListAdapter<AlertItemViewData, AlertAdapter.AlertViewHolder>(DiffCallback) {
 
     class AlertViewHolder(
          private var binding: AlertListItemBinding

@@ -27,8 +27,7 @@ class DailyPrecipitationWorker(ctx: Context, params: WorkerParameters) : Worker(
     private val TAGOUTPUT = "Daily API Call"
 
     /**
-     * Testing the sending of a notification through Work manager API
-     * Goal is to call API here and send notifications based off local settings and precipitation values
+     * Call API here and send notifications based off local settings and precipitation values
      */
 
     override fun doWork(): Result {

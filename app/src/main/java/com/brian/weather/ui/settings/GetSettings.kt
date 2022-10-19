@@ -7,7 +7,7 @@ import com.example.weather.R
 private const val TWELVE_HOUR = "hh:mm a"
 private const val TWENTY_FOUR_HOUR = "kk:mm"
 
-class GetSettings() {
+class GetSettings {
     fun getTimeFormatFromPreferences(
         sharedPreferences: SharedPreferences,
         resource: Resources

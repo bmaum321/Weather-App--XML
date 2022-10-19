@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 //TODO need to enque a new worker if preference is changed
 
 // Only execute and schedule next job if show notifications is checked in preferences
-class JobScheduler() {
+class JobScheduler {
     fun schedulePrecipitationJob(context: Context) {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)

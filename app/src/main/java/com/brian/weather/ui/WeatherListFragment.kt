@@ -93,7 +93,7 @@ class WeatherListFragment : Fragment() {
 
 
         // Create the Item touch helper to handle swipe to delete and drag and drop tp rearrange
-        class ReorderHelperCallback() : ItemTouchHelper.Callback() {
+        class ReorderHelperCallback : ItemTouchHelper.Callback() {
             override fun getMovementFlags(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder

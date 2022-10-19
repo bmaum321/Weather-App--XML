@@ -50,13 +50,6 @@ interface WeatherDao {
     @Query("SELECT * FROM weather_database ORDER BY ID DESC LIMIT 1")
     fun selectLastEntry(): WeatherEntity
 
-    //Delete all table entries
-    @Query("DELETE FROM weather_database")
-    suspend fun deleteAll()
-
-    //Insert all objects into database
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(weatherEntityList: List<WeatherEntity>)
 
     // Check if database is empty
     @Query("SELECT (SELECT COUNT(*) FROM weather_database) == 0")
