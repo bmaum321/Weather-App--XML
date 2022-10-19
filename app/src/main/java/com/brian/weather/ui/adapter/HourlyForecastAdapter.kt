@@ -17,7 +17,7 @@ import com.brian.weather.ui.viewmodel.HoursViewData
  * ListAdapter for the list of days in the forecast, retrieved from the Repository
  */
 class HourlyForecastAdapter(
-    private val clickListener: (HourlyForecastItemViewData) -> Unit
+    private val clickListener: (HoursViewData) -> Unit
 ) : ListAdapter<HourlyForecastItemViewData, HourlyForecastAdapter.HourlyForecastViewHolder>(
     DiffCallback
 ) {
@@ -86,23 +86,9 @@ class HourlyForecastAdapter(
     }
 }
 
-/**
- * TODO pass in a new data class that contains final view data to primary constructor to modify the unit values
- */
 
 data class HourlyForecastItemViewData(
     val hour: Hours,
-    var precipUnit: String = "IN",
-   // val hoursViewData: HoursViewData
-) {
-    val temp = hour.temp_f.toInt().toString()
-    val wind = hour.wind_mph.toString()
-    val feelsliketemp = hour.feelslike_f.toString()
-    val precip = hour.precip_in.toString()
-    val pressure = hour.pressure_in.toString()
-   // var precipUnit: String = "IN"
-    var pressureUnit: String = "IN"
-    var windUnit: String = "MPH"
-
-}
+    val hoursViewData: HoursViewData
+)
 

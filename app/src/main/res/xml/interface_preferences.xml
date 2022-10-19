@@ -20,13 +20,4 @@
         app:key="alerts"
         app:title="Show Local Weather Alerts?" />
 
-    <CheckBoxPreference
-        app:icon="@drawable/ic_temperature"
-        app:allowDividerAbove="true"
-        app:allowDividerBelow="true"
-        app:defaultValue="false"
-        app:enabled="true"
-        app:key="show_feels_like_temp"
-        app:title="Show Feels Like Temperature" />
-
 </PreferenceScreen>

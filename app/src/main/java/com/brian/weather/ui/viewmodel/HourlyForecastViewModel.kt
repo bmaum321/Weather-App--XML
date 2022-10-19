@@ -95,32 +95,17 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
 }
 
 /**
- * Use the Celsius temp for display if the setting is checked
+ * Get units from settings and format data for display
  */
 
 fun HourlyForecastItemViewData.withPreferenceConversion(
     sharedPreferences: SharedPreferences,
     resources: Resources
 ): HourlyForecastItemViewData {
-    val isFahrenheit = GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)
-    if (!GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
-        hour.temp_f = hour.temp_c
-        hour.feelslike_f = hour.feelslike_c
-        hour.windchill_f = hour.windchill_c
-    }
-
-    if (!GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)) {
-        hour.wind_mph = hour.wind_kph
-        windUnit = "KPH"
-    }
-
-    if (!GetSettings().getMeasurementFormatFromPreferences(sharedPreferences, resources)) {
-        hour.precip_in = hour.precip_mm
-        hour.pressure_in = hour.pressure_mb
-        precipUnit = "MM"
-        pressureUnit = "MB"
-    }
-
+    val isFahrenheit =
+        GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)
+    val isMph = GetSettings().getWindSpeedFormatFromPreferences(sharedPreferences, resources)
+    val isIn = GetSettings().getMeasurementFormatFromPreferences(sharedPreferences, resources)
 
     return HourlyForecastItemViewData(
         hour = Hours(
@@ -147,24 +132,42 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
             windchill_f = hour.windchill_f
 
         ),
-        //TODO
-       // hoursViewData = HoursViewData( //
-        //    temperature = if(isFahrenheit) {
-       //        "${hour.temp_f}"
-        //    } else "${hour.temp_c}"
-      //  )
+
+        // Format data for display
+        hoursViewData = HoursViewData(
+            temperature = if (isFahrenheit) {
+                "${hour.temp_f.toInt()}°"
+            } else "${hour.temp_c.toInt()}°",
+            condition = hour.condition.text,
+            icon = hour.condition.icon,
+            windSpeed = if (isMph) {
+                "${hour.wind_mph} MPH"
+            } else "${hour.wind_kph} KPH",
+            feelsLike = if (isFahrenheit) {
+                "Feels Like: ${hour.feelslike_f}°"
+            } else "Feels Like: ${hour.feelslike_c}°",
+            pressure = if (isIn) {
+                "${hour.precip_in} IN"
+            } else "${hour.precip_mm} MM",
+            precipAmount = if (isIn) {
+                "${hour.precip_in} IN"
+            } else "${hour.precip_mm} MM",
+            time = hour.time,
+            windDirection = hour.wind_dir
+        )
     )
 }
 
 data class HoursViewData(
-    val temperature: String = "",
+    val temperature: String,
     val condition: String,
     val icon: String,
-    val windspeed: Double,
-    val feelsLike: Double,
-    val pressure: Double,
-    val precipAmount: Double,
-    val time: String
+    val windSpeed: String,
+    val feelsLike: String,
+    val pressure: String,
+    val precipAmount: String,
+    val time: String,
+    val windDirection: String
 )
 
 

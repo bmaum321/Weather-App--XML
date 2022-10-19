@@ -61,28 +61,15 @@ class ForecastAdapter(
  * the API into a string
  */
 
-data class ForecastItemViewData(val day: Day) {
-    var high: String = day.day.maxtemp_f.toInt().toString()
-
-    var low: String = day.day.mintemp_f.toInt().toString()
-
-}
-
-/**
- * USe the Celsius temp for display if the setting is checked
- */
-
- fun ForecastItemViewData.withPreferenceConversion(sharedPreferences: SharedPreferences, resources: Resources): ForecastItemViewData {
-     if(!GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)){
-         day.day.maxtemp_f = day.day.maxtemp_c
-         day.day.mintemp_f = day.day.mintemp_c
-     }
-
-    return ForecastItemViewData(
-        day = Day(
-            date = day.date,
-            day = day.day,
-            hour = day.hour
-        )
+data class ForecastItemViewData(
+    val day: Day,
+    val daysViewData: DaysViewData
     )
-}
+
+data class DaysViewData(
+    val minTemp: String,
+    val maxTemp: String
+)
+
+
+

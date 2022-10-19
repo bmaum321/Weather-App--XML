@@ -1,7 +1,6 @@
 package com.brian.weather.ui
 
 import android.app.Application
-
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,12 +18,13 @@ import com.brian.weather.data.BaseApplication
 import com.example.weather.R
 import com.example.weather.databinding.FragmentWeatherDetailBinding
 import com.brian.weather.model.WeatherEntity
+import com.brian.weather.ui.adapter.DaysViewData
 import com.brian.weather.ui.viewmodel.ForecastViewData
 import com.brian.weather.ui.viewmodel.MainViewModel
 import com.brian.weather.ui.viewmodel.WeatherDetailViewModel
 import com.brian.weather.ui.adapter.ForecastAdapter
 import com.brian.weather.ui.adapter.ForecastItemViewData
-import com.brian.weather.ui.adapter.withPreferenceConversion
+import com.brian.weather.ui.viewmodel.withPreferenceConversion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,7 +66,6 @@ class DailyForecastFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val zipcode = navigationArgs.zipcode
@@ -95,7 +93,13 @@ class DailyForecastFragment : Fragment() {
                         is ForecastViewData.Done -> {
                             adapter.submitList(
                                 it.forecastDomainObject.days.map {  // take items in list and submit as new list
-                                    ForecastItemViewData(it).withPreferenceConversion(
+                                    ForecastItemViewData(
+                                        it,
+                                    daysViewData = DaysViewData(
+                                        minTemp = "",
+                                        maxTemp = ""
+                                    )
+                                    ).withPreferenceConversion(
                                         PreferenceManager.getDefaultSharedPreferences(requireContext()),
                                         resources
                                     )
@@ -155,22 +159,6 @@ class DailyForecastFragment : Fragment() {
                 }
             }
         }
-
-        /*
-    private fun launchMap(weatherDomainObject: WeatherDomainObject) {
-        val address = weatherDomainObject.zipcode.let {
-            it.replace(", ", ",")
-            it.replace(". ", " ")
-            it.replace(" ", "+")
-        }
-        val gmmIntentUri = Uri.parse("geo:0,0?q=$address")
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        startActivity(mapIntent)
-    }
-
-            */
-
     }
 
     private fun refreshScreen() {

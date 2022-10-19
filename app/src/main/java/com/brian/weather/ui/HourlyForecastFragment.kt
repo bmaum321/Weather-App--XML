@@ -83,7 +83,19 @@ class HourlyForecastFragment : Fragment() {
                              */
                             adapter.submitList(it.forecastDomainObject.days
                                 .first { it.date == date }.hour.map {
-                                HourlyForecastItemViewData(it)
+                                HourlyForecastItemViewData(
+                                    it,
+                                    hoursViewData = HoursViewData(
+                                        temperature = it.temp_f.toString(),
+                                        condition = it.condition.text,
+                                        icon = it.condition.icon,
+                                        windDirection = it.wind_dir,
+                                        windSpeed = it.wind_mph.toString(),
+                                        feelsLike = it.feelslike_f.toString(),
+                                        time = it.time,
+                                        precipAmount = it.precip_in.toString(),
+                                        pressure = it.pressure_in.toString()
+                                    ))
                                     .withPreferenceConversion(PreferenceManager.getDefaultSharedPreferences(requireContext()),
                                         resources)
                             })

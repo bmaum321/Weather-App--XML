@@ -34,41 +34,41 @@ data class Alert(
 data class Day(
     var date: String,
     val day: ForecastForDay,
-    val hour: MutableList<Hours> //trying to make mutable to manipulate api data
+    val hour: MutableList<Hours> //needed to delete hours in past in Models.kt
 )
 
 @JsonClass(generateAdapter = true)
 data class ForecastForDay(
     val condition: Condition,
     val avgtemp_f: Double,
-    var maxtemp_f: Double,
-    var mintemp_f: Double,
+    val maxtemp_f: Double,
+    val mintemp_f: Double,
     val avgtemp_c: Double,
-    var maxtemp_c: Double,
-    var mintemp_c: Double,
+    val maxtemp_c: Double,
+    val mintemp_c: Double,
     val daily_chance_of_rain: Double
 )
 
 data class Hours(
     val time_epoch: Int,
-    var time: String,
-    var temp_f: Double,
+    var time: String, //TODO clean this up
+    val temp_f: Double,
     val temp_c: Double,
     val is_day: Int,
     val condition: Condition,
-    var wind_mph: Double,
+    val wind_mph: Double,
     val wind_kph: Double,
     val wind_dir: String,
     val chance_of_rain: Int,
     val pressure_mb: Double,
-    var pressure_in: Double,
+    val pressure_in: Double,
     val will_it_rain: Int,
     val chance_of_snow: Double,
     val will_it_snow: Int,
     val precip_mm: Double,
-    var precip_in: Double,
+    val precip_in: Double,
     val feelslike_c: Double,
-    var feelslike_f: Double,
+    val feelslike_f: Double,
     val windchill_c: Double,
-    var windchill_f: Double
+    val windchill_f: Double
 )

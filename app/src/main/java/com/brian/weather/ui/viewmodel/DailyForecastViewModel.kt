@@ -10,9 +10,13 @@ import com.brian.weather.data.WeatherDao
 import com.brian.weather.data.WeatherDatabase.Companion.getDatabase
 import com.brian.weather.domain.ForecastDomainObject
 import com.brian.weather.domain.asDomainModel
+import com.brian.weather.model.Day
 import com.brian.weather.model.WeatherEntity
 import com.brian.weather.network.ApiResponse
 import com.brian.weather.repository.WeatherRepository
+import com.brian.weather.ui.adapter.DaysViewData
+import com.brian.weather.ui.adapter.ForecastItemViewData
+import com.brian.weather.ui.settings.GetSettings
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -95,5 +99,30 @@ class WeatherDetailViewModel(private val weatherDao: WeatherDao, application: Ap
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
+}
+
+/**
+ * Use the Celsius temp for display if the setting is checked
+ */
+
+fun ForecastItemViewData.withPreferenceConversion(sharedPreferences: SharedPreferences, resources: Resources): ForecastItemViewData {
+    val isFahrenheit =
+        GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)
+
+    return ForecastItemViewData(
+        day = Day(
+            date = day.date,
+            day = day.day,
+            hour = day.hour
+        ),
+        daysViewData = DaysViewData(
+            maxTemp = if(isFahrenheit) {
+                "${day.day.maxtemp_f.toInt()}°"
+            } else "${day.day.maxtemp_c.toInt()}°",
+            minTemp = if(isFahrenheit) {
+                "${day.day.mintemp_f.toInt()}°"
+            } else "${day.day.mintemp_c.toInt()}°"
+        )
+    )
 }
 
