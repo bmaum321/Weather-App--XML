@@ -182,10 +182,9 @@
                             android:id="@+id/ic_feels_like_temp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="152dp"
                             android:layout_marginTop="24dp"
-                            app:layout_constraintEnd_toStartOf="@+id/ic_dew_point"
-                            app:layout_constraintHorizontal_bias="0.529"
-                            app:layout_constraintStart_toEndOf="@+id/ic_wind"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/ic_temperature" />
 
@@ -193,9 +192,9 @@
                             android:id="@+id/ic_dew_point"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="244dp"
                             android:layout_marginTop="24dp"
-                            android:layout_marginEnd="120dp"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/barometer_svgrepo_com" />
 
@@ -203,10 +202,9 @@
                             android:id="@+id/ic_precip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="316dp"
                             android:layout_marginTop="24dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.629"
-                            app:layout_constraintStart_toEndOf="@+id/ic_dew_point"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/ic_rain_svgrepo_com" />
 
@@ -226,7 +224,7 @@
                             android:id="@+id/pressure"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="245dp"
+                            android:layout_marginStart="244dp"
                             android:text="@{forecast.hoursViewData.pressure}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -238,7 +236,7 @@
                             android:id="@+id/precip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="335dp"
+                            android:layout_marginStart="316dp"
                             android:text="@{forecast.hoursViewData.precipAmount}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"

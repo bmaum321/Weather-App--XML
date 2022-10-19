@@ -27,7 +27,6 @@ class JobScheduler {
             preferences.getBoolean(context.getString(R.string.show_precipitation_notifications), true)
         ) {
             val constraints = Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
             val currentDate = Calendar.getInstance()
@@ -93,7 +92,6 @@ class JobScheduler {
                     val forecastDueDate = Calendar.getInstance()
                     val currentDate = Calendar.getInstance()
                     val constraints = Constraints.Builder()
-                        .setRequiresBatteryNotLow(true)
                         .setRequiredNetworkType(NetworkType.CONNECTED)
                         .build()
                     forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)

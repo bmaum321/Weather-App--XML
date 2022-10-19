@@ -51,7 +51,6 @@ fun WeatherContainer.asDomainModel(
 ): WeatherDomainObject {
 
     // Get local time for display
-
     location.localtime = Instant
         .ofEpochSecond(location.localtime_epoch)
         .atZone(ZoneId.of(location.tz_id))
