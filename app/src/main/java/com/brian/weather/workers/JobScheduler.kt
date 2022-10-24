@@ -32,7 +32,7 @@ class JobScheduler {
             val currentDate = Calendar.getInstance()
             val dueDate = Calendar.getInstance()
             // Set Execution around 06:00:00 AM
-            dueDate.set(Calendar.HOUR_OF_DAY, 6)
+            dueDate.set(Calendar.HOUR_OF_DAY, 7)
             dueDate.set(Calendar.MINUTE, 0)
             dueDate.set(Calendar.SECOND, 0)
             if (dueDate.before(currentDate)) {
@@ -94,7 +94,7 @@ class JobScheduler {
                     val constraints = Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED)
                         .build()
-                    forecastDueDate.set(Calendar.HOUR_OF_DAY, 6)
+                    forecastDueDate.set(Calendar.HOUR_OF_DAY, 7)
                     forecastDueDate.set(Calendar.MINUTE, 0)
                     forecastDueDate.set(Calendar.SECOND, 0)
                     if (forecastDueDate.before(currentDate)) {
@@ -103,7 +103,7 @@ class JobScheduler {
                     val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
                     val forecastRequest = PeriodicWorkRequest.Builder(
                         DailyLocalWeatherWorker::class.java,
-                        24,
+                        12,
                         TimeUnit.HOURS
                     )
                         .setConstraints(constraints)
