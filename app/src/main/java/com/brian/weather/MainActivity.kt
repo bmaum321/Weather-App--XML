@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit
  * A Main activity that hosts all [Fragment]s for this application and hosts the nav controller.
  * Prompts for permissions at runtime
  * Schedules work manager jobs if settings are enabled
- * Adds listeners to shared preferences to prompt for background location
+ * Adds listeners to shared preferences to prompt for background location and reschedule/schedule new jobs
  */
 class MainActivity : AppCompatActivity() {
 
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
 
     // Request for notifications permission upon runtime
-     val permissionLauncher =
+    private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
             isGranted.forEach { entry ->
                 if (!entry.value) {

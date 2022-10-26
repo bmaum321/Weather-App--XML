@@ -24,7 +24,7 @@ This application uses the following libraries
 
 The application is structured to follow the clean architecture design pattern. Inner layers such as
 the domain and data/use cases are located in the core module.
-The outer framework and presentation layers reside in the app module utlizing the MVVM pattern with flow
+The outer framework and presentation layers reside in the app module utilizing the MVVM pattern with flow
 
 Some Highlights include: 
 

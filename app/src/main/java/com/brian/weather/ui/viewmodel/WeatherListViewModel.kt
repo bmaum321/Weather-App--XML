@@ -17,7 +17,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-
+/**
+ * Try making this a sealed interface instead:
+ *
+ * sealed interface MarsUiState {
+data class Success(val photos: String) : MarsUiState
+object Error : MarsUiState
+object Loading : MarsUiState
+}
+ */
 sealed class WeatherViewDataList {
     class Loading : WeatherViewDataList()
     class Error : WeatherViewDataList()
@@ -56,7 +64,7 @@ class WeatherListViewModel(private val weatherDao: WeatherDao, application: Appl
 
 
     /**
-     *     Method that takes a list of zipcodes as a parameter and retrieve a list of weathera
+     *     Method that takes a list of zipcodes as a parameter and retrieve a list of weather
      *     objects from the repository
      */
 

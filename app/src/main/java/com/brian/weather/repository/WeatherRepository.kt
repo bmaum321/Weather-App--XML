@@ -15,6 +15,8 @@ import com.brian.weather.network.WeatherApi
 import com.brian.weather.network.WeatherContainer
 import com.brian.weather.network.handleApi
 
+
+//TODO why am I passing a database object here to the repository?
 class WeatherRepository(private val database: WeatherDatabase) {
 
     // The only thing we should be storing into the database is zipcode and city name, everything
