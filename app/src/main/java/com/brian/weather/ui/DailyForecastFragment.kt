@@ -77,7 +77,7 @@ class DailyForecastFragment : Fragment() {
                 .actionWeatherLocationDetailFragmentToHourlyForecastFragment(
                     zipcode,
                     viewData.day.date
-                ) //TODO how do we pass the date from the clicked option...
+                )
             findNavController().navigate(action)
         }
 

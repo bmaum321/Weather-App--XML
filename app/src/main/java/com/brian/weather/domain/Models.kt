@@ -83,7 +83,7 @@ fun WeatherContainer.asDomainModel(
             1000 -> {
                 if (current.condition.text == resources.getString(R.string.Sunny)) {
                     R.drawable.sungradient// sunny
-                } else R.color.purple_night // clear night
+                } else R.drawable.night_clear // clear night
             }
             1003 -> if (current.is_day == 1) {
                 R.drawable.day_partly_cloudy_gradient // partly cloudy day
