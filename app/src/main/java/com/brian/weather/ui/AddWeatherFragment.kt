@@ -133,17 +133,28 @@ class AddWeatherFragment : Fragment() {
                                             adapter?.setData(searchResults.searchDomainObject)
                                             adapter?.notifyDataSetChanged()
                                             // Hide keyboard on item click
-                                            binding.autoCompleteTextView.setOnItemClickListener { _, view, _, _ ->
+                                            binding.autoCompleteTextView.setOnItemClickListener { _, _, _, _ ->
                                                 this@AddWeatherFragment.view
                                                 ?.hideKeyboard()
                                             }
                                         }
                                     }
                                     is SearchViewData.Error -> {
-                                        Log.d("API", "${searchResults.message}")
+                                        withContext(Dispatchers.Main) {
+                                            adapter?.setData(listOf("${searchResults.message}"))
+                                            adapter?.notifyDataSetChanged()
+                                            binding.autoCompleteTextView.setOnItemClickListener { _, _, _, _ ->
+                                                this@AddWeatherFragment.view
+                                                    ?.hideKeyboard()
+                                            }
+                                        }
+
                                     }
                                     is SearchViewData.Loading -> {
-                                        Log.d("API", "$searchResults")
+                                        withContext(Dispatchers.Main) {
+                                            adapter?.setData(listOf("Loading...."))
+                                            adapter?.notifyDataSetChanged()
+                                        }
                                     }
                                 }
                             }
